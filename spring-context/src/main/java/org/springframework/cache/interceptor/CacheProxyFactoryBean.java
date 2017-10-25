@@ -21,6 +21,11 @@ import org.springframework.aop.framework.AbstractSingletonProxyFactoryBean;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 
 /**
+ *
+ * <prev>
+ *     生成缓存代理对象主入口, 标准FactoryBean子类
+ * </prev>
+ *
  * Proxy factory bean for simplified declarative caching handling.
  * This is a convenient alternative to a standard AOP
  * {@link org.springframework.aop.framework.ProxyFactoryBean}
@@ -40,6 +45,7 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
  * @see CacheInterceptor
  */
 @SuppressWarnings("serial")
+// rutine marker
 public class CacheProxyFactoryBean extends AbstractSingletonProxyFactoryBean {
 
 	private final CacheInterceptor cachingInterceptor = new CacheInterceptor();

@@ -34,6 +34,8 @@ import org.springframework.aop.framework.adapter.GlobalAdvisorAdapterRegistry;
 import org.springframework.aop.support.MethodMatchers;
 
 /**
+ * 检索被拦截方法匹配的所有advice
+ *
  * A simple but definitive way of working out an advice chain for a Method,
  * given an {@link Advised} object. Always rebuilds each advice chain;
  * caching can be provided by subclasses.
@@ -43,6 +45,7 @@ import org.springframework.aop.support.MethodMatchers;
  * @author Adrian Colyer
  * @since 2.0.3
  */
+//rutine marker
 @SuppressWarnings("serial")
 public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializable {
 

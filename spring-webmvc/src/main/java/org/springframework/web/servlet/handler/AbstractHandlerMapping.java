@@ -53,6 +53,7 @@ import org.springframework.web.util.UrlPathHelper;
  * {@link #PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE}. Support for this attribute
  * is up to concrete subclasses, typically based on request URL mappings.
  *
+ * @marker rutine
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @since 07.04.2003
@@ -237,6 +238,10 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 
 
 	/**
+	 * 初始化入口, 当创建ApplicationContext完成时会通知到这里
+	 * 本类实现了监听ApplicationContextAware, 当执行setApplicationContext会
+	 * 执行这个方法
+	 *
 	 * Initializes the interceptors.
 	 * @see #extendInterceptors(java.util.List)
 	 * @see #initInterceptors()

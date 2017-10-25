@@ -35,6 +35,8 @@ import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondit
 import org.springframework.web.util.UrlPathHelper;
 
 /**
+ * 请求映射信息封装对象
+ *
  * A {@link RequestCondition} that consists of the following other conditions:
  * <ol>
  * <li>{@link PatternsRequestCondition}
@@ -46,6 +48,7 @@ import org.springframework.web.util.UrlPathHelper;
  * <li>{@code RequestCondition} (optional, custom request condition)
  * </ol>
  *
+ * @marker rutine
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @since 3.1

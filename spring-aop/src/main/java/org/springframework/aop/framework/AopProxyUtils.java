@@ -41,6 +41,7 @@ import org.springframework.util.ObjectUtils;
  * @author Juergen Hoeller
  * @see org.springframework.aop.support.AopUtils
  */
+//rutine marker
 public abstract class AopProxyUtils {
 
 	/**
@@ -89,6 +90,8 @@ public abstract class AopProxyUtils {
 	}
 
 	/**
+	 * 主要追加一些非用户定义的接口: Advised SpringProxy DecoratingProxy <br/>
+	 *
 	 * Determine the complete set of interfaces to proxy for the given AOP configuration.
 	 * <p>This will always add the {@link Advised} interface unless the AdvisedSupport's
 	 * {@link AdvisedSupport#setOpaque "opaque"} flag is on. Always adds the
@@ -119,7 +122,7 @@ public abstract class AopProxyUtils {
 		boolean addSpringProxy = !advised.isInterfaceProxied(SpringProxy.class);
 		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);
 		boolean addDecoratingProxy = (decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class));
-		int nonUserIfcCount = 0;
+		int nonUserIfcCount = 0; //非用户接口数
 		if (addSpringProxy) {
 			nonUserIfcCount++;
 		}
@@ -207,6 +210,7 @@ public abstract class AopProxyUtils {
 	 * @since 4.2.3
 	 */
 	static Object[] adaptArgumentsIfNecessary(Method method, Object... arguments) {
+		//方法是接受 "一个" 变参的
 		if (method.isVarArgs() && !ObjectUtils.isEmpty(arguments)) {
 			Class<?>[] paramTypes = method.getParameterTypes();
 			if (paramTypes.length == arguments.length) {

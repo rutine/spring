@@ -35,6 +35,7 @@ import org.springframework.aop.TargetSource;
  * @since 13.03.2003
  * @see org.springframework.aop.framework.AdvisedSupport
  */
+//rutine marker
 public interface Advised extends TargetClassAware {
 
 	/**
@@ -55,6 +56,8 @@ public interface Advised extends TargetClassAware {
 	Class<?>[] getProxiedInterfaces();
 
 	/**
+	 * 判断接口是否被代理
+	 *
 	 * Determine whether the given interface is proxied.
 	 * @param intf the interface to check
 	 */

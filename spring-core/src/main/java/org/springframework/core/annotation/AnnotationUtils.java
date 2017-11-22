@@ -90,6 +90,7 @@ import org.springframework.util.StringUtils;
  * found. As a consequence, additional annotations of the specified type will
  * be silently ignored.
  *
+ * @marker rutine
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Sam Brannen
@@ -1065,6 +1066,7 @@ public abstract class AnnotationUtils {
 		Class<? extends Annotation> annotationType = annotation.annotationType();
 		AnnotationAttributes attributes = new AnnotationAttributes(annotationType);
 
+		// 属性方法是没有参数, 返回类型是void.class
 		for (Method method : getAttributeMethods(annotationType)) {
 			try {
 				Object attributeValue = method.invoke(annotation);
@@ -1995,15 +1997,15 @@ public abstract class AnnotationUtils {
 	 */
 	private static class AliasDescriptor {
 
-		private final Method sourceAttribute;
+		private final Method sourceAttribute; //别名属性
 
-		private final Class<? extends Annotation> sourceAnnotationType;
+		private final Class<? extends Annotation> sourceAnnotationType; //别名属性注解类型
 
 		private final String sourceAttributeName;
 
-		private final Method aliasedAttribute;
+		private final Method aliasedAttribute; //原名属性(被别名的原始属性)
 
-		private final Class<? extends Annotation> aliasedAnnotationType;
+		private final Class<? extends Annotation> aliasedAnnotationType; // 原名属性注解类型
 
 		private final String aliasedAttributeName;
 
@@ -2070,6 +2072,7 @@ public abstract class AnnotationUtils {
 		}
 
 		private void validate() {
+			// 1.原名属性(aliasedAnnotation)注解类型是否是别名属性(sourceAnnotation)的元注解类型
 			// Target annotation is not meta-present?
 			if (!this.isAliasPair && !isAnnotationMetaPresent(this.sourceAnnotationType, this.aliasedAnnotationType)) {
 				String msg = String.format("@AliasFor declaration on attribute '%s' in annotation [%s] declares " +
@@ -2079,6 +2082,7 @@ public abstract class AnnotationUtils {
 				throw new AnnotationConfigurationException(msg);
 			}
 
+			// 2.相同注解类型, 是否原名属性也存在注解<code>AliasFor</code>指向别名属性
 			if (this.isAliasPair) {
 				AliasFor mirrorAliasFor = this.aliasedAttribute.getAnnotation(AliasFor.class);
 				if (mirrorAliasFor == null) {
@@ -2096,6 +2100,7 @@ public abstract class AnnotationUtils {
 				}
 			}
 
+			// 3.返回类型是否相同
 			Class<?> returnType = this.sourceAttribute.getReturnType();
 			Class<?> aliasedReturnType = this.aliasedAttribute.getReturnType();
 			if (returnType != aliasedReturnType &&
@@ -2154,6 +2159,10 @@ public abstract class AnnotationUtils {
 		}
 
 		/**
+		 * A -> C
+		 * B -> C
+		 * 所以C是A和B的共同别名
+		 *
 		 * Determine if this descriptor and the supplied descriptor both
 		 * effectively represent aliases for the same attribute in the same
 		 * target annotation, either explicitly or implicitly.
@@ -2168,6 +2177,7 @@ public abstract class AnnotationUtils {
 			for (AliasDescriptor lhs = this; lhs != null; lhs = lhs.getAttributeOverrideDescriptor()) {
 				for (AliasDescriptor rhs = otherDescriptor; rhs != null; rhs = rhs.getAttributeOverrideDescriptor()) {
 					if (lhs.aliasedAttribute.equals(rhs.aliasedAttribute)) {
+						//存在即是
 						return true;
 					}
 				}
@@ -2229,6 +2239,10 @@ public abstract class AnnotationUtils {
 		}
 
 		/**
+		 * <pre>
+		 *     <em>获取AliasFor属性指定的别名, 仅允许value或attribute一个属性指定</em>
+		 * </pre>
+		 *
 		 * Get the name of the aliased attribute configured via the supplied
 		 * {@link AliasFor @AliasFor} annotation on the supplied {@code attribute},
 		 * or the original attribute if no aliased one specified (indicating that

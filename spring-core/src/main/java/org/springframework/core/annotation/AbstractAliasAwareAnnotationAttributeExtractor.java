@@ -29,6 +29,7 @@ import org.springframework.util.ObjectUtils;
  * that transparently enforce attribute alias semantics for annotation
  * attributes that are annotated with {@link AliasFor @AliasFor}.
  *
+ * @marker rutine
  * @author Sam Brannen
  * @since 4.2
  * @param <S> the type of source supported by this extractor
@@ -92,6 +93,7 @@ abstract class AbstractAliasAwareAnnotationAttributeExtractor<S> implements Anno
 			for (String aliasName : aliasNames) {
 				Object aliasValue = getRawAttributeValue(aliasName);
 
+				// 默认注解属性的值和别名属性的值, 要么都是默认值, 要么只有一个不是默认值
 				if (!ObjectUtils.nullSafeEquals(attributeValue, aliasValue) &&
 						!ObjectUtils.nullSafeEquals(attributeValue, defaultValue) &&
 						!ObjectUtils.nullSafeEquals(aliasValue, defaultValue)) {

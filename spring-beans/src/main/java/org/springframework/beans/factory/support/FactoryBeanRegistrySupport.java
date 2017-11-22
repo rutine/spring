@@ -37,6 +37,7 @@ import org.springframework.beans.factory.FactoryBeanNotInitializedException;
  *
  * <p>Serves as base class for {@link AbstractBeanFactory}.
  *
+ * @marker rutine
  * @author Juergen Hoeller
  * @since 2.5.1
  */
@@ -47,6 +48,10 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 
 
 	/**
+	 * <prev>
+	 *     <em>获取FactoryBean返回的bean类型</em>
+	 * </prev>
+	 *
 	 * Determine the type for the given FactoryBean.
 	 * @param factoryBean the FactoryBean instance to check
 	 * @return the FactoryBean's object type,
@@ -175,6 +180,10 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 			throw new BeanCreationException(beanName, "FactoryBean threw exception on object creation", ex);
 		}
 
+		/**
+		 * 不允许FactoryBean返回一个null值, 主要考虑还未完全初始化
+		 * 对于FactoryBean依赖普通Bean, 普通Bean又依赖FactoryBean这种循环依赖, 因FactoryBean未完全初始化导致这里抛出异常
+		 */
 		// Do not accept a null value for a FactoryBean that's not fully
 		// initialized yet: Many FactoryBeans just return null then.
 		if (object == null && isSingletonCurrentlyInCreation(beanName)) {

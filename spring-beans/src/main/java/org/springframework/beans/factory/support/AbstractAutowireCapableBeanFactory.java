@@ -473,7 +473,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         /**
          * 导致后面不能缓存BeanDefinition已解决的构造函数参数值、属性值依赖
-         * 在解析创建BeanDefinition时一般都已解决类型
+         * 在解析创建BeanDefinition时一般都已解决类型, 这个属于动态类加载
          */
         // Make sure bean class is actually resolved at this point, and
         // clone the bean definition in case of a dynamically resolved Class

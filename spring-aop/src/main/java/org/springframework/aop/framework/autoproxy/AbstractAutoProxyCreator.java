@@ -16,20 +16,9 @@
 
 package org.springframework.aop.framework.autoproxy;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.aopalliance.aop.Advice;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.TargetSource;
@@ -46,8 +35,19 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import org.springframework.util.StringUtils;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link org.springframework.beans.factory.config.BeanPostProcessor} implementation
@@ -79,6 +79,7 @@ import org.springframework.util.StringUtils;
  * or if none matches, a {@link org.springframework.aop.target.SingletonTargetSource}
  * will be used by default to wrap the target bean instance.
  *
+ * @marker rutine
  * @author Juergen Hoeller
  * @author Rod Johnson
  * @author Rob Harrop
@@ -237,6 +238,14 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
+	/**
+	 * <prev>
+	 *      <em>处理bean实例化</em>
+	 *      <p>在bean容器的生命周期中, 创建bean的第一阶段就是判断容器是否存在{@link InstantiationAwareBeanPostProcessor} bean</p>
+	 *      <p>如果存在这样的<code>BeanPostProcessor</code>, 就调用<code>postProcessBeforeInstantiation</code>方法</p>
+	 *      <p>如果该返回的对象不为空, 中断容器后续的创建工作直接返回该对象</p>
+	 * </prev>
+	 */
 	@Override
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
 		Object cacheKey = getCacheKey(beanClass, beanName);

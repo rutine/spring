@@ -43,8 +43,8 @@ import org.springframework.util.StringUtils;
 
 /**
  * <prev>
- *     <em>定义bean动态属性值解析器</em>
- *     <p>定义bean动态属性值可能情况:</p>
+ *     <em>bean定义动态属性值解析器</em>
+ *     <p>bean定义动态属性值可能情况:</p>
  *     <p>1.RuntimeBeanReference, 最终解析为BeanFactory中的真正bean实例</p>
  *     <p>2.RuntimeBeanNameReference, 解析为BeanFactory中存在的bean名字</p>
  *     <p>3.BeanDefinitionHolder, 解析为BeanFactory中的嵌套bean实例(当前bean实例的属性bean实例)</p>

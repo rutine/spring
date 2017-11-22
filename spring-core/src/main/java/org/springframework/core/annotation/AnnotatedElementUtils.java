@@ -392,6 +392,11 @@ public class AnnotatedElementUtils {
 			String annotationName, boolean classValuesAsString, boolean nestedAnnotationsAsMap) {
 
 		Assert.hasLength(annotationName, "'annotationName' must not be null or empty");
+		/**
+		 * 1. 找到注解属性
+		 * 2. 合并注解属性和别名属性的值
+		 * 3. 校验注解属性和别名属性的值是否唯一, 不能属性值和别名属性值时候不相同
+		 */
 		AnnotationAttributes attributes = searchWithGetSemantics(element, null, annotationName,
 				new MergedAnnotationAttributesProcessor(classValuesAsString, nestedAnnotationsAsMap));
 		AnnotationUtils.postProcessAnnotationAttributes(element, attributes, classValuesAsString, nestedAnnotationsAsMap);
@@ -1573,6 +1578,9 @@ public class AnnotatedElementUtils {
 					this.classValuesAsString, this.nestedAnnotationsAsMap);
 		}
 
+		/**
+		 * 用真实值替换所有别名属性值
+		 */
 		@Override
 		public void postProcess(AnnotatedElement element, Annotation annotation, AnnotationAttributes attributes) {
 			annotation = AnnotationUtils.synthesizeAnnotation(annotation, element);

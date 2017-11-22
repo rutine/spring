@@ -30,12 +30,12 @@ import org.springframework.aop.TargetSource;
  * <p>Any AOP proxy obtained from Spring can be cast to this interface to
  * allow manipulation of its AOP advice.
  *
+ * @marker rutine
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 13.03.2003
  * @see org.springframework.aop.framework.AdvisedSupport
  */
-//rutine marker
 public interface Advised extends TargetClassAware {
 
 	/**

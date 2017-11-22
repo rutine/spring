@@ -19,14 +19,20 @@ package org.springframework.cache.interceptor;
 /**
  * Class describing a cache 'evict' operation.
  *
+ * @marker rutine
  * @author Costin Leau
  * @author Marcin Kamionowski
  * @since 3.1
  */
 public class CacheEvictOperation extends CacheOperation {
 
+	/**
+	 * 是否清理整个缓存
+	 */
 	private final boolean cacheWide;
-
+	/**
+	 * 是否在方法执行前清理缓存
+	 */
 	private final boolean beforeInvocation;
 
 

@@ -20,6 +20,7 @@ package org.springframework.context;
  * Interface for objects that may participate in a phased
  * process such as lifecycle management.
  *
+ * @marker rutine
  * @author Mark Fisher
  * @since 3.0
  * @see SmartLifecycle
@@ -27,6 +28,8 @@ package org.springframework.context;
 public interface Phased {
 
 	/**
+	 * 容器组件在容器周期的顺序值, 该值越小优先级越高
+	 *
 	 * Return the phase value of this object.
 	 */
 	int getPhase();

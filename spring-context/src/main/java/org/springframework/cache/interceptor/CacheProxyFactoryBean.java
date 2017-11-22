@@ -39,13 +39,13 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
  * See the <a href="http://bit.ly/p9rIvx">declarative annotation-based caching</a> section
  * of the Spring reference documentation for more information.
  *
+ * @marker rutine
  * @author Costin Leau
  * @since 3.1
  * @see org.springframework.aop.framework.ProxyFactoryBean
  * @see CacheInterceptor
  */
 @SuppressWarnings("serial")
-// rutine marker
 public class CacheProxyFactoryBean extends AbstractSingletonProxyFactoryBean {
 
 	private final CacheInterceptor cachingInterceptor = new CacheInterceptor();

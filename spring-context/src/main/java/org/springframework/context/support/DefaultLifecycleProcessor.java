@@ -43,6 +43,7 @@ import org.springframework.context.SmartLifecycle;
 /**
  * Default implementation of the {@link LifecycleProcessor} strategy.
  *
+ * @marker rutine
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @since 3.0
@@ -136,6 +137,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 			Lifecycle bean = entry.getValue();
 			if (!autoStartupOnly || (bean instanceof SmartLifecycle && ((SmartLifecycle) bean).isAutoStartup())) {
 				int phase = getPhase(bean);
+				//按不同阶段分组
 				LifecycleGroup group = phases.get(phase);
 				if (group == null) {
 					group = new LifecycleGroup(phase, this.timeoutPerShutdownPhase, lifecycleBeans, autoStartupOnly);
@@ -162,6 +164,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 	private void doStart(Map<String, ? extends Lifecycle> lifecycleBeans, String beanName, boolean autoStartupOnly) {
 		Lifecycle bean = lifecycleBeans.remove(beanName);
 		if (bean != null && !this.equals(bean)) {
+			//查询依赖的bean集合, 先start当前bean依赖的所有bean
 			String[] dependenciesForBean = this.beanFactory.getDependenciesForBean(beanName);
 			for (String dependency : dependenciesForBean) {
 				doStart(lifecycleBeans, dependency, autoStartupOnly);

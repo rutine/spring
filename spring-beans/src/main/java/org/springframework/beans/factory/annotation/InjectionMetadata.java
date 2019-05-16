@@ -160,6 +160,11 @@ public class InjectionMetadata {
 		}
 
 		/**
+		 * InjectedElement 代表自动反射bean查找到需要依赖注入的元素(属性、方法)
+		 * PropertyValues 代表人工配置需要依赖注入的属性
+		 *
+		 * 配置的依赖优先高于反射的依赖
+		 *
 		 * Either this or {@link #getResourceToInject} needs to be overridden.
 		 */
 		protected void inject(Object target, String requestingBeanName, PropertyValues pvs) throws Throwable {

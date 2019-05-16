@@ -19,6 +19,8 @@ package org.springframework.context.annotation;
 import org.springframework.core.type.AnnotationMetadata;
 
 /**
+ * 根据不同策略选择Configuration类
+ *
  * Interface to be implemented by types that determine which @{@link Configuration}
  * class(es) should be imported based on a given selection criteria, usually one or more
  * annotation attributes.
@@ -48,6 +50,11 @@ import org.springframework.core.type.AnnotationMetadata;
 public interface ImportSelector {
 
 	/**
+	 * importing @{@link Configuration} class代表正向引入
+	 * import @{@link Configuration} class代表被引入
+	 *
+	 * 正向引入代表的 {@link AnnotationMetadata} 选择性引入一个被引入的 @{@link Configuration} class
+	 *
 	 * Select and return the names of which class(es) should be imported based on
 	 * the {@link AnnotationMetadata} of the importing @{@link Configuration} class.
 	 */

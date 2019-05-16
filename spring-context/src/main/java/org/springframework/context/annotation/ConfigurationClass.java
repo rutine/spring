@@ -54,6 +54,9 @@ final class ConfigurationClass {
 
 	private String beanName;
 
+	/**
+	 * 当前的ConfigurationClass被哪些ConfigurationClass导入的
+	 */
 	private final Set<ConfigurationClass> importedBy = new LinkedHashSet<ConfigurationClass>(1);
 
 	private final Set<BeanMethod> beanMethods = new LinkedHashSet<BeanMethod>();

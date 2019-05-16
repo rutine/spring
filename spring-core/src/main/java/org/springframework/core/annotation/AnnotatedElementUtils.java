@@ -1579,7 +1579,11 @@ public class AnnotatedElementUtils {
 		}
 
 		/**
-		 * 用真实值替换所有别名属性值
+		 * annotation 元素上的直接注解
+		 * attributes 元注解的属性值集合
+		 *
+		 * 用直接注解的真实属性值替换元注解的所有别名属性值
+		 * 保障程序获取直接注解属性值或者对应别名属性值一致性
 		 */
 		@Override
 		public void postProcess(AnnotatedElement element, Annotation annotation, AnnotationAttributes attributes) {

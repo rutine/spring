@@ -355,6 +355,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
 	private Object execute(final CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
 		// Special handling of synchronized invocation
+		// 同步调用
 		if (contexts.isSynchronized()) {
 			CacheOperationContext context = contexts.get(CacheableOperation.class).iterator().next();
 			if (isConditionPassing(context, CacheOperationExpressionEvaluator.NO_RESULT)) {
@@ -381,10 +382,12 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 		}
 
 
+		// 在底层方法前清理某些缓存
 		// Process any early evictions
 		processCacheEvicts(contexts.get(CacheEvictOperation.class), true,
 				CacheOperationExpressionEvaluator.NO_RESULT);
 
+		//查找缓存
 		// Check if we have a cached item matching the conditions
 		Cache.ValueWrapper cacheHit = findCachedItem(contexts.get(CacheableOperation.class));
 
@@ -417,6 +420,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 			cachePutRequest.apply(cacheValue);
 		}
 
+		// 在底层方法后清理某些缓存
 		// Process any late evictions
 		processCacheEvicts(contexts.get(CacheEvictOperation.class), false, cacheValue);
 

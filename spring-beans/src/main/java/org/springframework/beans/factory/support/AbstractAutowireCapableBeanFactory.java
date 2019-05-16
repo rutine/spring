@@ -658,8 +658,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
                     SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
                     Class<?> predicted = ibp.predictBeanType(targetType, beanName);
-                    if (predicted != null && (typesToMatch.length != 1 || FactoryBean.class != typesToMatch[0] ||
-                            FactoryBean.class.isAssignableFrom(predicted))) {
+                    if (predicted != null &&
+                            (typesToMatch.length != 1 || FactoryBean.class != typesToMatch[0] || FactoryBean.class.isAssignableFrom(predicted))) {
                         return predicted;
                     }
                 }

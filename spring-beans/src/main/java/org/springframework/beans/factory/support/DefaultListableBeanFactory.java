@@ -16,33 +16,6 @@
 
 package org.springframework.beans.factory.support;
 
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.inject.Provider;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.TypeConverter;
@@ -78,6 +51,33 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CompositeIterator;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+
+import javax.inject.Provider;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Default implementation of the
@@ -159,7 +159,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     /**
      * <prev>
      *     <em>策略类</em>
-     *     <p>确定定义bean是否可作为依赖项的自动装配项</p>
+     *     <p>候选(自动装配项)bean定义选定器</p>
      * </prev>
      *
      * Resolver to use for checking if a bean definition is an autowire candidate
@@ -419,7 +419,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             return resolvedBeanNames;
         }
 
-        // 3.迫切加载类型
+        // 3.紧急加载类型
         resolvedBeanNames = doGetBeanNamesForType(ResolvableType.forRawClass(type), includeNonSingletons, true);
         if (ClassUtils.isCacheSafe(type, getBeanClassLoader())) {
             cache.put(type, resolvedBeanNames);
@@ -439,9 +439,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 try {
                     RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
                     /**
-                     * 2.1.第一必须非抽象
-                     * 2.2.全局设置允许急于初始化bean
-                     * 2.3.或定义bean已存在类型 或 可初始化 或 全局设置的允许急于类型加载 且 并不是为了解决类型急于初始化bean
+                     * 2.1   第一必须非抽象
+                     * 2.2.1 全局设置允许紧急初始化bean or
+                     * 2.2.2 (bean定义已指定类型 or bean非懒加载 or 全局设置的允许紧急类型加载) and 工厂bean不能紧急初始化类型
                      */
                     // Only check bean definition if it is complete.
                     if (!mbd.isAbstract() && (allowEagerInit ||
@@ -451,10 +451,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                         boolean isFactoryBean = isFactoryBean(beanName, mbd);
                         BeanDefinitionHolder dbd = mbd.getDecoratedDefinition();
                         boolean matchFound =
-                                (allowEagerInit || !isFactoryBean ||
-                                        (dbd != null && !mbd.isLazyInit()) || containsSingleton(beanName)) &&
-                                (includeNonSingletons ||
-                                        (dbd != null ? mbd.isSingleton() : isSingleton(beanName))) &&
+                                (allowEagerInit || !isFactoryBean || (dbd != null && !mbd.isLazyInit()) || containsSingleton(beanName)) &&
+                                (includeNonSingletons || (dbd != null ? mbd.isSingleton() : isSingleton(beanName))) &&
                                 isTypeMatch(beanName, type);
                         if (!matchFound && isFactoryBean) {
                             // In case of FactoryBean, try to match FactoryBean instance itself next.
@@ -519,6 +517,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     }
 
     /**
+     * 是否需要紧急类型加载判断
+     *
      * Check whether the specified bean would need to be eagerly initialized
      * in order to determine its type.
      * @param factoryBeanName a factory-bean reference that the bean definition
@@ -526,6 +526,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
      * @return whether eager initialization is necessary
      */
     private boolean requiresEagerInitForType(String factoryBeanName) {
+        // 是工厂bean但容器还没有该实例, 说明通过紧急类型加载判断的
         return (factoryBeanName != null && isFactoryBean(factoryBeanName) && !containsSingleton(factoryBeanName));
     }
 
@@ -988,6 +989,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             // Cannot modify startup-time collection elements anymore (for stable iteration)
             synchronized (this.beanDefinitionMap) {
                 if (!this.beanDefinitionMap.containsKey(beanName)) {
+                    //这里像CopyOnWriteArrayList
                     Set<String> updatedSingletons = new LinkedHashSet<String>(this.manualSingletonNames.size() + 1);
                     updatedSingletons.addAll(this.manualSingletonNames);
                     updatedSingletons.add(beanName);
@@ -1118,6 +1120,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         }
     }
 
+    /**
+     * @param descriptor bean名称所指bean的某个依赖项包装说明
+     * @param beanName   bean名称
+     * @param autowiredBeanNames 满足bean依赖项的候选bean名称集合
+     * @param typeConverter
+     *
+     */
     public Object doResolveDependency(DependencyDescriptor descriptor, String beanName,
             Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException {
 
@@ -1128,7 +1137,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 return shortcut;
             }
 
-            // 1. 通过待选项解析器获取依赖项的自动装配项
+            // 1. 通过候选项选定器确定依赖项的候选项
             Class<?> type = descriptor.getDependencyType();
             Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
             if (value != null) {
@@ -1292,7 +1301,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     }
 
     /**
-     *  检索DependencyDescriptor所依赖的候选bean集合
+     *  查找DependencyDescriptor依赖的候选bean集合
      *
      * <prev>
      *     <em>分析逻辑</em>
@@ -1322,6 +1331,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 this, requiredType, true, descriptor.isEager());
         Map<String, Object> result = new LinkedHashMap<String, Object>(candidateNames.length);
         for (Class<?> autowiringType : this.resolvableDependencies.keySet()) {
+            /**
+             * resolvableDependencies可能存储的：
+             * autowiringType -> objB:requiredType
+             * 所以先判断requiredType是否可赋值给autowiringType
+             * 在判断objB是否是requiredType实例
+             */
             if (autowiringType.isAssignableFrom(requiredType)) {
                 Object autowiringValue = this.resolvableDependencies.get(autowiringType);
                 autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);

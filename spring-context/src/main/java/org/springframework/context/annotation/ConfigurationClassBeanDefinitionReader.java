@@ -83,6 +83,9 @@ class ConfigurationClassBeanDefinitionReader {
 
 	private final BeanNameGenerator importBeanNameGenerator;
 
+	/**
+	 * 注册@Import所指定的class
+	 */
 	private final ImportRegistry importRegistry;
 
 	private final ConditionEvaluator conditionEvaluator;
@@ -150,11 +153,13 @@ class ConfigurationClassBeanDefinitionReader {
 		AnnotationMetadata metadata = configClass.getMetadata();
 		AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
 
+		//判断bean定义的class是否有@Scope注解并解析
 		ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
 		configBeanDef.setScope(scopeMetadata.getScopeName());
 		String configBeanName = this.importBeanNameGenerator.generateBeanName(configBeanDef, this.registry);
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
 
+		//如果bean定义的class制定为代理模式, 将会注册一个原始bean定义和一个代理bean定义
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 		this.registry.registerBeanDefinition(definitionHolder.getBeanName(), definitionHolder.getBeanDefinition());
@@ -409,6 +414,9 @@ class ConfigurationClassBeanDefinitionReader {
 
 
 	/**
+	 * 当前的ConfigClass可能是被引入(主动引入)
+	 * 如果主动引入被忽略的, 那么当前的ConfigClass也被忽略不处理
+	 *
 	 * Evaluate {@code @Conditional} annotations, tracking results and taking into
 	 * account 'imported by'.
 	 */

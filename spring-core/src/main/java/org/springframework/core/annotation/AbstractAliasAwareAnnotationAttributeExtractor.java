@@ -25,6 +25,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * 由于@AliasFor注解的存在, 所以注解属性可能存在多个别名属性
+ * 这样必须保证注解属性的值和别名属性的值要么都是默认值，要么只有一个非默认值
+ *
  * Abstract base class for {@link AnnotationAttributeExtractor} implementations
  * that transparently enforce attribute alias semantics for annotation
  * attributes that are annotated with {@link AliasFor @AliasFor}.

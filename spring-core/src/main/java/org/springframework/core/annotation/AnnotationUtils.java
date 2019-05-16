@@ -1920,6 +1920,10 @@ public abstract class AnnotationUtils {
 	}
 
 
+	/**
+	 * 构造指定注解类型的收集器实例
+	 * 收集AnnotatedElement中满足实例的注解类型
+	 */
 	private static class AnnotationCollector<A extends Annotation> {
 
 		private final Class<A> annotationType;

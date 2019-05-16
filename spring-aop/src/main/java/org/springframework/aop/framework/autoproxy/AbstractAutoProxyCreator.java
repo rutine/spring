@@ -128,14 +128,17 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 	private BeanFactory beanFactory;
 
+	//缓存被代理的bean名称
 	private final Set<String> targetSourcedBeans =
 			Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>(16));
 
 	private final Set<Object> earlyProxyReferences =
 			Collections.newSetFromMap(new ConcurrentHashMap<Object, Boolean>(16));
 
+	//被代理bean对应的代理类型
 	private final Map<Object, Class<?>> proxyTypes = new ConcurrentHashMap<Object, Class<?>>(16);
 
+	//缓存已处理过的bean是否被代理, true表示已生成代理 false表示没有代理
 	private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<Object, Boolean>(256);
 
 

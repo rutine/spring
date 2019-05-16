@@ -166,6 +166,7 @@ import org.springframework.util.StringUtils;
  * Ant-style pattern in such a case, which will search <i>all</i> class path
  * locations that contain the root package.
  *
+ * @marker rutine
  * @author Juergen Hoeller
  * @author Colin Sampaleanu
  * @author Marius Bogoevici
@@ -355,6 +356,8 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	}
 
 	/**
+	 * 搜索所有jar文件
+	 *
 	 * Search all {@link URLClassLoader} URLs for jar file references and add them to the
 	 * given set of resources in the form of pointers to the root of the jar file content.
 	 * @param classLoader the ClassLoader to search (including its ancestors)
@@ -362,6 +365,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	 * @since 4.1.1
 	 */
 	protected void addAllClassLoaderJarRoots(ClassLoader classLoader, Set<Resource> result) {
+		// 1. 查找URLClassLoader管理的所有jar文件
 		if (classLoader instanceof URLClassLoader) {
 			try {
 				for (URL url : ((URLClassLoader) classLoader).getURLs()) {
@@ -388,11 +392,13 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 			}
 		}
 
+		// 2. 在系统路径查找系统加载器的所有jar文件
 		if (classLoader == ClassLoader.getSystemClassLoader()) {
 			// "java.class.path" manifest evaluation...
 			addClassPathManifestEntries(result);
 		}
 
+		// 3. 递归查找上级加载器管理的所有jar文件
 		if (classLoader != null) {
 			try {
 				// Hierarchy traversal...

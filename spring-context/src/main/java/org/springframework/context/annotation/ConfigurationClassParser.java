@@ -125,6 +125,9 @@ class ConfigurationClassParser {
 
 	private final ConditionEvaluator conditionEvaluator;
 
+	/**
+	 *  对BeanDefinitionRegistry处理, 得到所有的@Configuration class 定义
+	 */
 	private final Map<ConfigurationClass, ConfigurationClass> configurationClasses =
 			new LinkedHashMap<ConfigurationClass, ConfigurationClass>();
 
@@ -207,6 +210,10 @@ class ConfigurationClassParser {
 		}
 	}
 
+	/**
+	 * 对BeanDefinitionRegistry处理, 得到所有的@Configuration class 定义
+	 * @return
+	 */
 	public Set<ConfigurationClass> getConfigurationClasses() {
 		return this.configurationClasses.keySet();
 	}
@@ -219,6 +226,7 @@ class ConfigurationClassParser {
 
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
+			//被引入
 			if (configClass.isImported()) {
 				if (existingClass.isImported()) {
 					existingClass.mergeImportedBy(configClass);
@@ -226,6 +234,7 @@ class ConfigurationClassParser {
 				// Otherwise ignore new imported config class; existing non-imported class overrides it.
 				return;
 			}
+			//主动引入(移除旧的被引入)
 			else {
 				// Explicit bean definition found, probably replacing an import.
 				// Let's remove the old one and go with the new one.
@@ -328,6 +337,8 @@ class ConfigurationClassParser {
 	}
 
 	/**
+	 * 不允许存在循环
+	 *
 	 * Register member (nested) classes that happen to be configuration classes themselves.
 	 */
 	private void processMemberClasses(ConfigurationClass configClass, SourceClass sourceClass) throws IOException {
@@ -561,6 +572,7 @@ class ConfigurationClassParser {
 			this.importStack.push(configClass);
 			try {
 				for (SourceClass candidate : importCandidates) {
+					//1.不处理ImportSelector实现类的Configuration注解
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
@@ -577,9 +589,11 @@ class ConfigurationClassParser {
 							processImports(configClass, currentSourceClass, importSourceClasses, false);
 						}
 					}
+					//2.不处理ImportBeanDefinitionRegistrar实现类的Configuration注解
 					else if (candidate.isAssignable(ImportBeanDefinitionRegistrar.class)) {
 						// Candidate class is an ImportBeanDefinitionRegistrar ->
 						// delegate to it to register additional bean definitions
+						// 委托这种类型的bean 注册额外的bean定义
 						Class<?> candidateClass = candidate.loadClass();
 						ImportBeanDefinitionRegistrar registrar =
 								BeanUtils.instantiateClass(candidateClass, ImportBeanDefinitionRegistrar.class);
@@ -587,6 +601,7 @@ class ConfigurationClassParser {
 								registrar, this.environment, this.resourceLoader, this.registry);
 						configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
 					}
+					//3.处理Configuration注解
 					else {
 						// Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
 						// process it as an @Configuration class
@@ -609,6 +624,15 @@ class ConfigurationClassParser {
 		}
 	}
 
+	/**
+	 * 判断当前的configClass是否循环引入：
+	 * configClass    -> importedClass
+	 * importedClass  -> importingClass
+	 * importingClass -> configClass
+	 *
+	 * @param configClass
+	 * @return
+	 */
 	private boolean isChainedImportOnStack(ConfigurationClass configClass) {
 		if (this.importStack.contains(configClass)) {
 			String configClassName = configClass.getMetadata().getClassName();
@@ -793,6 +817,13 @@ class ConfigurationClassParser {
 			return new AssignableTypeFilter(clazz).match((MetadataReader) this.source, metadataReaderFactory);
 		}
 
+		/**
+		 * 被那个ConfigurationClass(importedBy)导入
+		 *
+		 * @param importedBy
+		 * @return
+		 * @throws IOException
+		 */
 		public ConfigurationClass asConfigClass(ConfigurationClass importedBy) throws IOException {
 			if (this.source instanceof Class) {
 				return new ConfigurationClass((Class<?>) this.source, importedBy);
@@ -800,6 +831,12 @@ class ConfigurationClassParser {
 			return new ConfigurationClass((MetadataReader) this.source, importedBy);
 		}
 
+		/**
+		 * 获取内部类并包装成SourceClass
+		 *
+		 * @return
+		 * @throws IOException
+		 */
 		public Collection<SourceClass> getMemberClasses() throws IOException {
 			Object sourceToProcess = this.source;
 			if (sourceToProcess instanceof Class) {

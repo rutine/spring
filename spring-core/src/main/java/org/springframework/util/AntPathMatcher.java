@@ -206,6 +206,7 @@ public class AntPathMatcher implements PathMatcher {
         int pathIdxEnd = pathDirs.length - 1;
 
 
+        // 正向匹配
         // Match all elements up to the first **
         while (pattIdxStart <= pattIdxEnd && pathIdxStart <= pathIdxEnd) {
             String pattDir = pattDirs[pattIdxStart];
@@ -272,6 +273,7 @@ public class AntPathMatcher implements PathMatcher {
             return true;
         }
 
+        // 逆向匹配
         // up to last '**'
         while (pattIdxStart <= pattIdxEnd && pathIdxStart <= pathIdxEnd) {
             String pattDir = pattDirs[pattIdxEnd];
@@ -294,6 +296,11 @@ public class AntPathMatcher implements PathMatcher {
             return true;
         }
 
+        // 例如:
+        // pattern: /rutine/**/rutine/**/rutine
+        // path:    /rutine/a/rutine/b/rutine
+        // pattIdxStart=1 pattIdxEnd=3
+        // pathIdxStart=1 pathIdxEnd=3
         while (pattIdxStart != pattIdxEnd && pathIdxStart <= pathIdxEnd) {
             int patIdxTmp = -1;
             for (int i = pattIdxStart + 1; i <= pattIdxEnd; i++) {
@@ -307,10 +314,11 @@ public class AntPathMatcher implements PathMatcher {
                 pattIdxStart++;
                 continue;
             }
+            // 找到patIdxTmp=3 pattIdxStart=2
             // Find the pattern between padIdxStart & padIdxTmp in str between
             // strIdxStart & strIdxEnd
-            int patLength = (patIdxTmp - pattIdxStart - 1);
-            int strLength = (pathIdxEnd - pathIdxStart + 1);
+            int patLength = (patIdxTmp - pattIdxStart - 1); // 1 -> rutine
+            int strLength = (pathIdxEnd - pathIdxStart + 1); // 3 -> a/rutine/b
             int foundIdx = -1;
 
             strLoop:
@@ -326,6 +334,7 @@ public class AntPathMatcher implements PathMatcher {
                 break;
             }
 
+            // foundIdx=3
             if (foundIdx == -1) {
                 return false;
             }
@@ -649,6 +658,7 @@ public class AntPathMatcher implements PathMatcher {
      */
     protected static class AntPathStringMatcher {
 
+        //主要分成三部分: ? * {}
         private static final Pattern GLOB_PATTERN = Pattern.compile("\\?|\\*|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
 
         private static final String DEFAULT_VARIABLE_PATTERN = "(.*)";
@@ -681,6 +691,7 @@ public class AntPathMatcher implements PathMatcher {
                         this.variableNames.add(matcher.group(1));
                     }
                     else {
+                        // {name:path}
                         String variablePattern = match.substring(colonIdx + 1, match.length() - 1);
                         patternBuilder.append('(');
                         patternBuilder.append(variablePattern);
@@ -748,6 +759,7 @@ public class AntPathMatcher implements PathMatcher {
      */
     protected static class AntPatternComparator implements Comparator<String> {
 
+        // 用于判断哪个pattern更接近这个path, 值越小越接近
         private final String path;
 
         public AntPatternComparator(String path) {

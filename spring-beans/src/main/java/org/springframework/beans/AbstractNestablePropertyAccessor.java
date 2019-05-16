@@ -303,6 +303,16 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         }
     }
 
+    /**
+     * a[key1][key2]
+     * 1. 获取a[key1]
+     * 2. 初始化a二维数组
+     * 3. 设置a[key1]默认值
+     * 4. 设置a[key1][key2]默认值
+     *
+     * @param tokens
+     * @param pv
+     */
     @SuppressWarnings("unchecked")
     private void processKeyedProperty(PropertyTokenHolder tokens, PropertyValue pv) {
         Object propValue = getPropertyHoldingValue(tokens);
@@ -399,6 +409,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         }
     }
 
+    // a[key1][key2] => a[key1] 值
     private Object getPropertyHoldingValue(PropertyTokenHolder tokens) {
         // Apply indexes and map keys: fetch value for all keys but the last one.
         PropertyTokenHolder getterTokens = new PropertyTokenHolder();
@@ -819,10 +830,14 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         if (pa == this) {
             return nestedPath;
         }
+
+        // a[key].b[key] => b[key]
         return nestedPath.substring(PropertyAccessorUtils.getLastNestedPropertySeparatorIndex(nestedPath) + 1);
     }
 
     /**
+     * a[key]=>返回当前 a.b[key]=>返回下一级
+     *
      * Recursively navigate to return a property accessor for the nested property path.
      * @param propertyPath property path, which may be nested
      * @return a property accessor for the target bean
@@ -845,6 +860,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
 
     /**
+     * nestedProperty 如: a, 不会出现a[key]这样的
+     *
      * Retrieve a Property accessor for the given nested property.
      * Create a new one if not found in the cache.
      * <p>Note: Caching nested PropertyAccessors is necessary now,
@@ -947,10 +964,10 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
 
     /**
-     * 解析属性名字propertyName['key1']["key2"]:
+     * 解析属性名字 p['key1']["key2"]:
      * {
-     *     actualName: propertyName,
-     *     canonicalName: propertyName[key1][key2],
+     *     actualName: p,
+     *     canonicalName: p[key1][key2],
      *     keys: [key1, key2]
      * }
      * 

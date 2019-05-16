@@ -44,6 +44,7 @@ import org.springframework.core.PriorityOrdered;
 /**
  * Delegate for AbstractApplicationContext's post-processor handling.
  *
+ * @marker rutine
  * @author Juergen Hoeller
  * @since 4.0
  */
@@ -53,13 +54,22 @@ class PostProcessorRegistrationDelegate {
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
+		// 记录已处理的PostProcessor bean
 		Set<String> processedBeans = new HashSet<String>();
 
+		/**
+		 * 1. 查找BeanDefinitionRegistryPostProcessor
+		 *    a. 查找实现PriorityOrdered接口的一组bean
+		 *    b. 查找实现Ordered接口的一组bean
+		 *    c. 不属于上面两个的组成一组bean
+		 * 2. 对BeanDefinitionRegistry顺序执行PriorityOrdered一组bean的postProcess方法
+		 * 3. 对BeanDefinitionRegistry顺序执行Ordered一组bean的postProcess方法
+		 * 4. 对BeanFactory顺序执行其余的一组bean的postProcess方法
+		 */
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 			List<BeanFactoryPostProcessor> regularPostProcessors = new LinkedList<BeanFactoryPostProcessor>();
-			List<BeanDefinitionRegistryPostProcessor> registryPostProcessors =
-					new LinkedList<BeanDefinitionRegistryPostProcessor>();
+			List<BeanDefinitionRegistryPostProcessor> registryPostProcessors = new LinkedList<BeanDefinitionRegistryPostProcessor>();
 
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {

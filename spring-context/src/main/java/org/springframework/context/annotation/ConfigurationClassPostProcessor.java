@@ -260,12 +260,14 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+			//已处理跳过(bean定义的一个属性判断是否处理过)
 			if (ConfigurationClassUtils.isFullConfigurationClass(beanDef) ||
 					ConfigurationClassUtils.isLiteConfigurationClass(beanDef)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
+			//未处理
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
@@ -322,12 +324,16 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 			candidates.clear();
 			if (registry.getBeanDefinitionCount() > candidateNames.length) {
+				//解析后所有的bean
 				String[] newCandidateNames = registry.getBeanDefinitionNames();
+				//解析前所有的bean
 				Set<String> oldCandidateNames = new HashSet<String>(Arrays.asList(candidateNames));
+				//已解析的bean
 				Set<String> alreadyParsedClasses = new HashSet<String>();
 				for (ConfigurationClass configurationClass : alreadyParsed) {
 					alreadyParsedClasses.add(configurationClass.getMetadata().getClassName());
 				}
+				//查找新的未解析的 configuration bean
 				for (String candidateName : newCandidateNames) {
 					if (!oldCandidateNames.contains(candidateName)) {
 						BeanDefinition beanDef = registry.getBeanDefinition(candidateName);
@@ -428,6 +434,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		public Object postProcessBeforeInitialization(Object bean, String beanName)  {
 			if (bean instanceof ImportAware) {
 				ImportRegistry importRegistry = this.beanFactory.getBean(IMPORT_REGISTRY_BEAN_NAME, ImportRegistry.class);
+				//bean.getClass().getSuperclass() 因为经过ConfigurationClassEnhancer包装
 				AnnotationMetadata importingClass = importRegistry.getImportingClassFor(bean.getClass().getSuperclass().getName());
 				if (importingClass != null) {
 					((ImportAware) bean).setImportMetadata(importingClass);

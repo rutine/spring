@@ -609,6 +609,8 @@ class ConstructorResolver {
     }
 
     /**
+     * 第一步：解决构造函数配置参数的依赖项
+     *
      * Resolve the constructor arguments for this bean into the resolvedValues object.
      * This may involve looking up other beans.
      * <p>This method is also used for handling invocations of static factory methods.
@@ -664,6 +666,15 @@ class ConstructorResolver {
     }
 
     /**
+     * 第二步：解决构造函数的参数
+     * 1. 参数索引没有配置参数, 如下例索引1没有指定参数, 则根据索引1位置的参数名字、类型从BeanFactory检索依赖项
+     * 2. 参数索引有配参数, 如下例索引2指定依赖一个bean名字, 这个依赖项已在第一步已解决, 可直接获取
+     *
+     * <bean id="exampleBean" class="examples.ExampleBean">
+     *   <constructor-arg index="0" value="2001"/>
+     *   <constructor-arg index="2" ref="someBean"/>
+     * </bean>
+     *
      * Create an array of arguments to invoke a constructor or factory method,
      * given the resolved constructor argument values.
      */
@@ -771,6 +782,8 @@ class ConstructorResolver {
     }
 
     /**
+     * 这一步主要是经过第一、二步处理过并缓存了对应参数项, 创建新实例时直接走这一步
+     *
      * 要解决的参数值数组索引需要跟方法中的参数索引一一对应
      *
      * Resolve the prepared arguments stored in the given bean definition.

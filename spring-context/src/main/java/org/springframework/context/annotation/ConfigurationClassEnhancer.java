@@ -16,16 +16,8 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.asm.Type;
 import org.springframework.beans.factory.BeanFactory;
@@ -55,6 +47,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
 /**
  * Enhances {@link Configuration} classes by generating a CGLIB subclass which
@@ -188,6 +187,7 @@ class ConfigurationClassEnhancer {
 
 		@Override
 		public int accept(Method method) {
+			//返回Callback的下标值代表调用那个Callback
 			for (int i = 0; i < this.callbacks.length; i++) {
 				if (!(this.callbacks[i] instanceof ConditionalCallback) ||
 						((ConditionalCallback) this.callbacks[i]).isMatch(method)) {
@@ -221,6 +221,7 @@ class ConfigurationClassEnhancer {
 			ClassEmitterTransformer transformer = new ClassEmitterTransformer() {
 				@Override
 				public void end_class() {
+					//声明新属性字段
 					declare_field(Constants.ACC_PUBLIC, BEAN_FACTORY_FIELD, Type.getType(BeanFactory.class), null);
 					super.end_class();
 				}

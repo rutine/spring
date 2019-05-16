@@ -20,7 +20,7 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 
 /**
- * 策略接口: 确定定义bean是否可为依赖项自动装配的待选项<br/>
+ * 策略接口: 确定定义bean是否可为自动装配依赖项描述的待选项<br/>
  *
  * Strategy interface for determining whether a specific bean definition
  * qualifies as an autowire candidate for a specific dependency.
@@ -33,12 +33,12 @@ import org.springframework.beans.factory.config.DependencyDescriptor;
 public interface AutowireCandidateResolver {
 
     /**
-     * 确定定义bean是否可为依赖项自动装配的待选项
+     * 确定定义bean是否可为自动装配依赖项描述的待选项
      *
      * Determine whether the given bean definition qualifies as an
      * autowire candidate for the given dependency.
-     * @param bdHolder the bean definition including bean name and aliases
-     * @param descriptor the descriptor for the target method parameter or field
+     * @param bdHolder the bean definition including bean name and aliases 待选项
+     * @param descriptor the descriptor for the target method parameter or field 自动装配依赖项描述
      * @return whether the bean definition qualifies as autowire candidate
      */
     boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor);

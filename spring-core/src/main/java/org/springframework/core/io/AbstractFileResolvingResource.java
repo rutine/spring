@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,8 @@
 package org.springframework.core.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -89,11 +89,11 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 		try {
 			URL url = getURL();
 			if (ResourceUtils.isFileURL(url)) {
-				// Proceed with file system resolution...
+				// Proceed with file system resolution
 				return getFile().exists();
 			}
 			else {
-				// Try a URL connection content-length header...
+				// Try a URL connection content-length header
 				URLConnection con = url.openConnection();
 				customizeConnection(con);
 				HttpURLConnection httpCon =
@@ -111,14 +111,13 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 					return true;
 				}
 				if (httpCon != null) {
-					// no HTTP OK status, and no content-length header: give up
+					// No HTTP OK status, and no content-length header: give up
 					httpCon.disconnect();
 					return false;
 				}
 				else {
 					// Fall back to stream existence: can we open the stream?
-					InputStream is = getInputStream();
-					is.close();
+					getInputStream().close();
 					return true;
 				}
 			}
@@ -133,7 +132,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 		try {
 			URL url = getURL();
 			if (ResourceUtils.isFileURL(url)) {
-				// Proceed with file system resolution...
+				// Proceed with file system resolution
 				File file = getFile();
 				return (file.canRead() && !file.isDirectory());
 			}
@@ -150,11 +149,11 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 	public long contentLength() throws IOException {
 		URL url = getURL();
 		if (ResourceUtils.isFileURL(url)) {
-			// Proceed with file system resolution...
+			// Proceed with file system resolution
 			return getFile().length();
 		}
 		else {
-			// Try a URL connection content-length header...
+			// Try a URL connection content-length header
 			URLConnection con = url.openConnection();
 			customizeConnection(con);
 			return con.getContentLength();
@@ -165,17 +164,19 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 	public long lastModified() throws IOException {
 		URL url = getURL();
 		if (ResourceUtils.isFileURL(url) || ResourceUtils.isJarURL(url)) {
-			// Proceed with file system resolution...
-			return super.lastModified();
+			// Proceed with file system resolution
+			try {
+				return super.lastModified();
+			}
+			catch (FileNotFoundException ex) {
+				// Defensively fall back to URL connection check instead
+			}
 		}
-		else {
-			// Try a URL connection last-modified header...
-			URLConnection con = url.openConnection();
-			customizeConnection(con);
-			return con.getLastModified();
-		}
+		// Try a URL connection last-modified header
+		URLConnection con = url.openConnection();
+		customizeConnection(con);
+		return con.getLastModified();
 	}
-
 
 	/**
 	 * Customize the given {@link URLConnection}, obtained in the course of an

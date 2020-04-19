@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,7 @@ import javax.jms.TopicSession;
 import javax.jms.TransactionInProgressException;
 
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * Proxy for a target JMS {@link javax.jms.ConnectionFactory}, adding awareness of
@@ -77,9 +78,9 @@ import org.springframework.util.Assert;
 public class TransactionAwareConnectionFactoryProxy
 		implements ConnectionFactory, QueueConnectionFactory, TopicConnectionFactory {
 
-	private boolean synchedLocalTransactionAllowed = false;
-
 	private ConnectionFactory targetConnectionFactory;
+
+	private boolean synchedLocalTransactionAllowed = false;
 
 
 	/**
@@ -204,10 +205,8 @@ public class TransactionAwareConnectionFactoryProxy
 		if (target instanceof TopicConnection) {
 			classes.add(TopicConnection.class);
 		}
-		return (Connection) Proxy.newProxyInstance(
-				Connection.class.getClassLoader(),
-				classes.toArray(new Class<?>[classes.size()]),
-				new TransactionAwareConnectionInvocationHandler(target));
+		return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
+				ClassUtils.toClassArray(classes), new TransactionAwareConnectionInvocationHandler(target));
 	}
 
 
@@ -276,10 +275,8 @@ public class TransactionAwareConnectionFactoryProxy
 			if (target instanceof TopicSession) {
 				classes.add(TopicSession.class);
 			}
-			return (Session) Proxy.newProxyInstance(
-					SessionProxy.class.getClassLoader(),
-					classes.toArray(new Class<?>[classes.size()]),
-					new CloseSuppressingSessionInvocationHandler(target));
+			return (Session) Proxy.newProxyInstance(SessionProxy.class.getClassLoader(),
+					ClassUtils.toClassArray(classes), new CloseSuppressingSessionInvocationHandler(target));
 		}
 	}
 

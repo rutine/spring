@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,11 +38,14 @@ import org.springframework.util.ClassUtils;
  */
 public abstract class AbstractExceptionHandlerMethodResolver {
 
-	private static final Method NO_METHOD_FOUND = ClassUtils.getMethodIfAvailable(System.class, "currentTimeMillis");
+	private static final Method NO_METHOD_FOUND =
+			ClassUtils.getMethodIfAvailable(System.class, "currentTimeMillis");
 
-	private final Map<Class<? extends Throwable>, Method> mappedMethods = new ConcurrentHashMap<Class<? extends Throwable>, Method>(16);
+	private final Map<Class<? extends Throwable>, Method> mappedMethods =
+			new ConcurrentHashMap<Class<? extends Throwable>, Method>(16);
 
-	private final Map<Class<? extends Throwable>, Method> exceptionLookupCache = new ConcurrentHashMap<Class<? extends Throwable>, Method>(16);
+	private final Map<Class<? extends Throwable>, Method> exceptionLookupCache =
+			new ConcurrentHashMap<Class<? extends Throwable>, Method>(16);
 
 
 	/**
@@ -66,7 +69,9 @@ public abstract class AbstractExceptionHandlerMethodResolver {
 				result.add((Class<? extends Throwable>) paramType);
 			}
 		}
-		Assert.notEmpty(result, "No exception types mapped to {" + method + "}");
+		if (result.isEmpty()) {
+			throw new IllegalStateException("No exception types mapped to " + method);
+		}
 		return result;
 	}
 
@@ -75,7 +80,7 @@ public abstract class AbstractExceptionHandlerMethodResolver {
 	 * Whether the contained type has any exception mappings.
 	 */
 	public boolean hasExceptionMappings() {
-		return (this.mappedMethods.size() > 0);
+		return !this.mappedMethods.isEmpty();
 	}
 
 	/**

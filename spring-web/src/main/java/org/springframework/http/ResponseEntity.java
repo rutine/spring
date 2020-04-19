@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,7 @@ import org.springframework.util.ObjectUtils;
  * {@link org.springframework.web.client.RestTemplate#getForEntity getForEntity()} and
  * {@link org.springframework.web.client.RestTemplate#exchange exchange()}:
  * <pre class="code">
- * ResponseEntity&lt;String&gt; entity = template.getForEntity("http://example.com", String.class);
+ * ResponseEntity&lt;String&gt; entity = template.getForEntity("https://example.com", String.class);
  * String body = entity.getBody();
  * MediaType contentType = entity.getHeaders().getContentType();
  * HttpStatus statusCode = entity.getStatusCode();
@@ -50,6 +50,7 @@ import org.springframework.util.ObjectUtils;
  *   return new ResponseEntity&lt;String&gt;("Hello World", responseHeaders, HttpStatus.CREATED);
  * }
  * </pre>
+ *
  * Or, by using a builder accessible via static methods:
  * <pre class="code">
  * &#64;RequestMapping("/handle")
@@ -62,11 +63,12 @@ import org.springframework.util.ObjectUtils;
  * @author Arjen Poutsma
  * @author Brian Clozel
  * @since 3.0.2
+ * @param <T> the body type
  * @see #getStatusCode()
  */
 public class ResponseEntity<T> extends HttpEntity<T> {
 
-	private final Object statusCode;
+	private final Object status;
 
 
 	/**
@@ -104,7 +106,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 	public ResponseEntity(T body, MultiValueMap<String, String> headers, HttpStatus status) {
 		super(body, headers);
 		Assert.notNull(status, "HttpStatus must not be null");
-		this.statusCode = status;
+		this.status = status;
 	}
 
 	/**
@@ -112,11 +114,11 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 	 * Just used behind the nested builder API.
 	 * @param body the entity body
 	 * @param headers the entity headers
-	 * @param statusCode the status code (as {@code HttpStatus} or as {@code Integer} value)
+	 * @param status the status code (as {@code HttpStatus} or as {@code Integer} value)
 	 */
-	private ResponseEntity(T body, MultiValueMap<String, String> headers, Object statusCode) {
+	private ResponseEntity(T body, MultiValueMap<String, String> headers, Object status) {
 		super(body, headers);
-		this.statusCode = statusCode;
+		this.status = status;
 	}
 
 
@@ -125,11 +127,11 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 	 * @return the HTTP status as an HttpStatus enum entry
 	 */
 	public HttpStatus getStatusCode() {
-		if (this.statusCode instanceof HttpStatus) {
-			return (HttpStatus) this.statusCode;
+		if (this.status instanceof HttpStatus) {
+			return (HttpStatus) this.status;
 		}
 		else {
-			return HttpStatus.valueOf((Integer) this.statusCode);
+			return HttpStatus.valueOf((Integer) this.status);
 		}
 	}
 
@@ -139,11 +141,11 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 	 * @since 4.3
 	 */
 	public int getStatusCodeValue() {
-		if (this.statusCode instanceof HttpStatus) {
-			return ((HttpStatus) this.statusCode).value();
+		if (this.status instanceof HttpStatus) {
+			return ((HttpStatus) this.status).value();
 		}
 		else {
-			return (Integer) this.statusCode;
+			return (Integer) this.status;
 		}
 	}
 
@@ -157,21 +159,21 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 			return false;
 		}
 		ResponseEntity<?> otherEntity = (ResponseEntity<?>) other;
-		return ObjectUtils.nullSafeEquals(this.statusCode, otherEntity.statusCode);
+		return ObjectUtils.nullSafeEquals(this.status, otherEntity.status);
 	}
 
 	@Override
 	public int hashCode() {
-		return (super.hashCode() * 29 + ObjectUtils.nullSafeHashCode(this.statusCode));
+		return (super.hashCode() * 29 + ObjectUtils.nullSafeHashCode(this.status));
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder("<");
-		builder.append(this.statusCode.toString());
-		if (this.statusCode instanceof HttpStatus) {
+		builder.append(this.status.toString());
+		if (this.status instanceof HttpStatus) {
 			builder.append(' ');
-			builder.append(((HttpStatus) this.statusCode).getReasonPhrase());
+			builder.append(((HttpStatus) this.status).getReasonPhrase());
 		}
 		builder.append(',');
 		T body = getBody();
@@ -294,8 +296,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 
 	/**
 	 * Defines a builder that adds headers to the response entity.
-	 * @param <B> the builder subclass
 	 * @since 4.1
+	 * @param <B> the builder subclass
 	 */
 	public interface HeadersBuilder<B extends HeadersBuilder<B>> {
 
@@ -328,11 +330,11 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 
 		/**
 		 * Set the entity tag of the body, as specified by the {@code ETag} header.
-		 * @param eTag the new entity tag
+		 * @param etag the new entity tag
 		 * @return this builder
 		 * @see HttpHeaders#setETag(String)
 		 */
-		B eTag(String eTag);
+		B eTag(String etag);
 
 		/**
 		 * Set the time the resource was last changed, as specified by the
@@ -464,16 +466,16 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 		}
 
 		@Override
-		public BodyBuilder eTag(String eTag) {
-			if (eTag != null) {
-				if (!eTag.startsWith("\"") && !eTag.startsWith("W/\"")) {
-					eTag = "\"" + eTag;
+		public BodyBuilder eTag(String etag) {
+			if (etag != null) {
+				if (!etag.startsWith("\"") && !etag.startsWith("W/\"")) {
+					etag = "\"" + etag;
 				}
-				if (!eTag.endsWith("\"")) {
-					eTag = eTag + "\"";
+				if (!etag.endsWith("\"")) {
+					etag = etag + "\"";
 				}
 			}
-			this.headers.setETag(eTag);
+			this.headers.setETag(etag);
 			return this;
 		}
 
@@ -493,7 +495,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 		public BodyBuilder cacheControl(CacheControl cacheControl) {
 			String ccValue = cacheControl.getHeaderValue();
 			if (ccValue != null) {
-				this.headers.setCacheControl(cacheControl.getHeaderValue());
+				this.headers.setCacheControl(ccValue);
 			}
 			return this;
 		}

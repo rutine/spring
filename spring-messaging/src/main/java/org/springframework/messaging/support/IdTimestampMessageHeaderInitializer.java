@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,18 +40,10 @@ public class IdTimestampMessageHeaderInitializer implements MessageHeaderInitial
 	 * instances with.
 	 * <p>By default this property is set to {@code null} in which case the default
 	 * IdGenerator of {@link org.springframework.messaging.MessageHeaders} is used.
-	 * <p>To have no id's generated at all, see {@link #setDisableIdGeneration()}.
+	 * <p>To have no ids generated at all, see {@link #setDisableIdGeneration()}.
 	 */
 	public void setIdGenerator(IdGenerator idGenerator) {
 		this.idGenerator = idGenerator;
-	}
-
-	/**
-	 * A shortcut for calling {@link #setIdGenerator(org.springframework.util.IdGenerator)}
-	 * with an id generation strategy to disable id generation completely.
-	 */
-	public void setDisableIdGeneration() {
-		this.idGenerator = ID_VALUE_NONE_GENERATOR;
 	}
 
 	/**
@@ -59,6 +51,14 @@ public class IdTimestampMessageHeaderInitializer implements MessageHeaderInitial
 	 */
 	public IdGenerator getIdGenerator() {
 		return this.idGenerator;
+	}
+
+	/**
+	 * A shortcut for calling {@link #setIdGenerator} with an id generation strategy
+	 * to disable id generation completely.
+	 */
+	public void setDisableIdGeneration() {
+		this.idGenerator = ID_VALUE_NONE_GENERATOR;
 	}
 
 	/**

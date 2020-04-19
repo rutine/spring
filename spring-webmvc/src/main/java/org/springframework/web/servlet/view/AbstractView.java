@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,8 +66,6 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	private static final int OUTPUT_BYTE_ARRAY_INITIAL_SIZE = 4096;
 
 
-	private String beanName;
-
 	private String contentType = DEFAULT_CONTENT_TYPE;
 
 	private String requestContextAttribute;
@@ -80,23 +78,8 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 
 	private Set<String> exposedContextBeanNames;
 
+	private String beanName;
 
-	/**
-	 * Set the view's name. Helpful for traceability.
-	 * <p>Framework code must call this when constructing views.
-	 */
-	@Override
-	public void setBeanName(String beanName) {
-		this.beanName = beanName;
-	}
-
-	/**
-	 * Return the view's name. Should never be {@code null},
-	 * if the view was correctly configured.
-	 */
-	public String getBeanName() {
-		return this.beanName;
-	}
 
 	/**
 	 * Set the content type for this view.
@@ -143,9 +126,10 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 			StringTokenizer st = new StringTokenizer(propString, ",");
 			while (st.hasMoreTokens()) {
 				String tok = st.nextToken();
-				int eqIdx = tok.indexOf("=");
+				int eqIdx = tok.indexOf('=');
 				if (eqIdx == -1) {
-					throw new IllegalArgumentException("Expected = in attributes CSV string '" + propString + "'");
+					throw new IllegalArgumentException(
+							"Expected '=' in attributes CSV string '" + propString + "'");
 				}
 				if (eqIdx >= tok.length() - 2) {
 					throw new IllegalArgumentException(
@@ -187,7 +171,7 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 * the View instance configuration. "Dynamic" attributes, on the other hand,
 	 * are values passed in as part of the model.
 	 * <p>Can be populated with a "map" or "props" element in XML bean definitions.
-	 * @param attributes Map with name Strings as keys and attribute objects as values
+	 * @param attributes a Map with name Strings as keys and attribute objects as values
 	 */
 	public void setAttributesMap(Map<String, ?> attributes) {
 		if (attributes != null) {
@@ -282,6 +266,23 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 */
 	public void setExposedContextBeanNames(String... exposedContextBeanNames) {
 		this.exposedContextBeanNames = new HashSet<String>(Arrays.asList(exposedContextBeanNames));
+	}
+
+	/**
+	 * Set the view's name. Helpful for traceability.
+	 * <p>Framework code must call this when constructing views.
+	 */
+	@Override
+	public void setBeanName(String beanName) {
+		this.beanName = beanName;
+	}
+
+	/**
+	 * Return the view's name. Should never be {@code null},
+	 * if the view was correctly configured.
+	 */
+	public String getBeanName() {
+		return this.beanName;
 	}
 
 
@@ -419,7 +420,7 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 * Expose the model objects in the given map as request attributes.
 	 * Names will be taken from the model Map.
 	 * This method is suitable for all resources reachable by {@link javax.servlet.RequestDispatcher}.
-	 * @param model Map of model objects to expose
+	 * @param model a Map of model objects to expose
 	 * @param request current HTTP request
 	 */
 	protected void exposeModelAsRequestAttributes(Map<String, Object> model, HttpServletRequest request) throws Exception {

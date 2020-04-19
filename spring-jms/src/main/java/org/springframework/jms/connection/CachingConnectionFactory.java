@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -186,6 +186,7 @@ public class CachingConnectionFactory extends SingleConnectionFactory {
 	@Override
 	public void resetConnection() {
 		this.active = false;
+
 		synchronized (this.cachedSessions) {
 			for (LinkedList<Session> sessionList : this.cachedSessions.values()) {
 				synchronized (sessionList) {
@@ -201,10 +202,11 @@ public class CachingConnectionFactory extends SingleConnectionFactory {
 			}
 			this.cachedSessions.clear();
 		}
-		this.active = true;
 
 		// Now proceed with actual closing of the shared Connection...
 		super.resetConnection();
+
+		this.active = true;
 	}
 
 	/**
@@ -212,6 +214,10 @@ public class CachingConnectionFactory extends SingleConnectionFactory {
 	 */
 	@Override
 	protected Session getSession(Connection con, Integer mode) throws JMSException {
+		if (!this.active) {
+			return null;
+		}
+
 		LinkedList<Session> sessionList;
 		synchronized (this.cachedSessions) {
 			sessionList = this.cachedSessions.get(mode);
@@ -259,10 +265,8 @@ public class CachingConnectionFactory extends SingleConnectionFactory {
 		if (target instanceof TopicSession) {
 			classes.add(TopicSession.class);
 		}
-		return (Session) Proxy.newProxyInstance(
-				SessionProxy.class.getClassLoader(),
-				classes.toArray(new Class<?>[classes.size()]),
-				new CachedSessionInvocationHandler(target, sessionList));
+		return (Session) Proxy.newProxyInstance(SessionProxy.class.getClassLoader(),
+				ClassUtils.toClassArray(classes), new CachedSessionInvocationHandler(target, sessionList));
 	}
 
 
@@ -335,7 +339,10 @@ public class CachingConnectionFactory extends SingleConnectionFactory {
 				if (isCacheProducers() && (methodName.equals("createProducer") ||
 						methodName.equals("createSender") || methodName.equals("createPublisher"))) {
 					// Destination argument being null is ok for a producer
-					return getCachedProducer((Destination) args[0]);
+					Destination dest = (Destination) args[0];
+					if (!(dest instanceof TemporaryQueue || dest instanceof TemporaryTopic)) {
+						return getCachedProducer(dest);
+					}
 				}
 				else if (isCacheConsumers()) {
 					// let raw JMS invocation throw an exception if Destination (i.e. args[0]) is null

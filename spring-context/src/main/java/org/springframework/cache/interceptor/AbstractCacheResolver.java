@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * invocation context.
  *
  * @author Stephane Nicoll
+ * @author Juergen Hoeller
  * @since 4.1
  */
 public abstract class AbstractCacheResolver implements CacheResolver, InitializingBean {
@@ -38,9 +39,17 @@ public abstract class AbstractCacheResolver implements CacheResolver, Initializi
 	private CacheManager cacheManager;
 
 
+	/**
+	 * Construct a new {@code AbstractCacheResolver}.
+	 * @see #setCacheManager
+	 */
 	protected AbstractCacheResolver() {
 	}
 
+	/**
+	 * Construct a new {@code AbstractCacheResolver} for the given {@link CacheManager}.
+	 * @param cacheManager the CacheManager to use
+	 */
 	protected AbstractCacheResolver(CacheManager cacheManager) {
 		this.cacheManager = cacheManager;
 	}
@@ -54,7 +63,7 @@ public abstract class AbstractCacheResolver implements CacheResolver, Initializi
 	}
 
 	/**
-	 * Return the {@link CacheManager} that this instance use.
+	 * Return the {@link CacheManager} that this instance uses.
 	 */
 	public CacheManager getCacheManager() {
 		return this.cacheManager;
@@ -62,7 +71,7 @@ public abstract class AbstractCacheResolver implements CacheResolver, Initializi
 
 	@Override
 	public void afterPropertiesSet()  {
-		Assert.notNull(this.cacheManager, "CacheManager must not be null");
+		Assert.notNull(this.cacheManager, "CacheManager is required");
 	}
 
 
@@ -72,18 +81,16 @@ public abstract class AbstractCacheResolver implements CacheResolver, Initializi
 		if (cacheNames == null) {
 			return Collections.emptyList();
 		}
-		else {
-			Collection<Cache> result = new ArrayList<Cache>();
-			for (String cacheName : cacheNames) {
-				Cache cache = this.cacheManager.getCache(cacheName);
-				if (cache == null) {
-					throw new IllegalArgumentException("Cannot find cache named '" +
-							cacheName + "' for " + context.getOperation());
-				}
-				result.add(cache);
+		Collection<Cache> result = new ArrayList<Cache>(cacheNames.size());
+		for (String cacheName : cacheNames) {
+			Cache cache = getCacheManager().getCache(cacheName);
+			if (cache == null) {
+				throw new IllegalArgumentException("Cannot find cache named '" +
+						cacheName + "' for " + context.getOperation());
 			}
-			return result;
+			result.add(cache);
 		}
+		return result;
 	}
 
 	/**
@@ -91,7 +98,7 @@ public abstract class AbstractCacheResolver implements CacheResolver, Initializi
 	 * <p>It is acceptable to return {@code null} to indicate that no cache could
 	 * be resolved for this invocation.
 	 * @param context the context of the particular invocation
-	 * @return the cache name(s) to resolve or {@code null} if no cache should be resolved
+	 * @return the cache name(s) to resolve, or {@code null} if no cache should be resolved
 	 */
 	protected abstract Collection<String> getCacheNames(CacheOperationInvocationContext<?> context);
 

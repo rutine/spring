@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,8 +65,8 @@ public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed> e
 
 		WireFeedInput feedInput = new WireFeedInput();
 		MediaType contentType = inputMessage.getHeaders().getContentType();
-		Charset charset =
-				(contentType != null && contentType.getCharset() != null? contentType.getCharset() : DEFAULT_CHARSET);
+		Charset charset = (contentType != null && contentType.getCharset() != null ?
+				contentType.getCharset() : DEFAULT_CHARSET);
 		try {
 			Reader reader = new InputStreamReader(inputMessage.getBody(), charset);
 			return (T) feedInput.build(reader);
@@ -80,20 +80,17 @@ public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed> e
 	protected void writeInternal(T wireFeed, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
 
-		String wireFeedEncoding = wireFeed.getEncoding();
-		if (!StringUtils.hasLength(wireFeedEncoding)) {
-			wireFeedEncoding = DEFAULT_CHARSET.name();
-		}
+		Charset charset = (StringUtils.hasLength(wireFeed.getEncoding()) ?
+				Charset.forName(wireFeed.getEncoding()) : DEFAULT_CHARSET);
 		MediaType contentType = outputMessage.getHeaders().getContentType();
 		if (contentType != null) {
-			Charset wireFeedCharset = Charset.forName(wireFeedEncoding);
-			contentType = new MediaType(contentType.getType(), contentType.getSubtype(), wireFeedCharset);
+			contentType = new MediaType(contentType.getType(), contentType.getSubtype(), charset);
 			outputMessage.getHeaders().setContentType(contentType);
 		}
 
 		WireFeedOutput feedOutput = new WireFeedOutput();
 		try {
-			Writer writer = new OutputStreamWriter(outputMessage.getBody(), wireFeedEncoding);
+			Writer writer = new OutputStreamWriter(outputMessage.getBody(), charset);
 			feedOutput.output(wireFeed, writer);
 		}
 		catch (FeedException ex) {

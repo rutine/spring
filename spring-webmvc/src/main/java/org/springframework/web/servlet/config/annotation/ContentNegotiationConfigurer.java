@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.web.servlet.config.annotation;
 
 import java.util.HashMap;
@@ -30,40 +31,42 @@ import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
 
 /**
  * Creates a {@code ContentNegotiationManager} and configures it with
- * one or more {@link ContentNegotiationStrategy} instances. The following shows
- * the resulting strategy instances, the methods used to configured them, and
- * whether enabled by default:
+ * one or more {@link ContentNegotiationStrategy} instances.
+ *
+ * <p>As an alternative you can also rely on the set of defaults described below
+ * which can be turned on or off or customized through the methods of this
+ * builder:
  *
  * <table>
  * <tr>
- *     <th>Configurer Property</th>
- *     <th>Underlying Strategy</th>
- *     <th>Default Setting</th>
+ * <th>Configurer Property</th>
+ * <th>Underlying Strategy</th>
+ * <th>Default Setting</th>
  * </tr>
  * <tr>
- *     <td>{@link #favorPathExtension}</td>
- *     <td>{@link PathExtensionContentNegotiationStrategy Path Extension strategy}</td>
- *     <td>On</td>
+ * <td>{@link #favorPathExtension}</td>
+ * <td>{@link PathExtensionContentNegotiationStrategy Path Extension strategy}</td>
+ * <td>On</td>
  * </tr>
  * <tr>
- *     <td>{@link #favorParameter}</td>
- *     <td>{@link ParameterContentNegotiationStrategy Parameter strategy}</td>
- *     <td>Off</td>
+ * <td>{@link #favorParameter}</td>
+ * <td>{@link ParameterContentNegotiationStrategy Parameter strategy}</td>
+ * <td>Off</td>
  * </tr>
  * <tr>
- *     <td>{@link #ignoreAcceptHeader}</td>
- *     <td>{@link HeaderContentNegotiationStrategy Header strategy}</td>
- *     <td>On</td>
+ * <td>{@link #ignoreAcceptHeader}</td>
+ * <td>{@link HeaderContentNegotiationStrategy Header strategy}</td>
+ * <td>On</td>
  * </tr>
  * <tr>
- *     <td>{@link #defaultContentType}</td>
- *     <td>{@link FixedContentNegotiationStrategy Fixed content strategy}</td>
- *     <td>Not set</td>
+ * <td>{@link #defaultContentType}</td>
+ * <td>{@link FixedContentNegotiationStrategy Fixed content strategy}</td>
+ * <td>Not set</td>
  * </tr>
  * <tr>
- *     <td>{@link #defaultContentTypeStrategy}</td>
- *     <td>{@link ContentNegotiationStrategy}</td>
- *     <td>Not set</td>
+ * <td>{@link #defaultContentTypeStrategy}</td>
+ * <td>{@link ContentNegotiationStrategy}</td>
+ * <td>Not set</td>
  * </tr>
  * </table>
  *
@@ -81,12 +84,14 @@ import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
  * of JAF.
  *
  * @author Rossen Stoyanchev
+ * @author Brian Clozel
+ * @author Juergen Hoeller
  * @since 3.2
+ * @see ContentNegotiationManagerFactoryBean
  */
 public class ContentNegotiationConfigurer {
 
-	private final ContentNegotiationManagerFactoryBean factory =
-			new ContentNegotiationManagerFactoryBean();
+	private final ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
 
 	private final Map<String, MediaType> mediaTypes = new HashMap<String, MediaType>();
 
@@ -229,10 +234,24 @@ public class ContentNegotiationConfigurer {
 		return this;
 	}
 
-	protected ContentNegotiationManager getContentNegotiationManager() throws Exception {
+
+	/**
+	 * Build a {@link ContentNegotiationManager} based on this configurer's settings.
+	 * @since 4.3.12
+	 * @see ContentNegotiationManagerFactoryBean#getObject()
+	 */
+	protected ContentNegotiationManager buildContentNegotiationManager() {
 		this.factory.addMediaTypes(this.mediaTypes);
 		this.factory.afterPropertiesSet();
 		return this.factory.getObject();
+	}
+
+	/**
+	 * @deprecated as of 4.3.12, in favor of {@link #buildContentNegotiationManager()}
+	 */
+	@Deprecated
+	protected ContentNegotiationManager getContentNegotiationManager() throws Exception {
+		return buildContentNegotiationManager();
 	}
 
 }

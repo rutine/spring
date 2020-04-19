@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
@@ -58,6 +60,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @since 3.1
  */
 public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor {
+
+	private static final Set<HttpMethod> SAFE_METHODS = EnumSet.of(HttpMethod.GET, HttpMethod.HEAD);
 
 	/**
 	 * Basic constructor with converters only. Suitable for resolving
@@ -172,15 +176,15 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
 		HttpHeaders outputHeaders = outputMessage.getHeaders();
 		HttpHeaders entityHeaders = responseEntity.getHeaders();
-		if (outputHeaders.containsKey(HttpHeaders.VARY) && entityHeaders.containsKey(HttpHeaders.VARY)) {
-			List<String> values = getVaryRequestHeadersToAdd(outputHeaders, entityHeaders);
-			if (!values.isEmpty()) {
-				outputHeaders.setVary(values);
-			}
-		}
 		if (!entityHeaders.isEmpty()) {
 			for (Map.Entry<String, List<String>> entry : entityHeaders.entrySet()) {
-				if (!outputHeaders.containsKey(entry.getKey())) {
+				if (HttpHeaders.VARY.equals(entry.getKey()) && outputHeaders.containsKey(HttpHeaders.VARY)) {
+					List<String> values = getVaryRequestHeadersToAdd(outputHeaders, entityHeaders);
+					if (!values.isEmpty()) {
+						outputHeaders.setVary(values);
+					}
+				}
+				else {
 					outputHeaders.put(entry.getKey(), entry.getValue());
 				}
 			}
@@ -190,7 +194,8 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 			int returnStatus = ((ResponseEntity<?>) responseEntity).getStatusCodeValue();
 			outputMessage.getServletResponse().setStatus(returnStatus);
 			if (returnStatus == 200) {
-				if (isResourceNotModified(inputMessage, outputMessage)) {
+				if (SAFE_METHODS.contains(inputMessage.getMethod())
+						&& isResourceNotModified(inputMessage, outputMessage)) {
 					// Ensure headers are flushed, no body should be written.
 					outputMessage.flush();
 					// Skip call to converters, as they may update the body.
@@ -207,24 +212,25 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 	}
 
 	private List<String> getVaryRequestHeadersToAdd(HttpHeaders responseHeaders, HttpHeaders entityHeaders) {
-		if (!responseHeaders.containsKey(HttpHeaders.VARY)) {
-			return entityHeaders.getVary();
-		}
 		List<String> entityHeadersVary = entityHeaders.getVary();
-		List<String> result = new ArrayList<String>(entityHeadersVary);
-		for (String header : responseHeaders.get(HttpHeaders.VARY)) {
-			for (String existing : StringUtils.tokenizeToStringArray(header, ",")) {
-				if ("*".equals(existing)) {
-					return Collections.emptyList();
-				}
-				for (String value : entityHeadersVary) {
-					if (value.equalsIgnoreCase(existing)) {
-						result.remove(value);
+		List<String> vary = responseHeaders.get(HttpHeaders.VARY);
+		if (vary != null) {
+			List<String> result = new ArrayList<String>(entityHeadersVary);
+			for (String header : vary) {
+				for (String existing : StringUtils.tokenizeToStringArray(header, ",")) {
+					if ("*".equals(existing)) {
+						return Collections.emptyList();
+					}
+					for (String value : entityHeadersVary) {
+						if (value.equalsIgnoreCase(existing)) {
+							result.remove(value);
+						}
 					}
 				}
 			}
+			return result;
 		}
-		return result;
+		return entityHeadersVary;
 	}
 
 	private boolean isResourceNotModified(ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage) {

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -86,7 +86,8 @@ class Netty4ClientHttpRequest extends AbstractAsyncClientHttpRequest implements 
 			return executeAsync().get();
 		}
 		catch (InterruptedException ex) {
-			throw new IOException(ex.getMessage(), ex);
+			Thread.currentThread().interrupt();
+			throw new IOException("Interrupted during request execution", ex);
 		}
 		catch (ExecutionException ex) {
 			if (ex.getCause() instanceof IOException) {
@@ -136,7 +137,7 @@ class Netty4ClientHttpRequest extends AbstractAsyncClientHttpRequest implements 
 		FullHttpRequest nettyRequest = new DefaultFullHttpRequest(
 				HttpVersion.HTTP_1_1, nettyMethod, path, this.body.buffer());
 
-		nettyRequest.headers().set(HttpHeaders.HOST, this.uri.getHost());
+		nettyRequest.headers().set(HttpHeaders.HOST, this.uri.getHost() + ":" + getPort(uri));
 		nettyRequest.headers().set(HttpHeaders.CONNECTION, "close");
 		for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
 			nettyRequest.headers().add(entry.getKey(), entry.getValue());

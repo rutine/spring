@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.springframework.web.servlet.handler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.request.WebRequestInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -30,11 +31,10 @@ import org.springframework.web.servlet.ModelAndView;
  * Also provides matching logic to test if the interceptor applies to a given request path.
  *
  * <p>A MappedInterceptor can be registered directly with any
- * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping
- * AbstractHandlerMethodMapping}. Furthermore, beans of type MappedInterceptor
- * are automatically detected by {@code AbstractHandlerMethodMapping} (including
- * ancestor ApplicationContext's) which effectively means the interceptor is
- * registered "globally" with all handler mappings.
+ * {@link org.springframework.web.servlet.handler.AbstractHandlerMethodMapping}.
+ * Furthermore, beans of type {@code MappedInterceptor} are automatically detected by
+ * {@code AbstractHandlerMethodMapping} (including ancestor ApplicationContext's) which
+ * effectively means the interceptor is registered "globally" with all handler mappings.
  *
  * @author Keith Donald
  * @author Rossen Stoyanchev
@@ -54,7 +54,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	/**
 	 * Create a new MappedInterceptor instance.
-	 * @param includePatterns the path patterns to map with a {@code null} value matching to all paths
+	 * @param includePatterns the path patterns to map (empty for matching to all paths)
 	 * @param interceptor the HandlerInterceptor instance to map to the given patterns
 	 */
 	public MappedInterceptor(String[] includePatterns, HandlerInterceptor interceptor) {
@@ -63,8 +63,8 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	/**
 	 * Create a new MappedInterceptor instance.
-	 * @param includePatterns the path patterns to map with a {@code null} value matching to all paths
-	 * @param excludePatterns the path patterns to exclude
+	 * @param includePatterns the path patterns to map (empty for matching to all paths)
+	 * @param excludePatterns the path patterns to exclude (empty for no specific excludes)
 	 * @param interceptor the HandlerInterceptor instance to map to the given patterns
 	 */
 	public MappedInterceptor(String[] includePatterns, String[] excludePatterns, HandlerInterceptor interceptor) {
@@ -76,7 +76,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	/**
 	 * Create a new MappedInterceptor instance.
-	 * @param includePatterns the path patterns to map with a {@code null} value matching to all paths
+	 * @param includePatterns the path patterns to map (empty for matching to all paths)
 	 * @param interceptor the WebRequestInterceptor instance to map to the given patterns
 	 */
 	public MappedInterceptor(String[] includePatterns, WebRequestInterceptor interceptor) {
@@ -85,7 +85,8 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	/**
 	 * Create a new MappedInterceptor instance.
-	 * @param includePatterns the path patterns to map with a {@code null} value matching to all paths
+	 * @param includePatterns the path patterns to map (empty for matching to all paths)
+	 * @param excludePatterns the path patterns to exclude (empty for no specific excludes)
 	 * @param interceptor the WebRequestInterceptor instance to map to the given patterns
 	 */
 	public MappedInterceptor(String[] includePatterns, String[] excludePatterns, WebRequestInterceptor interceptor) {
@@ -94,20 +95,18 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 
 	/**
-	 * Configure a PathMatcher to use with this MappedInterceptor instead of the
-	 * one passed by default to the {@link #matches(String, org.springframework.util.PathMatcher)}
-	 * method. This is an advanced property that is only required when using custom
-	 * PathMatcher implementations that support mapping metadata other than the
-	 * Ant-style path patterns supported by default.
-	 *
-	 * @param pathMatcher the path matcher to use
+	 * Configure a PathMatcher to use with this MappedInterceptor instead of the one passed
+	 * by default to the {@link #matches(String, org.springframework.util.PathMatcher)} method.
+	 * <p>This is an advanced property that is only required when using custom PathMatcher
+	 * implementations that support mapping metadata other than the Ant-style path patterns
+	 * supported by default.
 	 */
 	public void setPathMatcher(PathMatcher pathMatcher) {
 		this.pathMatcher = pathMatcher;
 	}
 
 	/**
-	 * The configured PathMatcher, or {@code null}.
+	 * The configured PathMatcher, or {@code null} if none.
 	 */
 	public PathMatcher getPathMatcher() {
 		return this.pathMatcher;
@@ -121,51 +120,57 @@ public final class MappedInterceptor implements HandlerInterceptor {
 	}
 
 	/**
-	 * The actual Interceptor reference.
+	 * The actual {@link HandlerInterceptor} reference.
 	 */
 	public HandlerInterceptor getInterceptor() {
 		return this.interceptor;
 	}
 
-	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		return this.interceptor.preHandle(request, response, handler);
-	}
-
-	@Override
-	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		this.interceptor.postHandle(request, response, handler, modelAndView);
-	}
-
-	@Override
-	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-		this.interceptor.afterCompletion(request, response, handler, ex);
-	}
 
 	/**
-	 * Returns {@code true} if the interceptor applies to the given request path.
+	 * Determine a match for the given lookup path.
 	 * @param lookupPath the current request path
 	 * @param pathMatcher a path matcher for path pattern matching
 	 */
 	public boolean matches(String lookupPath, PathMatcher pathMatcher) {
-		PathMatcher pathMatcherToUse = (this.pathMatcher != null) ? this.pathMatcher : pathMatcher;
-		if (this.excludePatterns != null) {
+		PathMatcher pathMatcherToUse = (this.pathMatcher != null ? this.pathMatcher : pathMatcher);
+		if (!ObjectUtils.isEmpty(this.excludePatterns)) {
 			for (String pattern : this.excludePatterns) {
 				if (pathMatcherToUse.match(pattern, lookupPath)) {
 					return false;
 				}
 			}
 		}
-		if (this.includePatterns == null) {
+		if (ObjectUtils.isEmpty(this.includePatterns)) {
 			return true;
 		}
-		else {
-			for (String pattern : this.includePatterns) {
-				if (pathMatcherToUse.match(pattern, lookupPath)) {
-					return true;
-				}
+		for (String pattern : this.includePatterns) {
+			if (pathMatcherToUse.match(pattern, lookupPath)) {
+				return true;
 			}
-			return false;
 		}
+		return false;
 	}
+
+	@Override
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws Exception {
+
+		return this.interceptor.preHandle(request, response, handler);
+	}
+
+	@Override
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+			ModelAndView modelAndView) throws Exception {
+
+		this.interceptor.postHandle(request, response, handler, modelAndView);
+	}
+
+	@Override
+	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
+			Exception ex) throws Exception {
+
+		this.interceptor.afterCompletion(request, response, handler, ex);
+	}
+
 }

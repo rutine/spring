@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,29 +42,29 @@ public class SimpleAliasRegistry implements AliasRegistry {
     private final Map<String, String> aliasMap = new ConcurrentHashMap<String, String>(16);
 
 
-    @Override
-    public void registerAlias(String name, String alias) {
-        Assert.hasText(name, "'name' must not be empty");
-        Assert.hasText(alias, "'alias' must not be empty");
-        if (alias.equals(name)) {
-            this.aliasMap.remove(alias);
-        }
-        else {
-            String registeredName = this.aliasMap.get(alias);
-            if (registeredName != null) {
-                if (registeredName.equals(name)) {
-                    // An existing alias - no need to re-register
-                    return;
-                }
-                if (!allowAliasOverriding()) {
-                    throw new IllegalStateException("Cannot register alias '" + alias + "' for name '" +
-                            name + "': It is already registered for name '" + registeredName + "'.");
-                }
-            }
-            checkForAliasCircle(name, alias);
-            this.aliasMap.put(alias, name);
-        }
-    }
+	@Override
+	public void registerAlias(String name, String alias) {
+		Assert.hasText(name, "'name' must not be empty");
+		Assert.hasText(alias, "'alias' must not be empty");
+		synchronized (this.aliasMap) {if (alias.equals(name)) {
+			this.aliasMap.remove(alias);
+		}
+		else {
+			String registeredName = this.aliasMap.get(alias);
+			if (registeredName != null) {
+				if (registeredName.equals(name)) {
+					// An existing alias - no need to re-register
+					return;
+				}
+				if (!allowAliasOverriding()) {
+					throw new IllegalStateException("Cannot register alias '" + alias + "' for name '" +
+							name + "': It is already registered for name '" + registeredName + "'.");
+				}
+			}
+			checkForAliasCircle(name, alias);
+			this.aliasMap.put(alias, name);
+		}
+	}}
 
     /**
      * Return whether alias overriding is allowed.
@@ -74,8 +74,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
         return true;
     }
 
-    /**
-     *
+	/***
      * name:  A
      * alias: C
      * 是否存在C是A的别名
@@ -83,29 +82,31 @@ public class SimpleAliasRegistry implements AliasRegistry {
      * B -> A, 存在B是A的别名
      * 所以存在C是A的别名
      *
-     * Determine whether the given name has the given alias registered.
-     * @param name the name to check
-     * @param alias the alias to look for
-     * @since 4.2.1
-     */
-    public boolean hasAlias(String name, String alias) {
-        for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
-            String registeredName = entry.getValue();
-            if (registeredName.equals(name)) {
-                String registeredAlias = entry.getKey();
-                return (registeredAlias.equals(alias) || hasAlias(registeredAlias, alias));
-            }
-        }
-        return false;
-    }
+	 * Determine whether the given name has the given alias registered.
+	 * @param name the name to check
+	 * @param alias the alias to look for
+	 * @since 4.2.1
+	 */
+	public boolean hasAlias(String name, String alias) {
+		for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
+			String registeredName = entry.getValue();
+			if (registeredName.equals(name)) {
+				String registeredAlias = entry.getKey();
+				if (registeredAlias.equals(alias) || hasAlias(registeredAlias, alias)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
-    @Override
-    public void removeAlias(String alias) {
-        String name = this.aliasMap.remove(alias);
-        if (name == null) {
-            throw new IllegalStateException("No alias '" + alias + "' registered");
-        }
-    }
+	@Override
+	public void removeAlias(String alias) {
+		synchronized (this.aliasMap) {String name = this.aliasMap.remove(alias);
+		if (name == null) {
+			throw new IllegalStateException("No alias '" + alias + "' registered");
+		}
+	}}
 
     @Override
     public boolean isAlias(String name) {

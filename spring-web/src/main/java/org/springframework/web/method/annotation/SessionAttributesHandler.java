@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,6 +43,7 @@ import org.springframework.web.context.request.WebRequest;
  * {@link SessionStatus#setComplete()}.
  *
  * @author Rossen Stoyanchev
+ * @author Juergen Hoeller
  * @since 3.1
  */
 public class SessionAttributesHandler {
@@ -58,9 +59,9 @@ public class SessionAttributesHandler {
 
 
 	/**
-	 * Create a new instance for a controller type. Session attribute names and
-	 * types are extracted from the {@code @SessionAttributes} annotation, if
-	 * present, on the given type.
+	 * Create a new session attributes handler. Session attribute names and types
+	 * are extracted from the {@code @SessionAttributes} annotation, if present,
+	 * on the given type.
 	 * @param handlerType the controller type
 	 * @param sessionAttributeStore used for session access
 	 */
@@ -68,36 +69,31 @@ public class SessionAttributesHandler {
 		Assert.notNull(sessionAttributeStore, "SessionAttributeStore may not be null");
 		this.sessionAttributeStore = sessionAttributeStore;
 
-		SessionAttributes annotation =
-				AnnotatedElementUtils.findMergedAnnotation(handlerType, SessionAttributes.class);
-		if (annotation != null) {
-			this.attributeNames.addAll(Arrays.asList(annotation.names()));
-			this.attributeTypes.addAll(Arrays.asList(annotation.types()));
+		SessionAttributes ann = AnnotatedElementUtils.findMergedAnnotation(handlerType, SessionAttributes.class);
+		if (ann != null) {
+			this.attributeNames.addAll(Arrays.asList(ann.names()));
+			this.attributeTypes.addAll(Arrays.asList(ann.types()));
 		}
-
-		for (String attributeName : this.attributeNames) {
-			this.knownAttributeNames.add(attributeName);
-		}
+		this.knownAttributeNames.addAll(this.attributeNames);
 	}
+
 
 	/**
 	 * Whether the controller represented by this instance has declared any
 	 * session attributes through an {@link SessionAttributes} annotation.
 	 */
 	public boolean hasSessionAttributes() {
-		return (this.attributeNames.size() > 0 || this.attributeTypes.size() > 0);
+		return (!this.attributeNames.isEmpty() || !this.attributeTypes.isEmpty());
 	}
 
 	/**
 	 * Whether the attribute name or type match the names and types specified
-	 * via {@code @SessionAttributes} in underlying controller.
-	 *
+	 * via {@code @SessionAttributes} on the underlying controller.
 	 * <p>Attributes successfully resolved through this method are "remembered"
 	 * and subsequently used in {@link #retrieveAttributes(WebRequest)} and
 	 * {@link #cleanupAttributes(WebRequest)}.
-	 *
-	 * @param attributeName the attribute name to check, never {@code null}
-	 * @param attributeType the type for the attribute, possibly {@code null}
+	 * @param attributeName the attribute name to check
+	 * @param attributeType the type for the attribute
 	 */
 	public boolean isHandlerSessionAttribute(String attributeName, Class<?> attributeType) {
 		Assert.notNull(attributeName, "Attribute name must not be null");
@@ -119,8 +115,7 @@ public class SessionAttributesHandler {
 	public void storeAttributes(WebRequest request, Map<String, ?> attributes) {
 		for (String name : attributes.keySet()) {
 			Object value = attributes.get(name);
-			Class<?> attrType = (value != null) ? value.getClass() : null;
-
+			Class<?> attrType = (value != null ? value.getClass() : null);
 			if (isHandlerSessionAttribute(name, attrType)) {
 				this.sessionAttributeStore.storeAttribute(request, name, value);
 			}
@@ -161,7 +156,7 @@ public class SessionAttributesHandler {
 	 * A pass-through call to the underlying {@link SessionAttributeStore}.
 	 * @param request the current request
 	 * @param attributeName the name of the attribute of interest
-	 * @return the attribute value or {@code null}
+	 * @return the attribute value, or {@code null} if none
 	 */
 	Object retrieveAttribute(WebRequest request, String attributeName) {
 		return this.sessionAttributeStore.retrieveAttribute(request, attributeName);

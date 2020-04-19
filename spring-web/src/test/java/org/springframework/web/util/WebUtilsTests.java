@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -133,7 +133,7 @@ public class WebUtilsTests {
 		assertTrue(checkSameOrigin("mydomain1.com", -1, "http://mydomain1.com:80"));
 		assertTrue(checkSameOrigin("mydomain1.com", 443, "https://mydomain1.com"));
 		assertTrue(checkSameOrigin("mydomain1.com", 443, "https://mydomain1.com:443"));
-		assertTrue(checkSameOrigin("mydomain1.com", 123, "http://mydomain1.com:123"));
+		assertTrue(checkSameOrigin("mydomain1.com", 123, "https://mydomain1.com:123"));
 		assertTrue(checkSameOrigin("mydomain1.com", -1, "ws://mydomain1.com"));
 		assertTrue(checkSameOrigin("mydomain1.com", 443, "wss://mydomain1.com"));
 
@@ -143,7 +143,7 @@ public class WebUtilsTests {
 
 		// Handling of invalid origins as described in SPR-13478
 		assertTrue(checkSameOrigin("mydomain1.com", -1, "http://mydomain1.com/"));
-		assertTrue(checkSameOrigin("mydomain1.com", -1, "http://mydomain1.com:80/"));
+		assertTrue(checkSameOrigin("mydomain1.com", -1, "http://mydomain1.com:80"));
 		assertTrue(checkSameOrigin("mydomain1.com", -1, "http://mydomain1.com/path"));
 		assertTrue(checkSameOrigin("mydomain1.com", -1, "http://mydomain1.com:80/path"));
 		assertFalse(checkSameOrigin("mydomain2.com", -1, "http://mydomain1.com/"));
@@ -158,6 +158,26 @@ public class WebUtilsTests {
 		assertTrue(checkSameOrigin("[2001:0db8:0000:85a3:0000:0000:ac1f:8001]", 8080, "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]:8080"));
 		assertFalse(checkSameOrigin("[::1]", -1, "http://[::1]:8080"));
 		assertFalse(checkSameOrigin("[::1]", 8080, "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]:8080"));
+	}
+
+	@Test  // SPR-16262
+	public void isSameOriginWithXForwardedHeaders() {
+		assertTrue(checkSameOriginWithXForwardedHeaders("mydomain1.com", -1, "https", null, -1, "https://mydomain1.com"));
+		assertTrue(checkSameOriginWithXForwardedHeaders("mydomain1.com", 123, "https", null, -1, "https://mydomain1.com"));
+		assertTrue(checkSameOriginWithXForwardedHeaders("mydomain1.com", -1, "https", "mydomain2.com", -1, "https://mydomain2.com"));
+		assertTrue(checkSameOriginWithXForwardedHeaders("mydomain1.com", 123, "https", "mydomain2.com", -1, "https://mydomain2.com"));
+		assertTrue(checkSameOriginWithXForwardedHeaders("mydomain1.com", -1, "https", "mydomain2.com", 456, "https://mydomain2.com:456"));
+		assertTrue(checkSameOriginWithXForwardedHeaders("mydomain1.com", 123, "https", "mydomain2.com", 456, "https://mydomain2.com:456"));
+	}
+
+	@Test  // SPR-16262
+	public void isSameOriginWithForwardedHeader() {
+		assertTrue(checkSameOriginWithForwardedHeader("mydomain1.com", -1, "proto=https", "https://mydomain1.com"));
+		assertTrue(checkSameOriginWithForwardedHeader("mydomain1.com", 123, "proto=https", "https://mydomain1.com"));
+		assertTrue(checkSameOriginWithForwardedHeader("mydomain1.com", -1, "proto=https; host=mydomain2.com", "https://mydomain2.com"));
+		assertTrue(checkSameOriginWithForwardedHeader("mydomain1.com", 123, "proto=https; host=mydomain2.com", "https://mydomain2.com"));
+		assertTrue(checkSameOriginWithForwardedHeader("mydomain1.com", -1, "proto=https; host=mydomain2.com:456", "https://mydomain2.com:456"));
+		assertTrue(checkSameOriginWithForwardedHeader("mydomain1.com", 123, "proto=https; host=mydomain2.com:456", "https://mydomain2.com:456"));
 	}
 
 
@@ -179,6 +199,38 @@ public class WebUtilsTests {
 		if (port != -1) {
 			servletRequest.setServerPort(port);
 		}
+		request.getHeaders().set(HttpHeaders.ORIGIN, originHeader);
+		return WebUtils.isSameOrigin(request);
+	}
+
+	private boolean checkSameOriginWithXForwardedHeaders(String serverName, int port, String forwardedProto, String forwardedHost, int forwardedPort, String originHeader) {
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		ServerHttpRequest request = new ServletServerHttpRequest(servletRequest);
+		servletRequest.setServerName(serverName);
+		if (port != -1) {
+			servletRequest.setServerPort(port);
+		}
+		if (forwardedProto != null) {
+			request.getHeaders().set("X-Forwarded-Proto", forwardedProto);
+		}
+		if (forwardedHost != null) {
+			request.getHeaders().set("X-Forwarded-Host", forwardedHost);
+		}
+		if (forwardedPort != -1) {
+			request.getHeaders().set("X-Forwarded-Port", String.valueOf(forwardedPort));
+		}
+		request.getHeaders().set(HttpHeaders.ORIGIN, originHeader);
+		return WebUtils.isSameOrigin(request);
+	}
+
+	private boolean checkSameOriginWithForwardedHeader(String serverName, int port, String forwardedHeader, String originHeader) {
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		ServerHttpRequest request = new ServletServerHttpRequest(servletRequest);
+		servletRequest.setServerName(serverName);
+		if (port != -1) {
+			servletRequest.setServerPort(port);
+		}
+		request.getHeaders().set("Forwarded", forwardedHeader);
 		request.getHeaders().set(HttpHeaders.ORIGIN, originHeader);
 		return WebUtils.isSameOrigin(request);
 	}

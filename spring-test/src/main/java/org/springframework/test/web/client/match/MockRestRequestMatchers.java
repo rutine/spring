@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -166,7 +165,7 @@ public abstract class MockRestRequestMatchers {
 		List<String> values = map.get(name);
 
 		String message = "Expected " + valueType + " <" + name + ">";
-		assertNotNull(message, values);
+		assertTrue(message + " to exist but was null", values != null);
 
 		assertTrue(message + " to have at least <" + count + "> values but found " + values,
 				count <= values.size());
@@ -220,7 +219,7 @@ public abstract class MockRestRequestMatchers {
 	 * @param expression the JSON path optionally parameterized with arguments
 	 * @param args arguments to parameterize the JSON path expression with
 	 */
-	public static JsonPathRequestMatchers jsonPath(String expression, Object ... args) {
+	public static JsonPathRequestMatchers jsonPath(String expression, Object... args) {
 		return new JsonPathRequestMatchers(expression, args);
 	}
 

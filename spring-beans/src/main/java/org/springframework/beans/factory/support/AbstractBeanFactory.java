@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -378,19 +378,23 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                 final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
                 checkMergedBeanDefinition(mbd, beanName, args);//抽象的bean定义不能创建实例
 
-                // 初始化当前bean时, 保证依赖的其他bean已存在或者创建[可能导致循环依赖]
-                // Guarantee initialization of beans that the current bean depends on.
-                String[] dependsOn = mbd.getDependsOn();
-                if (dependsOn != null) {
-                    for (String dep : dependsOn) {
-                        if (isDependent(beanName, dep)) {
-                            throw new BeanCreationException(mbd.getResourceDescription(), beanName,
-                                    "Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
-                        }
-                        registerDependentBean(dep, beanName);
-                        getBean(dep);
-                    }
-                }
+				// 初始化当前bean时, 保证依赖的其他bean已存在或者创建[可能导致循环依赖]
+                //Guarantee initialization of beans that the current bean depends on.
+				String[] dependsOn = mbd.getDependsOn();
+				if (dependsOn != null) {
+					for (String dep : dependsOn) {
+						if (isDependent(beanName, dep)) {
+							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
+						}
+						registerDependentBean(dep, beanName);
+						try {getBean(dep);
+					}
+				catch (NoSuchBeanDefinitionException ex) {
+							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+									"'" + beanName + "' depends on missing bean '" + dep + "'", ex);
+						}
+					}}
 
                 // 创建单例bean.
                 // Create bean instance.
@@ -465,7 +469,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
         // 6.如果期望具体的返回类型, 进行转换
         // Check if required type matches the type of the actual bean instance.
-        if (requiredType != null && bean != null && !requiredType.isAssignableFrom(bean.getClass())) {
+        if (requiredType != null && bean != null && !requiredType.isInstance(bean)) {
             try {
                 return getTypeConverter().convertIfNecessary(bean, requiredType);
             }
@@ -681,42 +685,51 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
         String beanName = transformedBeanName(name);
 
-        // Check manually registered singletons.
-        Object beanInstance = getSingleton(beanName, false);
-        if (beanInstance != null) {
-            if (beanInstance instanceof FactoryBean) {
-                if (!BeanFactoryUtils.isFactoryDereference(name)) {
-                    Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
-                    return (type != null && typeToMatch.isAssignableFrom(type));
-                }
-                else {
-                    return typeToMatch.isInstance(beanInstance);
-                }
-            }
-            else if (!BeanFactoryUtils.isFactoryDereference(name)) {
-                if (typeToMatch.isInstance(beanInstance)) {
-                    // Direct match for exposed instance?
-                    return true;
-                }
-                //泛型参数匹配
-                else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
-                    // Generics potentially only match on the target class, not on the proxy...
-                    RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
-                    Class<?> targetType = mbd.getTargetType();
-                    if (targetType != null && targetType != ClassUtils.getUserClass(beanInstance) &&
-                            typeToMatch.isAssignableFrom(targetType)) {
-                        // Check raw class match as well, making sure it's exposed on the proxy.
-                        Class<?> classToMatch = typeToMatch.resolve();
-                        return (classToMatch == null || classToMatch.isInstance(beanInstance));
-                    }
-                }
-            }
-            return false;
-        }
-        else if (containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
-            // null instance registered
-            return false;
-        }
+		// Check manually registered singletons.
+		Object beanInstance = getSingleton(beanName, false);
+		if (beanInstance != null) {
+			if (beanInstance instanceof FactoryBean) {
+				if (!BeanFactoryUtils.isFactoryDereference(name)) {
+					Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
+					return (type != null && typeToMatch.isAssignableFrom(type));
+				}
+				else {
+					return typeToMatch.isInstance(beanInstance);
+				}
+			}
+			else if (!BeanFactoryUtils.isFactoryDereference(name)) {
+				if (typeToMatch.isInstance(beanInstance)) {
+					// Direct match for exposed instance?
+					return true;
+				}
+				//泛型参数匹配else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
+					// Generics potentially only match on the target class, not on the proxy...
+					RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+					Class<?> targetType = mbd.getTargetType();
+					if (targetType != null && targetType != ClassUtils.getUserClass(beanInstance) ) {
+
+						// Check raw class match as well, making sure it's exposed on the proxy.
+						Class<?> classToMatch = typeToMatch.resolve();
+						if (classToMatch != null && ! classToMatch.isInstance(beanInstance)){
+					return false;
+						}
+						if (typeToMatch.isAssignableFrom(targetType)) {
+							return true;
+						}
+					}
+					ResolvableType resolvableType = mbd.targetType;
+					if (resolvableType == null) {
+						resolvableType = mbd.factoryMethodReturnType;
+					}
+					return (resolvableType != null && typeToMatch.isAssignableFrom(resolvableType));
+				}
+			}
+			return false;
+		}
+		else if (containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
+			// null instance registered
+			return false;
+		}
 
         // No singleton instance found -> check bean definition.
         BeanFactory parentBeanFactory = getParentBeanFactory();
@@ -1185,50 +1198,50 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         }
     }
 
-    /**
-     * Return a 'merged' BeanDefinition for the given bean name,
-     * merging a child bean definition with its parent if necessary.
-     * <p>This {@code getMergedBeanDefinition} considers bean definition
-     * in ancestors as well.
-     * @param name the name of the bean to retrieve the merged definition for
-     * (may be an alias)
-     * @return a (potentially merged) RootBeanDefinition for the given bean
-     * @throws NoSuchBeanDefinitionException if there is no bean with the given name
-     * @throws BeanDefinitionStoreException in case of an invalid bean definition
-     */
-    @Override
-    public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
-        String beanName = transformedBeanName(name);
+	/**
+	 * Return a 'merged' BeanDefinition for the given bean name,
+	 * merging a child bean definition with its parent if necessary.
+	 * <p>This {@code getMergedBeanDefinition} considers bean definition
+	 * in ancestors as well.
+	 * @param name the name of the bean to retrieve the merged definition for
+	 * (may be an alias)
+	 * @return a (potentially merged) RootBeanDefinition for the given bean
+	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
+	 */
+	@Override
+	public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
+		String beanName = transformedBeanName(name);
 
-        // Efficiently check whether bean definition exists in this factory.
-        if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
-            return ((ConfigurableBeanFactory) getParentBeanFactory()).getMergedBeanDefinition(beanName);
-        }
-        // Resolve merged bean definition locally.
-        return getMergedLocalBeanDefinition(beanName);
-    }
+		// Efficiently check whether bean definition exists in this factory.
+		if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
+			return ((ConfigurableBeanFactory) getParentBeanFactory()).getMergedBeanDefinition(beanName);
+		}
+		// Resolve merged bean definition locally.
+		return getMergedLocalBeanDefinition(beanName);
+	}
 
-    @Override
-    public boolean isFactoryBean(String name) throws NoSuchBeanDefinitionException {
-        String beanName = transformedBeanName(name);
+	@Override
+	public boolean isFactoryBean(String name) throws NoSuchBeanDefinitionException {
+		String beanName = transformedBeanName(name);
 
-        Object beanInstance = getSingleton(beanName, false);
-        if (beanInstance != null) {
-            return (beanInstance instanceof FactoryBean);
-        }
-        else if (containsSingleton(beanName)) {
-            // null instance registered
-            return false;
-        }
+		Object beanInstance = getSingleton(beanName, false);
+		if (beanInstance != null) {
+			return (beanInstance instanceof FactoryBean);
+		}
+		else if (containsSingleton(beanName)) {
+			// null instance registered
+			return false;
+		}
 
-        // No singleton instance found -> check bean definition.
-        if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
-            // No bean definition found in this factory -> delegate to parent.
-            return ((ConfigurableBeanFactory) getParentBeanFactory()).isFactoryBean(name);
-        }
+		// No singleton instance found -> check bean definition.
+		if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
+			// No bean definition found in this factory -> delegate to parent.
+			return ((ConfigurableBeanFactory) getParentBeanFactory()).isFactoryBean(name);
 
-        return isFactoryBean(beanName, getMergedLocalBeanDefinition(beanName));
-    }
+}
+		return isFactoryBean(beanName, getMergedLocalBeanDefinition(beanName));
+	}
 
     @Override
     public boolean isActuallyInCreation(String beanName) {
@@ -1492,7 +1505,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                             else {
                                 throw new NoSuchBeanDefinitionException(parentBeanName,
                                         "Parent name '" + parentBeanName + "' is equal to bean name '" + beanName +
-                                        "': cannot be resolved without an AbstractBeanFactory parent");
+                                        "': cannot be resolved without a ConfigurableBeanFactory parent");
                             }
                         }
                     }
@@ -1507,7 +1520,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
                 // Set default singleton scope, if not configured before.
                 if (!StringUtils.hasLength(mbd.getScope())) {
-                    mbd.setScope(RootBeanDefinition.SCOPE_SINGLETON);
+                    mbd.setScope(SCOPE_SINGLETON);
                 }
 
                 // A bean contained in a non-singleton bean cannot be a singleton itself.
@@ -1518,12 +1531,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                     mbd.setScope(containingBd.getScope());
                 }
 
-                // Only cache the merged bean definition if we're already about to create an
-                // instance of the bean, or at least have already created an instance before.
-                if (containingBd == null && isCacheBeanMetadata()) {
-                    this.mergedBeanDefinitions.put(beanName, mbd);
-                }
-            }
+				// Cache the merged bean definition for the time being
+				// (it might still getre -merged later on in order to pick up metadata changes)
+				if (containingBd == null && isCacheBeanMetadata()) {
+					this.mergedBeanDefinitions.put(beanName, mbd);
+				}
+			}
 
             return mbd;
         }
@@ -1571,46 +1584,46 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         }
     }
 
-    /**
-     * Resolve the bean class for the specified bean definition,
-     * resolving a bean class name into a Class reference (if necessary)
-     * and storing the resolved Class in the bean definition for further use.
-     * @param mbd the merged bean definition to determine the class for
-     * @param beanName the name of the bean (for error handling purposes)
-     * @param typesToMatch the types to match in case of internal type matching purposes
-     * (also signals that the returned {@code Class} will never be exposed to application code)
-     * @return the resolved bean class (or {@code null} if none)
-     * @throws CannotLoadBeanClassException if we failed to load the class
-     */
-    protected Class<?> resolveBeanClass(final RootBeanDefinition mbd, String beanName, final Class<?>... typesToMatch)
-            throws CannotLoadBeanClassException {
-        try {
-            if (mbd.hasBeanClass()) {
-                return mbd.getBeanClass();
-            }
-            if (System.getSecurityManager() != null) {
-                return AccessController.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
-                    @Override
-                    public Class<?> run() throws Exception {
-                        return doResolveBeanClass(mbd, typesToMatch);
-                    }
-                }, getAccessControlContext());
-            }
-            else {
-                return doResolveBeanClass(mbd, typesToMatch);
-            }
-        }
-        catch (PrivilegedActionException pae) {
-            ClassNotFoundException ex = (ClassNotFoundException) pae.getException();
-            throw new CannotLoadBeanClassException(mbd.getResourceDescription(), beanName, mbd.getBeanClassName(), ex);
-        }
-        catch (ClassNotFoundException ex) {
-            throw new CannotLoadBeanClassException(mbd.getResourceDescription(), beanName, mbd.getBeanClassName(), ex);
-        }
-        catch (LinkageError ex) {
-            throw new CannotLoadBeanClassException(mbd.getResourceDescription(), beanName, mbd.getBeanClassName(), ex);
-        }
-    }
+	/**
+	 * Resolve the bean class for the specified bean definition,
+	 * resolving a bean class name into a Class reference (if necessary)
+	 * and storing the resolved Class in the bean definition for further use.
+	 * @param mbd the merged bean definition to determine the class for
+	 * @param beanName the name of the bean (for error handling purposes)
+	 * @param typesToMatch the types to match in case of internal type matching purposes
+	 * (also signals that the returned {@code Class} will never be exposed to application code)
+	 * @return the resolved bean class (or {@code null} if none)
+	 * @throws CannotLoadBeanClassException if we failed to load the class
+	 */
+	protected Class<?> resolveBeanClass(final RootBeanDefinition mbd, String beanName, final Class<?>... typesToMatch)
+			throws CannotLoadBeanClassException {
+		try {
+			if (mbd.hasBeanClass()) {
+				return mbd.getBeanClass();
+			}
+			if (System.getSecurityManager() != null) {
+				return AccessController.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+					@Override
+					public Class<?> run() throws Exception {
+						return doResolveBeanClass(mbd, typesToMatch);
+					}
+				}, getAccessControlContext());
+			}
+			else {
+				return doResolveBeanClass(mbd, typesToMatch);
+			}
+		}
+		catch (PrivilegedActionException pae) {
+			ClassNotFoundException ex = (ClassNotFoundException) pae.getException();
+			throw new CannotLoadBeanClassException(mbd.getResourceDescription(), beanName, mbd.getBeanClassName(), ex);
+		}
+		catch (ClassNotFoundException ex) {
+			throw new CannotLoadBeanClassException(mbd.getResourceDescription(), beanName, mbd.getBeanClassName(), ex);
+		}
+		catch (LinkageError err) {
+			throw new CannotLoadBeanClassException(mbd.getResourceDescription(), beanName, mbd.getBeanClassName(), err);
+		}
+	}
 
     private Class<?> doResolveBeanClass(RootBeanDefinition mbd, Class<?>... typesToMatch)
             throws ClassNotFoundException {
@@ -1732,7 +1745,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             return getTypeForFactoryBean(factoryBean);
         }
         catch (BeanCreationException ex) {
-            if (ex instanceof BeanCurrentlyInCreationException) {
+            if (ex.contains(BeanCurrentlyInCreationException.class)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Bean currently in creation on FactoryBean type check: " + ex);
                 }

@@ -3,15 +3,11 @@ buildscript {
 		maven { url "https://repo.spring.io/plugins-release" }
 	}
 	dependencies {
-		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
-		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.2")
+		classpath("io.spring.gradle:propdeps-plugin:0.0.9.RELEASE")
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
+		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.2")
 		classpath("ws.antonov.gradle.plugins:gradle-plugin-protobuf:0.9.1")
 	}
-}
-
-plugins {
-	id "org.sonarqube" version "1.1"
 }
 
 ext {
@@ -34,50 +30,50 @@ configure(allprojects) { project ->
 	ext.aspectjVersion       = "1.8.9"
 	ext.caffeineVersion      = "2.3.5"
 	ext.eclipselinkVersion   = "2.4.2"
-	ext.ehcacheVersion       = "2.10.3"
+	ext.ehcacheVersion       = "2.10.4"
 	ext.ehcachejcacheVersion = "1.0.1"
-	ext.ehcache3Version      = "3.1.3"
+	ext.ehcache3Version      = "3.1.4"
 	ext.ejbVersion           = "3.0"
-	ext.fileuploadVersion    = "1.3.2"
+	ext.fileuploadVersion    = "1.3.3"
 	ext.freemarkerVersion    = "2.3.23"
-	ext.groovyVersion        = "2.4.9"
-	ext.gsonVersion          = "2.8.0"
+	ext.groovyVersion        = "2.4.17"
+	ext.gsonVersion          = "2.8.5"
 	ext.guavaVersion         = "20.0"
 	ext.hamcrestVersion      = "1.3"
 	ext.hibernate3Version    = "3.6.10.Final"
 	ext.hibernate4Version    = "4.3.11.Final"
-	ext.hibernate5Version    = "5.2.8.Final"
+	ext.hibernate5Version    = "5.2.10.Final"
 	ext.hibval4Version       = "4.3.2.Final"
-	ext.hibval5Version       = "5.2.4.Final"
+	ext.hibval5Version       = "5.2.5.Final"
 	ext.hsqldbVersion        = "2.3.4"
-	ext.httpasyncVersion     = "4.1.3"
-	ext.httpclientVersion    = "4.5.3"
-	ext.jackson2Version      = "2.8.7"
+	ext.httpasyncVersion     = "4.1.4"
+	ext.httpclientVersion    = "4.5.6"
+	ext.jackson2Version      = "2.8.11.3"
 	ext.jasperreportsVersion = "6.2.1"  // our tests fail with JR-internal NPEs against 6.2.2 and higher
 	ext.javamailVersion      = "1.5.6"
 	ext.jettyVersion         = "9.3.14.v20161028"  // as of 9.3.15, Jetty has hard Servlet 3.1 requirement
-	ext.jetty94Version       = "9.4.2.v20170220"  // for spring-websocket support, optimized for Jetty 9.4
-	ext.jodaVersion          = "2.9.7"
-	ext.jrubyVersion         = "1.7.26"  // JRuby 9000 primarily supported through JSR-223 (StandardScriptFactory)
+	ext.jetty94Version       = "9.4.6.v20170531"  // for spring-websocket support, optimized for Jetty 9.4
+	ext.jodaVersion          = "2.9.9"
+	ext.jrubyVersion         = "1.7.27"  // JRuby 9000 primarily supported through JSR-223 (StandardScriptFactory)
 	ext.jtaVersion           = "1.2"
 	ext.junitVersion         = "4.12"
 	ext.log4jVersion         = "1.2.17"
-	ext.nettyVersion         = "4.1.8.Final"
+	ext.nettyVersion         = "4.1.39.Final"
 	ext.okhttpVersion        = "2.7.5"
-	ext.okhttp3Version       = "3.6.0"
-	ext.openjpaVersion       = "2.4.1"
-	ext.poiVersion           = "3.14"
+	ext.okhttp3Version       = "3.8.1"
+	ext.openjpaVersion       = "2.4.2"
+	ext.poiVersion           = "3.17"
 	ext.reactorVersion       = "2.0.8.RELEASE"
-	ext.romeVersion          = "1.7.1"
-	ext.slf4jVersion         = "1.7.21"
+	ext.romeVersion          = "1.7.4"
+	ext.slf4jVersion         = "1.7.25"
 	ext.snakeyamlVersion     = "1.17"
-	ext.snifferVersion       = "1.15"
+	ext.snifferVersion       = "1.18"
 	ext.testngVersion        = "6.9.10"
 	ext.tiles2Version        = "2.2.2"
-	ext.tiles3Version        = "3.0.7"
-	ext.tomcatVersion        = "8.5.11"
+	ext.tiles3Version        = "3.0.8"
+	ext.tomcatVersion        = "8.5.45"
 	ext.tyrusVersion         = "1.3.5"  // constrained by WebLogic 12.1.3 support
-	ext.undertowVersion      = "1.3.27.Final"
+	ext.undertowVersion      = "1.3.33.Final"
 	ext.xmlunitVersion       = "1.6"
 	ext.xstreamVersion       = "1.4.9"
 
@@ -186,27 +182,28 @@ configure(allprojects) { project ->
 	}
 
 	ext.javadocLinks = [
-		"http://docs.oracle.com/javase/8/docs/api/",
-		"http://docs.oracle.com/javaee/7/api/",
-		"http://docs.oracle.com/cd/E13222_01/wls/docs90/javadocs/",  // CommonJ
-		"http://pic.dhe.ibm.com/infocenter/wasinfo/v7r0/topic/com.ibm.websphere.javadoc.doc/web/apidocs/",
-		"http://glassfish.java.net/nonav/docs/v3/api/",
-		"http://docs.jboss.org/jbossas/javadoc/4.0.5/connector/",
-		"http://docs.jboss.org/jbossas/javadoc/7.1.2.Final/",
-		"http://commons.apache.org/proper/commons-lang/javadocs/api-2.5/",
-		"http://commons.apache.org/proper/commons-codec/apidocs/",
-		"http://commons.apache.org/proper/commons-dbcp/apidocs/",
-		"http://portals.apache.org/pluto/portlet-2.0-apidocs/",
-		"http://tiles.apache.org/tiles-request/apidocs/",
-		"http://tiles.apache.org/framework/apidocs/",
-		"http://www.eclipse.org/aspectj/doc/released/aspectj5rt-api/",
-		"http://ehcache.org/apidocs/${ehcacheVersion}",
-		"http://ehcache.org/apidocs/${ehcache3Version}",
-		"http://quartz-scheduler.org/api/2.2.1/",
-		"http://fasterxml.github.io/jackson-core/javadoc/2.8/",
-		"http://fasterxml.github.io/jackson-databind/javadoc/2.8/",
-		"http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.8/",
-		"http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/"
+		"https://docs.oracle.com/javase/8/docs/api/",
+		"https://docs.oracle.com/javaee/7/api/",
+		"https://docs.oracle.com/cd/E13222_01/wls/docs90/javadocs/",  // CommonJ
+		"https://pic.dhe.ibm.com/infocenter/wasinfo/v7r0/topic/com.ibm.websphere.javadoc.doc/web/apidocs/",
+		"https://glassfish.java.net/nonav/docs/v3/api/",
+		"https://docs.jboss.org/jbossas/javadoc/4.0.5/connector/",
+		"https://docs.jboss.org/jbossas/javadoc/7.1.2.Final/",
+		"https://commons.apache.org/proper/commons-lang/javadocs/api-2.5/",
+		"https://commons.apache.org/proper/commons-codec/apidocs/",
+		"https://commons.apache.org/proper/commons-dbcp/apidocs/",
+		"https://portals.apache.org/pluto/portlet-2.0-apidocs/",
+		"https://tiles.apache.org/tiles-request/apidocs/",
+		"https://tiles.apache.org/framework/apidocs/",
+		"https://www.eclipse.org/aspectj/doc/released/aspectj5rt-api/",
+		"https://www.ehcache.org/apidocs/${ehcacheVersion}/",
+		"https://www.ehcache.org/apidocs/${ehcache3Version}/",
+		"https://www.quartz-scheduler.org/api/2.2.3/",
+		"https://fasterxml.github.io/jackson-core/javadoc/2.8/",
+		"https://fasterxml.github.io/jackson-databind/javadoc/2.8/",
+		"https://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.8/",
+		"https://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/",
+		"https://junit.org/junit4/javadoc/${junitVersion}/"
 	] as String[]
 }
 
@@ -219,12 +216,6 @@ configure(subprojects - project(":spring-build-src")) { subproject ->
 	}
 	dependencies {
 		jacoco("org.jacoco:org.jacoco.agent:0.7.5.201505241946:runtime")
-	}
-
-	gradle.taskGraph.whenReady {taskGraph ->
-		if (taskGraph.hasTask(':sonarqube')) {
-			test.jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=org.springframework.*"
-		}
 	}
 
 	jar {
@@ -289,12 +280,11 @@ project("spring-build-src") {
 project("spring-core") {
 	description = "Spring Core"
 
-	// As of Spring 4.0.3, spring-core includes asm 5.x and repackages cglib 3.2, inlining
-	// both into the spring-core jar. cglib 3.2 itself depends on asm 5.x and is therefore
-	// further transformed by the JarJar task to depend on org.springframework.asm; this
-	// avoids including two different copies of asm unnecessarily.
-	def cglibVersion = "3.2.5"
-	def objenesisVersion = "2.5.1"
+	// spring-core includes asm and repackages cglib, inlining both into the spring-core jar.
+	// cglib itself depends on asm and is therefore further transformed by the JarJar task to
+	// depend on org.springframework.asm; this avoids including two different copies of asm.
+	def cglibVersion = "3.2.6"
+	def objenesisVersion = "2.6"
 
 	configurations {
 		jarjar
@@ -316,7 +306,7 @@ project("spring-core") {
 					}
 					// Repackage net.sf.cglib => org.springframework.cglib
 					rule(pattern: "net.sf.cglib.**", result: "org.springframework.cglib.@1")
-					// As mentioned above, transform cglib"s internal asm dependencies from
+					// As mentioned above, transform cglib's internal asm dependencies from
 					// org.objectweb.asm => org.springframework.asm. Doing this counts on the
 					// the fact that Spring and cglib depend on the same version of asm!
 					rule(pattern: "org.objectweb.asm.**", result: "org.springframework.asm.@1")
@@ -475,8 +465,8 @@ project("spring-context") {
 	dependencies {
 		compile(project(":spring-aop"))
 		compile(project(":spring-beans"))
-		compile(project(":spring-expression"))
 		compile(project(":spring-core"))
+		compile(project(":spring-expression"))
 		compile(files(project(":spring-core").cglibRepackJar))
 		optional(project(":spring-instrument"))
 		optional("javax.inject:javax.inject:1")
@@ -499,13 +489,44 @@ project("spring-context") {
 	}
 }
 
+project("spring-oxm") {
+	description = "Spring Object/XML Marshalling"
+	apply from: "oxm.gradle"
+
+	dependencies {
+		compile(project(":spring-beans"))
+		compile(project(":spring-core"))
+		optional("org.codehaus.castor:castor-xml:1.4.1")  {
+			exclude group: 'stax', module: 'stax-api'
+			exclude group: "org.springframework", module: "spring-context"
+		}
+		optional("org.apache.xmlbeans:xmlbeans:2.6.0") {
+			exclude group: 'stax', module: 'stax-api'
+		}
+		optional("com.thoughtworks.xstream:xstream:${xstreamVersion}") {
+			exclude group: 'xpp3', module: 'xpp3_min'
+			exclude group: 'xmlpull', module: 'xmlpull'
+		}
+		optional("org.jibx:jibx-run:1.2.6")
+		testCompile(project(":spring-context"))
+		testCompile("org.ogce:xpp3:1.1.6")
+		testCompile("org.codehaus.jettison:jettison:1.3.8") {
+			exclude group: 'stax', module: 'stax-api'
+		}
+		testCompile("xmlunit:xmlunit:${xmlunitVersion}")
+		testCompile(files(genCastor.classesDir).builtBy(genCastor))
+		testCompile(files(genJaxb.classesDir).builtBy(genJaxb))
+		testCompile(files(genXmlbeans.classesDir).builtBy(genXmlbeans))
+	}
+}
+
 project("spring-messaging") {
 	description = "Spring Messaging"
 
 	dependencies {
 		compile(project(":spring-beans"))
-		compile(project(":spring-core"))
 		compile(project(":spring-context"))
+		compile(project(":spring-core"))
 		optional(project(":spring-oxm"))
 		optional("io.projectreactor:reactor-core:${reactorVersion}")
 		optional("io.projectreactor:reactor-net:${reactorVersion}") {
@@ -557,45 +578,14 @@ project("spring-tx") {
 	}
 }
 
-project("spring-oxm") {
-	description = "Spring Object/XML Marshalling"
-	apply from: "oxm.gradle"
-
-	dependencies {
-		compile(project(":spring-beans"))
-		compile(project(":spring-core"))
-		optional("org.codehaus.castor:castor-xml:1.4.1")  {
-			exclude group: 'stax', module: 'stax-api'
-			exclude group: "org.springframework", module: "spring-context"
-		}
-		optional("org.apache.xmlbeans:xmlbeans:2.6.0") {
-			exclude group: 'stax', module: 'stax-api'
-		}
-		optional("com.thoughtworks.xstream:xstream:${xstreamVersion}") {
-			exclude group: 'xpp3', module: 'xpp3_min'
-			exclude group: 'xmlpull', module: 'xmlpull'
-		}
-		optional("org.jibx:jibx-run:1.2.6")
-		testCompile(project(":spring-context"))
-		testCompile("xmlunit:xmlunit:${xmlunitVersion}")
-		testCompile("xpp3:xpp3:1.1.4c")
-		testCompile("org.codehaus.jettison:jettison:1.3.8") {
-			exclude group: 'stax', module: 'stax-api'
-		}
-		testCompile(files(genCastor.classesDir).builtBy(genCastor))
-		testCompile(files(genJaxb.classesDir).builtBy(genJaxb))
-		testCompile(files(genXmlbeans.classesDir).builtBy(genXmlbeans))
-	}
-}
-
 project("spring-jms") {
 	description = "Spring JMS"
 
 	dependencies {
-		compile(project(":spring-core"))
-		compile(project(":spring-beans"))
 		compile(project(":spring-aop"))
+		compile(project(":spring-beans"))
 		compile(project(":spring-context"))
+		compile(project(":spring-core"))
 		compile(project(":spring-messaging"))
 		compile(project(":spring-tx"))
 		provided("javax.jms:jms-api:1.1-rev-1")
@@ -627,9 +617,9 @@ project("spring-context-support") {
 	description = "Spring Context Support"
 
 	dependencies {
-		compile(project(":spring-core"))
 		compile(project(":spring-beans"))
 		compile(project(":spring-context"))
+		compile(project(":spring-core"))
 		optional(project(":spring-jdbc"))  // for Quartz support
 		optional(project(":spring-tx"))  // for Quartz support
 		optional("javax.mail:javax.mail-api:${javamailVersion}")
@@ -658,6 +648,8 @@ project("spring-context-support") {
 		testCompile("org.slf4j:slf4j-api:${slf4jVersion}")
 		testRuntime("com.sun.mail:javax.mail:${javamailVersion}")
 		testRuntime("org.ehcache:jcache:${ehcachejcacheVersion}")
+		testRuntime("org.ehcache:ehcache:${ehcache3Version}")
+		testRuntime("org.terracotta:management-model:2.3.0")
 	}
 }
 
@@ -702,7 +694,7 @@ project("spring-web") {
 		optional("com.squareup.okhttp:okhttp:${okhttpVersion}")
 		optional("com.squareup.okhttp3:okhttp:${okhttp3Version}")
 		optional("com.fasterxml.jackson.core:jackson-databind:${jackson2Version}")
-		optional("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jackson2Version}")
+		optional("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.8.11")
 		optional("com.google.code.gson:gson:${gsonVersion}")
 		optional("com.rometools:rome:${romeVersion}")
 		optional("org.eclipse.jetty:jetty-servlet:${jettyVersion}") {
@@ -718,13 +710,15 @@ project("spring-web") {
 		testCompile(project(":spring-context-support"))  // for JafMediaTypeFactory
 		testCompile("xmlunit:xmlunit:${xmlunitVersion}")
 		testCompile("org.slf4j:slf4j-jcl:${slf4jVersion}")
+		testCompile("org.skyscreamer:jsonassert:1.4.0")
 		testCompile("org.apache.taglibs:taglibs-standard-jstlel:1.2.1") {
 			exclude group: "org.apache.taglibs", module: "taglibs-standard-spec"
 		}
-		testCompile("com.fasterxml.jackson.datatype:jackson-datatype-joda:${jackson2Version}")
-		testCompile("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson2Version}")
-		testCompile("com.fasterxml.jackson.module:jackson-module-kotlin:${jackson2Version}")
-    testCompile("com.squareup.okhttp3:mockwebserver:${okhttp3Version}")
+		testCompile("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.8.11")
+		testCompile("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.11")
+		testCompile("com.fasterxml.jackson.module:jackson-module-kotlin:2.8.11.1")
+		testCompile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.11")
+    	testCompile("com.squareup.okhttp3:mockwebserver:${okhttp3Version}")
 		testRuntime("com.sun.mail:javax.mail:${javamailVersion}")
 	}
 }
@@ -834,7 +828,7 @@ project("spring-webmvc") {
 			exclude group: "org.springframework", module: "spring-context"
 		}
 		optional("com.fasterxml.jackson.core:jackson-databind:${jackson2Version}")
-		optional("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jackson2Version}")
+		optional("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.8.11")
 		optional("com.rometools:rome:${romeVersion}")
 		optional("javax.el:javax.el-api:2.2.5")
 		optional("org.apache.tiles:tiles-api:${tiles3Version}")
@@ -854,7 +848,7 @@ project("spring-webmvc") {
 			exclude group: "org.slf4j", module: "jcl-over-slf4j"
 			exclude group: "org.springframework", module: "spring-web"
 		}
-		optional('org.webjars:webjars-locator:0.32')
+		optional('org.webjars:webjars-locator:0.32-1')
 		testCompile("xmlunit:xmlunit:${xmlunitVersion}")
 		testCompile("dom4j:dom4j:1.6.1") {
 			exclude group: "xml-apis", module: "xml-apis"
@@ -877,7 +871,7 @@ project("spring-webmvc") {
 		testCompile("commons-io:commons-io:1.4")
 		testCompile("joda-time:joda-time:${jodaVersion}")
 		testCompile("org.slf4j:slf4j-jcl:${slf4jVersion}")
-		testCompile("org.mozilla:rhino:1.7.7.1")
+		testCompile("org.mozilla:rhino:1.7.7.2")
 		testRuntime("org.jruby:jruby:${jrubyVersion}")
 		testRuntime("org.python:jython-standalone:2.5.3")
 		testRuntime("org.webjars:underscorejs:1.8.3")
@@ -935,8 +929,8 @@ project("spring-websocket") {
 	description = "Spring WebSocket"
 
 	dependencies {
-		compile(project(":spring-core"))
 		compile(project(":spring-context"))
+		compile(project(":spring-core"))
 		compile(project(":spring-web"))
 		optional(project(":spring-messaging"))
 		optional(project(":spring-webmvc"))
@@ -979,13 +973,18 @@ project("spring-websocket") {
 project("spring-test") {
 	description = "Spring TestContext Framework"
 
+	// Disable warning for annotation processing in order to get the
+	// build passing again after it mysteriously started failing in 2020.
+	compileJava.options.compilerArgs -= "-Xlint:processing"
+
 	dependencies {
 		compile(project(":spring-core"))
+		optional(project(":spring-aop"))
 		optional(project(":spring-beans"))
 		optional(project(":spring-context"))
 		optional(project(":spring-jdbc"))
-		optional(project(":spring-tx"))
 		optional(project(":spring-orm"))
+		optional(project(":spring-tx"))
 		optional(project(":spring-web"))
 		optional(project(":spring-webmvc"))
 		optional(project(":spring-webmvc-portlet"))
@@ -1010,7 +1009,7 @@ project("spring-test") {
 		optional("org.seleniumhq.selenium:htmlunit-driver:2.23.2")
 		optional("org.seleniumhq.selenium:selenium-java:2.53.1")
 		optional("org.skyscreamer:jsonassert:1.4.0")
-		optional("com.jayway.jsonpath:json-path:2.2.0")
+		optional("com.jayway.jsonpath:json-path:2.3.0")
 		testCompile(project(":spring-context-support"))
 		testCompile(project(":spring-oxm"))
 		testCompile("javax.mail:javax.mail-api:${javamailVersion}")
@@ -1033,8 +1032,6 @@ project("spring-test") {
 		testCompile("org.apache.httpcomponents:httpclient:${httpclientVersion}")
 		testCompile("javax.cache:cache-api:1.0.0")
 		testRuntime("log4j:log4j:${log4jVersion}")
-		testRuntime("org.ehcache:ehcache:${ehcache3Version}")
-		testRuntime("org.terracotta:management-model:2.3.0")
 	}
 
 	task testNG(type: Test) {
@@ -1124,20 +1121,6 @@ project("spring-framework-bom") {
 				}
 			}
 		}
-	}
-}
-
-sonarqube {
-	properties {
-		property "sonar.projectName", "Spring Framework"
-		property "sonar.profile", "Spring Framework"
-		property "sonar.jacoco.reportPath", "${buildDir.name}/jacoco.exec"
-		property "sonar.links.homepage", linkHomepage
-		property "sonar.links.ci", linkCi
-		property "sonar.links.issue", linkIssue
-		property "sonar.links.scm", linkScmUrl
-		property "sonar.links.scm_dev", linkScmDevConnection
-		property "sonar.java.coveragePlugin", "jacoco"
 	}
 }
 
@@ -1244,7 +1227,7 @@ configure(rootProject) {
 		baseName = "spring-framework"
 		classifier = "docs"
 		description = "Builds -${classifier} archive containing api and reference " +
-			"for deployment at http://static.springframework.org/spring-framework/docs."
+			"for deployment at https://docs.spring.io/spring-framework/docs."
 
 		from("src/dist") {
 			include "changelog.txt"
@@ -1264,20 +1247,20 @@ configure(rootProject) {
 		baseName = "spring-framework"
 		classifier = "schema"
 		description = "Builds -${classifier} archive containing all " +
-			"XSDs for deployment at http://springframework.org/schema."
+			"XSDs for deployment at https://springframework.org/schema."
 		duplicatesStrategy 'exclude'
 		moduleProjects.each { subproject ->
 			def Properties schemas = new Properties();
 
 			subproject.sourceSets.main.resources.find {
-				it.path.endsWith("META-INF/spring.schemas")
+				(it.path.endsWith("META-INF/spring.schemas") || it.path.endsWith("META-INF\\spring.schemas"))
 			}?.withInputStream { schemas.load(it) }
 
 			for (def key : schemas.keySet()) {
 				def shortName = key.replaceAll(/http.*schema.(.*).spring-.*/, '$1')
 				assert shortName != key
 				File xsdFile = subproject.sourceSets.main.resources.find {
-					it.path.endsWith(schemas.get(key))
+					(it.path.endsWith(schemas.get(key)) || it.path.endsWith(schemas.get(key).replaceAll('\\/','\\\\')))
 				}
 				assert xsdFile != null
 				into (shortName) {
@@ -1363,9 +1346,9 @@ configure(rootProject) {
 		archives distZip
 	}
 
-	task wrapper(type: Wrapper) {
+	wrapper {
 		description = "Generates gradlew[.bat] scripts"
-		gradleVersion = "2.14.1"
+		gradleVersion = "4.10.2"
 
 		doLast() {
 			def gradleOpts = "-XX:MaxMetaspaceSize=1024m -Xmx1024m"
@@ -1379,21 +1362,6 @@ configure(rootProject) {
 		}
 	}
 
-}
-
-configure([project(':spring-build-src'), project(':spring-framework-bom')]) {
-	sonarqube {
-		skipProject = true
-	}
-}
-
-configure(project(':spring-core')) {
-	sonarqube {
-		properties {
-			property "sonar.exclusions",
-					"src/main/java/org/springframework/cglib/**/*,src/main/java/org/springframework/asm/**/*"
-		}
-	}
 }
 
 /*

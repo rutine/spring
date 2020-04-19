@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,7 +57,7 @@ public class ConventionsTests {
 
 	@Test
 	public void emptyList() {
-		exception.expect(IllegalArgumentException.class);
+		this.exception.expect(IllegalArgumentException.class);
 		Conventions.getVariableName(new ArrayList<>());
 	}
 
@@ -67,14 +67,14 @@ public class ConventionsTests {
 	}
 
 	@Test
-	public void attributeNameToPropertyName() throws Exception {
+	public void attributeNameToPropertyName() {
 		assertEquals("transactionManager", Conventions.attributeNameToPropertyName("transaction-manager"));
 		assertEquals("pointcutRef", Conventions.attributeNameToPropertyName("pointcut-ref"));
 		assertEquals("lookupOnStartup", Conventions.attributeNameToPropertyName("lookup-on-startup"));
 	}
 
 	@Test
-	public void getQualifiedAttributeName() throws Exception {
+	public void getQualifiedAttributeName() {
 		String baseName = "foo";
 		Class<String> cls = String.class;
 		String desiredResult = "java.lang.String.foo";

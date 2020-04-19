@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,14 @@ import org.springframework.web.context.request.async.DeferredResult;
  *
  * @author Rossen Stoyanchev
  * @since 4.3
+ *
+ * @deprecated in 4.3.8 since 5.0 adds first-class support for reactive type
+ * return values from Spring MVC controller methods based on the pluggable
+ * {@code ReactiveAdapterRegistry} mechanism. Yet another alternative would
+ * be to implement a custom
+ * {@link org.springframework.web.method.support.AsyncHandlerMethodReturnValueHandler}.
  */
+@Deprecated
 public interface DeferredResultAdapter {
 
 	/**

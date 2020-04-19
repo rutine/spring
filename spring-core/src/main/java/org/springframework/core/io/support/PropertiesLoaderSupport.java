@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.springframework.core.io.support;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -176,8 +177,10 @@ public abstract class PropertiesLoaderSupport {
 					PropertiesLoaderUtils.fillProperties(
 							props, new EncodedResource(location, this.fileEncoding), this.propertiesPersister);
 				}
-				catch (FileNotFoundException ex) {
-					if (this.ignoreResourceNotFound) {
+				catch (IOException ex) {
+					// Resource not found when trying to open it
+					if (this.ignoreResourceNotFound &&
+							(ex instanceof FileNotFoundException || ex instanceof UnknownHostException)) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Properties resource not found: " + ex.getMessage());
 						}

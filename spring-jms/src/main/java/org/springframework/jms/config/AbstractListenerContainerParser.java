@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -151,15 +151,14 @@ abstract class AbstractListenerContainerParser implements BeanDefinitionParser {
 			listenerDef.getPropertyValues().add("delegate", new RuntimeBeanReference(ref));
 		}
 
-		String method = null;
 		if (listenerEle.hasAttribute(METHOD_ATTRIBUTE)) {
-			method = listenerEle.getAttribute(METHOD_ATTRIBUTE);
+			String method = listenerEle.getAttribute(METHOD_ATTRIBUTE);
 			if (!StringUtils.hasText(method)) {
 				parserContext.getReaderContext().error(
 						"Listener 'method' attribute contains empty value.", listenerEle);
 			}
+			listenerDef.getPropertyValues().add("defaultListenerMethod", method);
 		}
-		listenerDef.getPropertyValues().add("defaultListenerMethod", method);
 
 		PropertyValue messageConverterPv = commonContainerProperties.getPropertyValue("messageConverter");
 		if (messageConverterPv != null) {
@@ -264,16 +263,13 @@ abstract class AbstractListenerContainerParser implements BeanDefinitionParser {
 
 		boolean replyPubSubDomain = false;
 		String replyDestinationType = containerEle.getAttribute(RESPONSE_DESTINATION_TYPE_ATTRIBUTE);
-		if (DESTINATION_TYPE_TOPIC.equals(replyDestinationType)) {
+		if (!StringUtils.hasText(replyDestinationType)) {
+			replyPubSubDomain = pubSubDomain;  // the default: same value as pubSubDomain
+		}
+		else if (DESTINATION_TYPE_TOPIC.equals(replyDestinationType)) {
 			replyPubSubDomain = true;
 		}
-		else if (DESTINATION_TYPE_QUEUE.equals(replyDestinationType)) {
-			replyPubSubDomain = false;
-		}
-		else if (!StringUtils.hasText(replyDestinationType)) {
-			replyPubSubDomain = pubSubDomain; // the default: same value as pubSubDomain
-		}
-		else if (StringUtils.hasText(replyDestinationType)) {
+		else if (!DESTINATION_TYPE_QUEUE.equals(replyDestinationType)) {
 			parserContext.getReaderContext().error("Invalid listener container 'response-destination-type': only " +
 					"\"queue\", \"topic\" supported.", containerEle);
 		}

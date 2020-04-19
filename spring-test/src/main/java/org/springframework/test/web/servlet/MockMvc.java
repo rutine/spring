@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,7 +60,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 public final class MockMvc {
 
-	static String MVC_RESULT_ATTRIBUTE = MockMvc.class.getName().concat(".MVC_RESULT_ATTRIBUTE");
+	static final String MVC_RESULT_ATTRIBUTE = MockMvc.class.getName().concat(".MVC_RESULT_ATTRIBUTE");
 
 	private final TestDispatcherServlet servlet;
 
@@ -80,16 +80,16 @@ public final class MockMvc {
 	 * @see org.springframework.test.web.servlet.setup.MockMvcBuilders
 	 */
 	MockMvc(TestDispatcherServlet servlet, Filter[] filters, ServletContext servletContext) {
-
 		Assert.notNull(servlet, "DispatcherServlet is required");
-		Assert.notNull(filters, "filters cannot be null");
-		Assert.noNullElements(filters, "filters cannot contain null values");
-		Assert.notNull(servletContext, "A ServletContext is required");
+		Assert.notNull(filters, "Filters cannot be null");
+		Assert.noNullElements(filters, "Filters cannot contain null values");
+		Assert.notNull(servletContext, "ServletContext is required");
 
 		this.servlet = servlet;
 		this.filters = filters;
 		this.servletContext = servletContext;
 	}
+
 
 	/**
 	 * A default request builder merged into every performed request.
@@ -104,7 +104,7 @@ public final class MockMvc {
 	 * @see org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder#alwaysExpect(ResultMatcher)
 	 */
 	void setGlobalResultMatchers(List<ResultMatcher> resultMatchers) {
-		Assert.notNull(resultMatchers, "resultMatchers is required");
+		Assert.notNull(resultMatchers, "ResultMatcher List is required");
 		this.defaultResultMatchers = resultMatchers;
 	}
 
@@ -113,25 +113,21 @@ public final class MockMvc {
 	 * @see org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder#alwaysDo(ResultHandler)
 	 */
 	void setGlobalResultHandlers(List<ResultHandler> resultHandlers) {
-		Assert.notNull(resultHandlers, "resultHandlers is required");
+		Assert.notNull(resultHandlers, "ResultHandler List is required");
 		this.defaultResultHandlers = resultHandlers;
 	}
 
 	/**
 	 * Perform a request and return a type that allows chaining further
 	 * actions, such as asserting expectations, on the result.
-	 *
 	 * @param requestBuilder used to prepare the request to execute;
 	 * see static factory methods in
 	 * {@link org.springframework.test.web.servlet.request.MockMvcRequestBuilders}
-	 *
-	 * @return an instance of {@link ResultActions}; never {@code null}
-	 *
+	 * @return an instance of {@link ResultActions} (never {@code null})
 	 * @see org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 	 * @see org.springframework.test.web.servlet.result.MockMvcResultMatchers
 	 */
 	public ResultActions perform(RequestBuilder requestBuilder) throws Exception {
-
 		if (this.defaultRequestBuilder != null) {
 			if (requestBuilder instanceof Mergeable) {
 				requestBuilder = (RequestBuilder) ((Mergeable) requestBuilder).merge(this.defaultRequestBuilder);
@@ -155,29 +151,24 @@ public final class MockMvc {
 		filterChain.doFilter(request, response);
 
 		if (DispatcherType.ASYNC.equals(request.getDispatcherType()) &&
-				request.getAsyncContext() != null & !request.isAsyncStarted()) {
-
+				request.getAsyncContext() != null && !request.isAsyncStarted()) {
 			request.getAsyncContext().complete();
 		}
 
 		applyDefaultResultActions(mvcResult);
-
 		RequestContextHolder.setRequestAttributes(previousAttributes);
 
 		return new ResultActions() {
-
 			@Override
 			public ResultActions andExpect(ResultMatcher matcher) throws Exception {
 				matcher.match(mvcResult);
 				return this;
 			}
-
 			@Override
 			public ResultActions andDo(ResultHandler handler) throws Exception {
 				handler.handle(mvcResult);
 				return this;
 			}
-
 			@Override
 			public MvcResult andReturn() {
 				return mvcResult;
@@ -186,11 +177,9 @@ public final class MockMvc {
 	}
 
 	private void applyDefaultResultActions(MvcResult mvcResult) throws Exception {
-
 		for (ResultMatcher matcher : this.defaultResultMatchers) {
 			matcher.match(mvcResult);
 		}
-
 		for (ResultHandler handler : this.defaultResultHandlers) {
 			handler.handle(mvcResult);
 		}

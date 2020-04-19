@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,8 @@ import org.springframework.util.Assert;
 /**
  * A simple descriptor for an injection point, pointing to a method/constructor
  * parameter or a field. Exposed by {@link UnsatisfiedDependencyException}.
+ * Also available as an argument for factory methods, reacting to the
+ * requesting injection point for building a customized bean instance.
  *
  * @author Juergen Hoeller
  * @since 4.3
@@ -101,14 +103,27 @@ public class InjectionPoint {
 	 */
 	public Annotation[] getAnnotations() {
 		if (this.field != null) {
-			if (this.fieldAnnotations == null) {
-				this.fieldAnnotations = this.field.getAnnotations();
+			Annotation[] fieldAnnotations = this.fieldAnnotations;
+			if (fieldAnnotations == null) {
+				fieldAnnotations = this.field.getAnnotations();
+				this.fieldAnnotations = fieldAnnotations;
 			}
-			return this.fieldAnnotations;
+			return fieldAnnotations;
 		}
 		else {
 			return this.methodParameter.getParameterAnnotations();
 		}
+	}
+
+	/**
+	 * Retrieve a field/parameter annotation of the given type, if any.
+	 * @param annotationType the annotation type to retrieve
+	 * @return the annotation instance, or {@code null} if none found
+	 * @since 4.3.9
+	 */
+	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+		return (this.field != null ? this.field.getAnnotation(annotationType) :
+				this.methodParameter.getParameterAnnotation(annotationType));
 	}
 
 	/**

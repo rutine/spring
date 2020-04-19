@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,7 @@ import org.springframework.web.servlet.view.AbstractView;
  * Compatible with Apache POI 3.5 and higher.
  *
  * <p>For working with the workbook in the subclass, see
- * <a href="http://poi.apache.org">Apache's POI site</a>
+ * <a href="https://poi.apache.org">Apache's POI site</a>
  *
  * @author Juergen Hoeller
  * @since 4.2
@@ -71,7 +71,7 @@ public abstract class AbstractXlsView extends AbstractView {
 		response.setContentType(getContentType());
 
 		// Flush byte array to servlet output stream.
-		renderWorkbook(workbook, response);;
+		renderWorkbook(workbook, response);
 	}
 
 

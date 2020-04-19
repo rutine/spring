@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,8 +60,6 @@ public class JettyWebSocketClient extends AbstractWebSocketClient implements Lif
 
 	private final org.eclipse.jetty.websocket.client.WebSocketClient client;
 
-	private final Object lifecycleMonitor = new Object();
-
 	private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
 
 
@@ -84,9 +82,8 @@ public class JettyWebSocketClient extends AbstractWebSocketClient implements Lif
 
 	/**
 	 * Set an {@link AsyncListenableTaskExecutor} to use when opening connections.
-	 * If this property is set to {@code null}, calls to  any of the
+	 * If this property is set to {@code null}, calls to any of the
 	 * {@code doHandshake} methods will block until the connection is established.
-	 *
 	 * <p>By default an instance of {@code SimpleAsyncTaskExecutor} is used.
 	 */
 	public void setTaskExecutor(AsyncListenableTaskExecutor taskExecutor) {
@@ -100,46 +97,32 @@ public class JettyWebSocketClient extends AbstractWebSocketClient implements Lif
 		return this.taskExecutor;
 	}
 
-	@Override
-	public boolean isRunning() {
-		synchronized (this.lifecycleMonitor) {
-			return this.client.isStarted();
-		}
-	}
 
 	@Override
 	public void start() {
-		synchronized (this.lifecycleMonitor) {
-			if (!isRunning()) {
-				try {
-					if (logger.isInfoEnabled()) {
-						logger.info("Starting Jetty WebSocketClient");
-					}
-					this.client.start();
-				}
-				catch (Exception ex) {
-					throw new IllegalStateException("Failed to start Jetty client", ex);
-				}
-			}
+		try {
+			this.client.start();
+		}
+		catch (Exception ex) {
+			throw new IllegalStateException("Failed to start Jetty WebSocketClient", ex);
 		}
 	}
 
 	@Override
 	public void stop() {
-		synchronized (this.lifecycleMonitor) {
-			if (isRunning()) {
-				try {
-					if (logger.isInfoEnabled()) {
-						logger.info("Stopping Jetty WebSocketClient");
-					}
-					this.client.stop();
-				}
-				catch (Exception ex) {
-					logger.error("Error stopping Jetty WebSocketClient", ex);
-				}
-			}
+		try {
+			this.client.stop();
+		}
+		catch (Exception ex) {
+			logger.error("Failed to stop Jetty WebSocketClient", ex);
 		}
 	}
+
+	@Override
+	public boolean isRunning() {
+		return this.client.isStarted();
+	}
+
 
 	@Override
 	public ListenableFuture<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler,

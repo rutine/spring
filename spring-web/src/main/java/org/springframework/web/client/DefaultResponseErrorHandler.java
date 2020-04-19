@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@
 package org.springframework.web.client;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import org.springframework.http.HttpHeaders;
@@ -27,53 +26,71 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.FileCopyUtils;
 
 /**
- * Default implementation of the {@link ResponseErrorHandler} interface.
+ * Spring's default implementation of the {@link ResponseErrorHandler} interface.
  *
- * <p>This error handler checks for the status code on the {@link ClientHttpResponse}: any
- * code with series {@link org.springframework.http.HttpStatus.Series#CLIENT_ERROR} or
- * {@link org.springframework.http.HttpStatus.Series#SERVER_ERROR} is considered to be an
- * error. This behavior can be changed by overriding the {@link #hasError(HttpStatus)}
- * method.
+ * <p>This error handler checks for the status code on the {@link ClientHttpResponse}:
+ * Any code with series {@link org.springframework.http.HttpStatus.Series#CLIENT_ERROR}
+ * or {@link org.springframework.http.HttpStatus.Series#SERVER_ERROR} is considered to be
+ * an error; this behavior can be changed by overriding the {@link #hasError(HttpStatus)}
+ * method. Unknown status codes will be ignored by {@link #hasError(ClientHttpResponse)}.
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author Juergen Hoeller
  * @since 3.0
  * @see RestTemplate#setErrorHandler
  */
 public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 
 	/**
-	 * Delegates to {@link #hasError(HttpStatus)} with the response status code.
+	 * Delegates to {@link #hasError(HttpStatus)} (for a standard status enum value) or
+	 * {@link #hasError(int)} (for an unknown status code) with the response status code.
+	 * @see ClientHttpResponse#getRawStatusCode()
+	 * @see #hasError(HttpStatus)
+	 * @see #hasError(int)
 	 */
 	@Override
 	public boolean hasError(ClientHttpResponse response) throws IOException {
-		return hasError(getHttpStatusCode(response));
-	}
-
-	private HttpStatus getHttpStatusCode(ClientHttpResponse response) throws IOException {
-		HttpStatus statusCode;
-		try {
-			statusCode = response.getStatusCode();
+		int rawStatusCode = response.getRawStatusCode();
+		for (HttpStatus statusCode : HttpStatus.values()) {
+			if (statusCode.value() == rawStatusCode) {
+				return hasError(statusCode);
+			}
 		}
-		catch (IllegalArgumentException ex) {
-			throw new UnknownHttpStatusCodeException(response.getRawStatusCode(),
-					response.getStatusText(), response.getHeaders(), getResponseBody(response), getCharset(response));
-		}
-		return statusCode;
+		return hasError(rawStatusCode);
 	}
 
 	/**
 	 * Template method called from {@link #hasError(ClientHttpResponse)}.
 	 * <p>The default implementation checks if the given status code is
-	 * {@link org.springframework.http.HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR}
-	 * or {@link org.springframework.http.HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
+	 * {@link HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
+	 * {@link HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
 	 * Can be overridden in subclasses.
-	 * @param statusCode the HTTP status code
-	 * @return {@code true} if the response has an error; {@code false} otherwise
+	 * @param statusCode the HTTP status code as enum value
+	 * @return {@code true} if the response indicates an error; {@code false} otherwise
+	 * @see HttpStatus#is4xxClientError()
+	 * @see HttpStatus#is5xxServerError()
 	 */
 	protected boolean hasError(HttpStatus statusCode) {
-		return (statusCode.series() == HttpStatus.Series.CLIENT_ERROR ||
-				statusCode.series() == HttpStatus.Series.SERVER_ERROR);
+		return (statusCode.is4xxClientError() || statusCode.is5xxServerError());
+	}
+
+	/**
+	 * Template method called from {@link #hasError(ClientHttpResponse)}.
+	 * <p>The default implementation checks if the given status code is
+	 * {@code HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
+	 * {@code HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
+	 * Can be overridden in subclasses.
+	 * @param unknownStatusCode the HTTP status code as raw value
+	 * @return {@code true} if the response indicates an error; {@code false} otherwise
+	 * @since 4.3.21
+	 * @see HttpStatus.Series#CLIENT_ERROR
+	 * @see HttpStatus.Series#SERVER_ERROR
+	 */
+	protected boolean hasError(int unknownStatusCode) {
+		int seriesCode = unknownStatusCode / 100;
+		return (seriesCode == HttpStatus.Series.CLIENT_ERROR.value() ||
+				seriesCode == HttpStatus.Series.SERVER_ERROR.value());
 	}
 
 	/**
@@ -93,16 +110,41 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 				throw new HttpServerErrorException(statusCode, response.getStatusText(),
 						response.getHeaders(), getResponseBody(response), getCharset(response));
 			default:
-				throw new RestClientException("Unknown status code [" + statusCode + "]");
+				throw new UnknownHttpStatusCodeException(statusCode.value(), response.getStatusText(),
+						response.getHeaders(), getResponseBody(response), getCharset(response));
 		}
 	}
 
-	private byte[] getResponseBody(ClientHttpResponse response) {
+	/**
+	 * Determine the HTTP status of the given response.
+	 * <p>Note: Only called from {@link #handleError}, not from {@link #hasError}.
+	 * @param response the response to inspect
+	 * @return the associated HTTP status
+	 * @throws IOException in case of I/O errors
+	 * @throws UnknownHttpStatusCodeException in case of an unknown status code
+	 * that cannot be represented with the {@link HttpStatus} enum
+	 * @since 4.3.8
+	 */
+	protected HttpStatus getHttpStatusCode(ClientHttpResponse response) throws IOException {
 		try {
-			InputStream responseBody = response.getBody();
-			if (responseBody != null) {
-				return FileCopyUtils.copyToByteArray(responseBody);
-			}
+			return response.getStatusCode();
+		}
+		catch (IllegalArgumentException ex) {
+			throw new UnknownHttpStatusCodeException(response.getRawStatusCode(), response.getStatusText(),
+					response.getHeaders(), getResponseBody(response), getCharset(response));
+		}
+	}
+
+	/**
+	 * Read the body of the given response (for inclusion in a status exception).
+	 * @param response the response to inspect
+	 * @return the response body as a byte array,
+	 * or an empty byte array if the body could not be read
+	 * @since 4.3.8
+	 */
+	protected byte[] getResponseBody(ClientHttpResponse response) {
+		try {
+			return FileCopyUtils.copyToByteArray(response.getBody());
 		}
 		catch (IOException ex) {
 			// ignore
@@ -110,10 +152,16 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 		return new byte[0];
 	}
 
-	private Charset getCharset(ClientHttpResponse response) {
+	/**
+	 * Determine the charset of the response (for inclusion in a status exception).
+	 * @param response the response to inspect
+	 * @return the associated charset, or {@code null} if none
+	 * @since 4.3.8
+	 */
+	protected Charset getCharset(ClientHttpResponse response) {
 		HttpHeaders headers = response.getHeaders();
 		MediaType contentType = headers.getContentType();
-		return contentType != null ? contentType.getCharset() : null;
+		return (contentType != null ? contentType.getCharset() : null);
 	}
 
 }

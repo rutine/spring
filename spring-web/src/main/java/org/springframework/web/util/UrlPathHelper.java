@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,8 @@ package org.springframework.web.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,7 +33,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Helper class for URL path matching. Provides support for URL paths in
- * RequestDispatcher includes and support for consistent URL decoding.
+ * {@code RequestDispatcher} includes and support for consistent URL decoding.
  *
  * <p>Used by {@link org.springframework.web.servlet.handler.AbstractUrlHandlerMapping},
  * {@link org.springframework.web.servlet.mvc.multiaction.AbstractUrlMethodNameResolver}
@@ -44,6 +44,8 @@ import org.springframework.util.StringUtils;
  * @author Rob Harrop
  * @author Rossen Stoyanchev
  * @since 14.01.2004
+ * @see #getLookupPathForRequest
+ * @see javax.servlet.RequestDispatcher
  */
 public class UrlPathHelper {
 
@@ -69,22 +71,29 @@ public class UrlPathHelper {
 
 
 	/**
-	 * Set if URL lookup should always use full path within current servlet
-	 * context. Else, the path within the current servlet mapping is used
-	 * if applicable (i.e. in the case of a ".../*" servlet mapping in web.xml).
-	 * Default is "false".
+	 * Whether URL lookups should always use the full path within the current
+	 * web application context, i.e. within
+	 * {@link javax.servlet.ServletContext#getContextPath()}.
+	 * <p>If set to {@literal false} the path within the current servlet mapping
+	 * is used instead if applicable (i.e. in the case of a prefix based Servlet
+	 * mapping such as "/myServlet/*").
+	 * <p>By default this is set to "false".
 	 */
 	public void setAlwaysUseFullPath(boolean alwaysUseFullPath) {
 		this.alwaysUseFullPath = alwaysUseFullPath;
 	}
 
 	/**
-	 * Set if context path and request URI should be URL-decoded.
-	 * Both are returned <i>undecoded</i> by the Servlet API,
-	 * in contrast to the servlet path.
-	 * <p>Uses either the request encoding or the default encoding according
-	 * to the Servlet spec (ISO-8859-1).
-	 * <p>Default is "true", as of Spring 2.5.
+	 * Whether the context path and request URI should be decoded -- both of
+	 * which are returned <i>undecoded</i> by the Servlet API, in contrast to
+	 * the servlet path.
+	 * <p>Either the request encoding or the default Servlet spec encoding
+	 * (ISO-8859-1) is used when set to "true".
+	 * <p>By default this is set to {@literal true}.
+	 * <p><strong>Note:</strong> Be aware the servlet path will not match when
+	 * compared to encoded paths. Therefore use of {@code urlDecode=false} is
+	 * not compatible with a prefix-based Servlet mapping and likewise implies
+	 * also setting {@code alwaysUseFullPath=true}.
 	 * @see #getServletPath
 	 * @see #getContextPath
 	 * @see #getRequestUri
@@ -94,6 +103,14 @@ public class UrlPathHelper {
 	 */
 	public void setUrlDecode(boolean urlDecode) {
 		this.urlDecode = urlDecode;
+	}
+
+	/**
+	 * Whether to decode the request URI when determining the lookup path.
+	 * @since 4.3.13
+	 */
+	public boolean isUrlDecode() {
+		return this.urlDecode;
 	}
 
 	/**
@@ -142,8 +159,8 @@ public class UrlPathHelper {
 	 * <p>Detects include request URL if called within a RequestDispatcher include.
 	 * @param request current HTTP request
 	 * @return the lookup path
-	 * @see #getPathWithinApplication
 	 * @see #getPathWithinServletMapping
+	 * @see #getPathWithinApplication
 	 */
 	public String getLookupPathForRequest(HttpServletRequest request) {
 		// Always use full path within current servlet context?
@@ -172,6 +189,7 @@ public class UrlPathHelper {
 	 * <p>E.g.: servlet mapping = "/*.test"; request URI = "/a.test" -> "".
 	 * @param request current HTTP request
 	 * @return the path within the servlet mapping, or ""
+	 * @see #getLookupPathForRequest
 	 */
 	public String getPathWithinServletMapping(HttpServletRequest request) {
 		String pathWithinApp = getPathWithinApplication(request);
@@ -219,6 +237,7 @@ public class UrlPathHelper {
 	 * <p>Detects include request URL if called within a RequestDispatcher include.
 	 * @param request current HTTP request
 	 * @return the path within the web application
+	 * @see #getLookupPathForRequest
 	 */
 	public String getPathWithinApplication(HttpServletRequest request) {
 		String contextPath = getContextPath(request);
@@ -252,10 +271,7 @@ public class UrlPathHelper {
 				}
 				c1 = requestUri.charAt(index1);
 			}
-			if (c1 == c2) {
-				continue;
-			}
-			else if (ignoreCase && (Character.toLowerCase(c1) == Character.toLowerCase(c2))) {
+			if (c1 == c2 || (ignoreCase && (Character.toLowerCase(c1) == Character.toLowerCase(c2)))) {
 				continue;
 			}
 			return null;
@@ -273,9 +289,9 @@ public class UrlPathHelper {
 	}
 
 	/**
-	 * Sanitize the given path with the following rules:
+	 * Sanitize the given path. Uses the following rules:
 	 * <ul>
-	 *     <li>replace all "//" by "/"</li>
+	 * <li>replace all "//" by "/"</li>
 	 * </ul>
 	 */
 	private String getSanitizedPath(final String path) {
@@ -479,8 +495,8 @@ public class UrlPathHelper {
 
 	/**
 	 * Remove ";" (semicolon) content from the given request URI if the
-	 * {@linkplain #setRemoveSemicolonContent(boolean) removeSemicolonContent}
-	 * property is set to "true". Note that "jssessionid" is always removed.
+	 * {@linkplain #setRemoveSemicolonContent removeSemicolonContent}
+	 * property is set to "true". Note that "jsessionid" is always removed.
 	 * @param requestUri the request URI string to remove ";" content from
 	 * @return the updated URI string
 	 */
@@ -511,14 +527,12 @@ public class UrlPathHelper {
 	}
 
 	/**
-	 * Decode the given URI path variables via
-	 * {@link #decodeRequestString(HttpServletRequest, String)} unless
-	 * {@link #setUrlDecode(boolean)} is set to {@code true} in which case it is
-	 * assumed the URL path from which the variables were extracted is already
-	 * decoded through a call to
-	 * {@link #getLookupPathForRequest(HttpServletRequest)}.
+	 * Decode the given URI path variables via {@link #decodeRequestString} unless
+	 * {@link #setUrlDecode} is set to {@code true} in which case it is assumed
+	 * the URL path from which the variables were extracted is already decoded
+	 * through a call to {@link #getLookupPathForRequest(HttpServletRequest)}.
 	 * @param request current HTTP request
-	 * @param vars URI variables extracted from the URL path
+	 * @param vars the URI variables extracted from the URL path
 	 * @return the same Map or a new Map instance
 	 */
 	public Map<String, String> decodePathVariables(HttpServletRequest request, Map<String, String> vars) {
@@ -527,7 +541,7 @@ public class UrlPathHelper {
 		}
 		else {
 			Map<String, String> decodedVars = new LinkedHashMap<String, String>(vars.size());
-			for (Entry<String, String> entry : vars.entrySet()) {
+			for (Map.Entry<String, String> entry : vars.entrySet()) {
 				decodedVars.put(entry.getKey(), decodeInternal(request, entry.getValue()));
 			}
 			return decodedVars;
@@ -535,25 +549,25 @@ public class UrlPathHelper {
 	}
 
 	/**
-	 * Decode the given matrix variables via
-	 * {@link #decodeRequestString(HttpServletRequest, String)} unless
-	 * {@link #setUrlDecode(boolean)} is set to {@code true} in which case it is
-	 * assumed the URL path from which the variables were extracted is already
-	 * decoded through a call to
-	 * {@link #getLookupPathForRequest(HttpServletRequest)}.
+	 * Decode the given matrix variables via {@link #decodeRequestString} unless
+	 * {@link #setUrlDecode} is set to {@code true} in which case it is assumed
+	 * the URL path from which the variables were extracted is already decoded
+	 * through a call to {@link #getLookupPathForRequest(HttpServletRequest)}.
 	 * @param request current HTTP request
-	 * @param vars URI variables extracted from the URL path
+	 * @param vars the URI variables extracted from the URL path
 	 * @return the same Map or a new Map instance
 	 */
-	public MultiValueMap<String, String> decodeMatrixVariables(HttpServletRequest request, MultiValueMap<String, String> vars) {
+	public MultiValueMap<String, String> decodeMatrixVariables(
+			HttpServletRequest request, MultiValueMap<String, String> vars) {
+
 		if (this.urlDecode) {
 			return vars;
 		}
 		else {
-			MultiValueMap<String, String> decodedVars = new LinkedMultiValueMap	<String, String>(vars.size());
-			for (String key : vars.keySet()) {
-				for (String value : vars.get(key)) {
-					decodedVars.add(key, decodeInternal(request, value));
+			MultiValueMap<String, String> decodedVars = new LinkedMultiValueMap<String, String>(vars.size());
+			for (Map.Entry<String, List<String>> entry : vars.entrySet()) {
+				for (String value : entry.getValue()) {
+					decodedVars.add(entry.getKey(), decodeInternal(request, value));
 				}
 			}
 			return decodedVars;

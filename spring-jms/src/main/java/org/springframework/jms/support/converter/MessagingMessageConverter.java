@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,6 +52,15 @@ public class MessagingMessageConverter implements MessageConverter, Initializing
 	 */
 	public MessagingMessageConverter() {
 		this(new SimpleMessageConverter(), new SimpleJmsHeaderMapper());
+	}
+
+	/**
+	 * Create an instance with the specific payload converter.
+	 * @param payloadConverter the payload converter to use
+	 * @since 4.3.12
+	 */
+	public MessagingMessageConverter(MessageConverter payloadConverter) {
+		this(payloadConverter, new SimpleJmsHeaderMapper());
 	}
 
 	/**

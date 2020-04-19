@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,7 +35,7 @@ import static org.springframework.tests.TestResourceUtils.*;
  * @author Chris Beams
  * @since 2.0
  */
-public final class CustomProblemReporterTests {
+public class CustomProblemReporterTests {
 
 	private static final Resource CONTEXT = qualifiedResource(CustomProblemReporterTests.class, "context.xml");
 
@@ -66,10 +66,9 @@ public final class CustomProblemReporterTests {
 
 	private static class CollatingProblemReporter implements ProblemReporter {
 
-		private List<Problem> errors = new ArrayList<Problem>();
+		private final List<Problem> errors = new ArrayList<>();
 
-		private List<Problem> warnings = new ArrayList<Problem>();
-
+		private final List<Problem> warnings = new ArrayList<>();
 
 		@Override
 		public void fatal(Problem problem) {

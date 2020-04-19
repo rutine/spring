@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,14 +35,15 @@ import org.springframework.web.socket.sockjs.transport.SockJsSession;
 import org.springframework.web.socket.sockjs.transport.TransportHandler;
 import org.springframework.web.socket.sockjs.transport.TransportType;
 import org.springframework.web.socket.sockjs.transport.session.AbstractHttpSockJsSession;
-import org.springframework.web.socket.sockjs.transport.session.PollingSockJsSession;
 import org.springframework.web.socket.sockjs.transport.session.StreamingSockJsSession;
 import org.springframework.web.util.JavaScriptUtils;
 
 /**
- * An HTTP {@link TransportHandler} that uses a famous browser document.domain technique:
- * <a href="http://stackoverflow.com/questions/1481251/what-does-document-domain-document-domain-do">
- * http://stackoverflow.com/questions/1481251/what-does-document-domain-document-domain-do</a>
+ * An HTTP {@link TransportHandler} that uses a famous browser
+ * {@code document.domain technique}. See <a href=
+ * "https://stackoverflow.com/questions/1481251/what-does-document-domain-document-domain-do">
+ * stackoverflow.com/questions/1481251/what-does-document-domain-document-domain-do</a>
+ * for details.
  *
  * @author Rossen Stoyanchev
  * @since 4.0
@@ -52,7 +53,7 @@ public class HtmlFileTransportHandler extends AbstractHttpSendingTransportHandle
 	private static final String PARTIAL_HTML_CONTENT;
 
 	// Safari needs at least 1024 bytes to parse the website.
-	// http://code.google.com/p/browsersec/wiki/Part2#Survey_of_content_sniffing_behaviors
+	// https://code.google.com/p/browsersec/wiki/Part2#Survey_of_content_sniffing_behaviors
 	private static final int MINIMUM_PARTIAL_HTML_CONTENT_LENGTH = 1024;
 
 
@@ -91,7 +92,7 @@ public class HtmlFileTransportHandler extends AbstractHttpSendingTransportHandle
 
 	@Override
 	public boolean checkSessionType(SockJsSession session) {
-		return session instanceof HtmlFileStreamingSockJsSession;
+		return (session instanceof HtmlFileStreamingSockJsSession);
 	}
 
 	@Override

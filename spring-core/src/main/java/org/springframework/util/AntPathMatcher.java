@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 /**
  * {@link PathMatcher} implementation for Ant-style path patterns.
  *
- * <p>Part of this mapping code has been kindly borrowed from <a href="http://ant.apache.org">Apache Ant</a>.
+ * <p>Part of this mapping code has been kindly borrowed from <a href="https://ant.apache.org">Apache Ant</a>.
  *
  * <p>The mapping matches URLs using the following rules:<br>
  * <ul>
@@ -220,8 +220,8 @@ public class AntPathMatcher implements PathMatcher {
             pathIdxStart++;
         }
 
-        if (pathIdxStart > pathIdxEnd) {
-            /**
+		if (pathIdxStart > pathIdxEnd) {
+			/**
              * 完全匹配, 判断都是以分隔符(/)结尾或都不是:
              *      pattern: /rutine/rutine/, /rutine/?utine/, /rutine/※/
              *      path:    /rutine/rutine/
@@ -230,48 +230,43 @@ public class AntPathMatcher implements PathMatcher {
              *      path:    /rutine/rutine
              */
             // Path is exhausted, only match if rest of pattern is * or **'s
-            if (pattIdxStart > pattIdxEnd) {
-                return (pattern.endsWith(this.pathSeparator) ? path.endsWith(this.pathSeparator) :
-                        !path.endsWith(this.pathSeparator));
-            }
-            if (!fullMatch) {
-                return true;
-            }
+			if (pattIdxStart > pattIdxEnd) {
+				return (pattern.endsWith(this.pathSeparator) == path.endsWith(this.pathSeparator) );
 
-            /**
+			}
+			if (!fullMatch) {
+				return true;
+			}
+			/**
              * pattern还剩一个部分未匹配, 判断是否:
              *      pattern: /rutine/rutine/※, /rutine/?utine/※, /rutine/※/※
              *      path:    /rutine/rutine/
-             */
-            if (pattIdxStart == pattIdxEnd && pattDirs[pattIdxStart].equals("*") && path.endsWith(this.pathSeparator)) {
-                return true;
-            }
-
-            /**
+             */if (pattIdxStart == pattIdxEnd && pattDirs[pattIdxStart].equals("*") && path.endsWith(this.pathSeparator)) {
+				return true;
+			}
+			/**
              * pattern还剩多个部分未匹配, 判断pattern剩余部分都是※※:
              *      pattern: /rutine/rutine/※※/※※/※※/
              *      path:    /rutine/rutine/, /rutine/rutine
-             */
-            for (int i = pattIdxStart; i <= pattIdxEnd; i++) {
-                if (!pattDirs[i].equals("**")) {
-                    return false;
-                }
-            }
-            return true;
-        }
+             */for (int i = pattIdxStart; i <= pattIdxEnd; i++) {
+				if (!pattDirs[i].equals("**")) {
+					return false;
+				}
+			}
+			return true;}
         /**
          * path还剩部分未匹配, pattern已匹配完(如果存在※※就不会进这里):
          *      pattern: /rutine/rutine/, /rutine/?utine/, /rutine/※/
          *      path:    /rutine/rutine/rutine/
-         */
-        else if (pattIdxStart > pattIdxEnd) {
-            // String not exhausted, but pattern is. Failure.
-            return false;
-        }
-        else if (!fullMatch && "**".equals(pattDirs[pattIdxStart])) {
-            // Path start definitely matches due to "**" part in pattern.
-            return true;
-        }
+		*/
+		else if (pattIdxStart > pattIdxEnd) {
+			// String not exhausted, but pattern is. Failure.
+			return false;
+		}
+		else if (!fullMatch && "**".equals(pattDirs[pattIdxStart])) {
+			// Path start definitely matches due to "**" part in pattern.
+			return true;
+		}
 
         // 逆向匹配
         // up to last '**'
@@ -352,41 +347,39 @@ public class AntPathMatcher implements PathMatcher {
         return true;
     }
 
-    private boolean isPotentialMatch(String path, String[] pattDirs) {
-        if (!this.trimTokens) {
-            char[] pathChars = path.toCharArray();
-            int pos = 0;
-            for (String pattDir : pattDirs) {
-                int skipped = skipSeparator(path, pos, this.pathSeparator);
-                pos += skipped;
-                skipped = skipSegment(pathChars, pos, pattDir);
-                if (skipped < pattDir.length()) {
-                    if (skipped > 0) {
-                        return true;
-                    }
-                    return (pattDir.length() > 0) && isWildcardChar(pattDir.charAt(0));
-                }
-                pos += skipped;
-            }
-        }
-        return true;
-    }
+	private boolean isPotentialMatch(String path, String[] pattDirs) {
+		if (!this.trimTokens) {
 
-    private int skipSegment(char[] chars, int pos, String prefix) {
-        int skipped = 0;
-        for (char c : prefix.toCharArray()) {
-            if (isWildcardChar(c)) {
-                return skipped;
-            }
-            else if (pos + skipped >= chars.length) {
-                return 0;
-            }
-            else if (chars[pos + skipped] == c) {
-                skipped++;
-            }
-        }
-        return skipped;
-    }
+			int pos = 0;
+			for (String pattDir : pattDirs) {
+				int skipped = skipSeparator(path, pos, this.pathSeparator);
+				pos += skipped;
+				skipped = skipSegment(path, pos, pattDir);
+				if (skipped < pattDir.length()) {
+					return (skipped > 0|| (pattDir.length() > 0 && isWildcardChar(pattDir.charAt(0))));
+				}
+				pos += skipped;
+			}
+		}
+		return true;
+	}
+
+	private int skipSegment(String path, int pos, String prefix) {
+		int skipped = 0;
+		for (int i = 0; i < prefix.length(); i++) {char c = prefix.charAt(i);
+			if (isWildcardChar(c)) {
+				return skipped;
+			}
+			int currPos =pos + skipped ;
+			if (currPos >= path.length()) {
+				return 0;
+			}
+			 if ( c== path.charAt(currPos)) {
+				skipped++;
+			}
+		}
+		return skipped;
+	}
 
     private int skipSeparator(String path, int pos, String separator) {
         int skipped = 0;

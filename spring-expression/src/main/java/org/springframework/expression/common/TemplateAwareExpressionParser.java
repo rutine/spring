@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -112,6 +112,7 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
 		String prefix = context.getExpressionPrefix();
 		String suffix = context.getExpressionSuffix();
 		int startIdx = 0;
+
 		while (startIdx < expressionString.length()) {
 			int prefixIndex = expressionString.indexOf(prefix, startIdx);
 			if (prefixIndex >= startIdx) {
@@ -126,22 +127,18 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
 							"No ending suffix '" + suffix + "' for expression starting at character " +
 							prefixIndex + ": " + expressionString.substring(prefixIndex));
 				}
-
 				if (suffixIndex == afterPrefixIndex) {
 					throw new ParseException(expressionString, prefixIndex,
 							"No expression defined within delimiter '" + prefix + suffix +
 							"' at character " + prefixIndex);
 				}
-
 				String expr = expressionString.substring(prefixIndex + prefix.length(), suffixIndex);
 				expr = expr.trim();
-
 				if (expr.isEmpty()) {
 					throw new ParseException(expressionString, prefixIndex,
 							"No expression defined within delimiter '" + prefix + suffix +
 							"' at character " + prefixIndex);
 				}
-
 				expressions.add(doParseExpression(expr, context));
 				startIdx = suffixIndex + suffix.length();
 			}
@@ -151,6 +148,7 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
 				startIdx = expressionString.length();
 			}
 		}
+
 		return expressions.toArray(new Expression[expressions.size()]);
 	}
 

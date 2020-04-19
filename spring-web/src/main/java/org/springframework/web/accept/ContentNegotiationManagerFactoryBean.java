@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import javax.servlet.ServletContext;
 
@@ -85,6 +84,7 @@ import org.springframework.web.context.ServletContextAware;
  * extension to a MediaType. You may {@link #setUseJaf suppress} the use of JAF.
  *
  * @author Rossen Stoyanchev
+ * @author Brian Clozel
  * @since 3.2
  */
 public class ContentNegotiationManagerFactoryBean
@@ -138,7 +138,7 @@ public class ContentNegotiationManagerFactoryBean
 	 */
 	public void setMediaTypes(Properties mediaTypes) {
 		if (!CollectionUtils.isEmpty(mediaTypes)) {
-			for (Entry<Object, Object> entry : mediaTypes.entrySet()) {
+			for (Map.Entry<Object, Object> entry : mediaTypes.entrySet()) {
 				String extension = ((String)entry.getKey()).toLowerCase(Locale.ENGLISH);
 				MediaType mediaType = MediaType.valueOf((String) entry.getValue());
 				this.mediaTypes.put(extension, mediaType);
@@ -255,8 +255,7 @@ public class ContentNegotiationManagerFactoryBean
 		if (this.favorPathExtension) {
 			PathExtensionContentNegotiationStrategy strategy;
 			if (this.servletContext != null && !isUseJafTurnedOff()) {
-				strategy = new ServletPathExtensionContentNegotiationStrategy(
-						this.servletContext, this.mediaTypes);
+				strategy = new ServletPathExtensionContentNegotiationStrategy(this.servletContext, this.mediaTypes);
 			}
 			else {
 				strategy = new PathExtensionContentNegotiationStrategy(this.mediaTypes);
@@ -269,8 +268,7 @@ public class ContentNegotiationManagerFactoryBean
 		}
 
 		if (this.favorParameter) {
-			ParameterContentNegotiationStrategy strategy =
-					new ParameterContentNegotiationStrategy(this.mediaTypes);
+			ParameterContentNegotiationStrategy strategy = new ParameterContentNegotiationStrategy(this.mediaTypes);
 			strategy.setParameterName(this.parameterName);
 			strategies.add(strategy);
 		}

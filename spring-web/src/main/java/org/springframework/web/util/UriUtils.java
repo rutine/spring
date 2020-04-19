@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @since 3.0
- * @see <a href="http://www.ietf.org/rfc/rfc3986.txt">RFC 3986</a>
+ * @see <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986</a>
  */
 public abstract class UriUtils {
 
@@ -222,11 +222,12 @@ public abstract class UriUtils {
 	 */
 	public static String extractFileExtension(String path) {
 		int end = path.indexOf('?');
+		int fragmentIndex = path.indexOf('#');
+		if (fragmentIndex != -1 && (end == -1 || fragmentIndex < end)) {
+			end = fragmentIndex;
+		}
 		if (end == -1) {
-			end = path.indexOf('#');
-			if (end == -1) {
-				end = path.length();
-			}
+			end = path.length();
 		}
 		int begin = path.lastIndexOf('/', end) + 1;
 		int paramIndex = path.indexOf(';', begin);

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.cache.jcache;
 
 import java.util.concurrent.Callable;
+import javax.cache.Cache;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 import javax.cache.processor.MutableEntry;
@@ -36,14 +37,14 @@ import org.springframework.util.Assert;
  */
 public class JCacheCache extends AbstractValueAdaptingCache {
 
-	private final javax.cache.Cache<Object, Object> cache;
+	private final Cache<Object, Object> cache;
 
 
 	/**
 	 * Create an {@link org.springframework.cache.jcache.JCacheCache} instance.
 	 * @param jcache backing JCache Cache instance
 	 */
-	public JCacheCache(javax.cache.Cache<Object, Object> jcache) {
+	public JCacheCache(Cache<Object, Object> jcache) {
 		this(jcache, true);
 	}
 
@@ -52,7 +53,7 @@ public class JCacheCache extends AbstractValueAdaptingCache {
 	 * @param jcache backing JCache Cache instance
 	 * @param allowNullValues whether to accept and convert null values for this cache
 	 */
-	public JCacheCache(javax.cache.Cache<Object, Object> jcache, boolean allowNullValues) {
+	public JCacheCache(Cache<Object, Object> jcache, boolean allowNullValues) {
 		super(allowNullValues);
 		Assert.notNull(jcache, "Cache must not be null");
 		this.cache = jcache;
@@ -65,7 +66,7 @@ public class JCacheCache extends AbstractValueAdaptingCache {
 	}
 
 	@Override
-	public final javax.cache.Cache<Object, Object> getNativeCache() {
+	public final Cache<Object, Object> getNativeCache() {
 		return this.cache;
 	}
 
@@ -110,8 +111,7 @@ public class JCacheCache extends AbstractValueAdaptingCache {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public T process(MutableEntry<Object, Object> entry, Object... arguments)
-				throws EntryProcessorException {
+		public T process(MutableEntry<Object, Object> entry, Object... arguments) throws EntryProcessorException {
 			Callable<T> valueLoader = (Callable<T>) arguments[0];
 			if (entry.exists()) {
 				return (T) fromStoreValue(entry.getValue());

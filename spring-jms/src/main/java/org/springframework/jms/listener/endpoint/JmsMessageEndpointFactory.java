@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -80,6 +80,7 @@ public class JmsMessageEndpointFactory extends AbstractMessageEndpointFactory  {
 
 		@Override
 		public void onMessage(Message message) {
+			Throwable endpointEx = null;
 			boolean applyDeliveryCalls = !hasBeforeDeliveryBeenCalled();
 			if (applyDeliveryCalls) {
 				try {
@@ -93,10 +94,12 @@ public class JmsMessageEndpointFactory extends AbstractMessageEndpointFactory  {
 				messageListener.onMessage(message);
 			}
 			catch (RuntimeException ex) {
+				endpointEx = ex;
 				onEndpointException(ex);
 				throw ex;
 			}
 			catch (Error err) {
+				endpointEx = err;
 				onEndpointException(err);
 				throw err;
 			}
@@ -106,7 +109,9 @@ public class JmsMessageEndpointFactory extends AbstractMessageEndpointFactory  {
 						afterDelivery();
 					}
 					catch (ResourceException ex) {
-						throw new JmsResourceException(ex);
+						if (endpointEx == null) {
+							throw new JmsResourceException(ex);
+						}
 					}
 				}
 			}
@@ -114,7 +119,7 @@ public class JmsMessageEndpointFactory extends AbstractMessageEndpointFactory  {
 
 		@Override
 		protected ClassLoader getEndpointClassLoader() {
-			return messageListener.getClass().getClassLoader();
+			return getMessageListener().getClass().getClassLoader();
 		}
 	}
 

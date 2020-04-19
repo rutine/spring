@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,7 @@ import org.springframework.beans.factory.SmartFactoryBean;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -134,10 +135,19 @@ public class StaticListableBeanFactory implements ListableBeanFactory {
 	@SuppressWarnings("unchecked")
 	public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
 		Object bean = getBean(name);
-		if (requiredType != null && !requiredType.isAssignableFrom(bean.getClass())) {
+		if (requiredType != null && !requiredType.isInstance(bean)) {
 			throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
 		}
 		return (T) bean;
+	}
+
+	@Override
+	public Object getBean(String name, Object... args) throws BeansException {
+		if (!ObjectUtils.isEmpty(args)) {
+			throw new UnsupportedOperationException(
+					"StaticListableBeanFactory does not support explicit bean creation arguments");
+		}
+		return getBean(name);
 	}
 
 	@Override
@@ -155,17 +165,8 @@ public class StaticListableBeanFactory implements ListableBeanFactory {
 	}
 
 	@Override
-	public Object getBean(String name, Object... args) throws BeansException {
-		if (args != null) {
-			throw new UnsupportedOperationException(
-					"StaticListableBeanFactory does not support explicit bean creation arguments");
-		}
-		return getBean(name);
-	}
-
-	@Override
 	public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
-		if (args != null) {
+		if (!ObjectUtils.isEmpty(args)) {
 			throw new UnsupportedOperationException(
 					"StaticListableBeanFactory does not support explicit bean creation arguments");
 		}
@@ -332,7 +333,7 @@ public class StaticListableBeanFactory implements ListableBeanFactory {
 				results.add(beanName);
 			}
 		}
-		return results.toArray(new String[results.size()]);
+		return StringUtils.toStringArray(results);
 	}
 
 	@Override
@@ -350,9 +351,10 @@ public class StaticListableBeanFactory implements ListableBeanFactory {
 
 	@Override
 	public <A extends Annotation> A findAnnotationOnBean(String beanName, Class<A> annotationType)
-			throws NoSuchBeanDefinitionException{
+			throws NoSuchBeanDefinitionException {
 
-		return AnnotationUtils.findAnnotation(getType(beanName), annotationType);
+		Class<?> beanType = getType(beanName);
+		return (beanType != null ? AnnotationUtils.findAnnotation(beanType, annotationType) : null);
 	}
 
 }

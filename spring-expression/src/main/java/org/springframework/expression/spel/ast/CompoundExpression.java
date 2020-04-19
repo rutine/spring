@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,14 +24,15 @@ import org.springframework.expression.spel.ExpressionState;
 import org.springframework.expression.spel.SpelEvaluationException;
 
 /**
- * Represents a DOT separated expression sequence, such as 'property1.property2.methodOne()'
+ * Represents a DOT separated expression sequence, such as
+ * {@code 'property1.property2.methodOne()'}.
  *
  * @author Andy Clement
  * @since 3.0
  */
 public class CompoundExpression extends SpelNodeImpl {
 
-	public CompoundExpression(int pos,SpelNodeImpl... expressionComponents) {
+	public CompoundExpression(int pos, SpelNodeImpl... expressionComponents) {
 		super(pos, expressionComponents);
 		if (expressionComponents.length < 2) {
 			throw new IllegalStateException("Do not build compound expressions with less than two entries: " +
@@ -111,7 +112,7 @@ public class CompoundExpression extends SpelNodeImpl {
 		}
 		return sb.toString();
 	}
-	
+
 	@Override
 	public boolean isCompilable() {
 		for (SpelNodeImpl child: this.children) {
@@ -121,11 +122,11 @@ public class CompoundExpression extends SpelNodeImpl {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public void generateCode(MethodVisitor mv, CodeFlow cf) {
-		for (int i = 0; i < this.children.length;i++) {
-			this.children[i].generateCode(mv, cf);
+		for (SpelNodeImpl child : this.children) {
+			child.generateCode(mv, cf);
 		}
 		cf.pushDescriptor(this.exitTypeDescriptor);
 	}

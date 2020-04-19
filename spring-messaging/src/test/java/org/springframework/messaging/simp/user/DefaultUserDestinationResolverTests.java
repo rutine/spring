@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,6 @@
  */
 
 package org.springframework.messaging.simp.user;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 import java.security.Principal;
 
@@ -29,8 +26,10 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.TestPrincipal;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for
@@ -74,9 +73,7 @@ public class DefaultUserDestinationResolverTests {
 
 	@Test // SPR-14044
 	public void handleSubscribeForDestinationWithoutLeadingSlash() {
-		AntPathMatcher pathMatcher = new AntPathMatcher();
-		pathMatcher.setPathSeparator(".");
-		this.resolver.setPathMatcher(pathMatcher);
+		this.resolver.setRemoveLeadingSlash(true);
 
 		TestPrincipal user = new TestPrincipal("joe");
 		String destination = "/user/jms.queue.call";
@@ -142,9 +139,7 @@ public class DefaultUserDestinationResolverTests {
 
 	@Test // SPR-14044
 	public void handleMessageForDestinationWithDotSeparator() {
-		AntPathMatcher pathMatcher = new AntPathMatcher();
-		pathMatcher.setPathSeparator(".");
-		this.resolver.setPathMatcher(pathMatcher);
+		this.resolver.setRemoveLeadingSlash(true);
 
 		TestPrincipal user = new TestPrincipal("joe");
 		String destination = "/user/joe/jms.queue.call";
@@ -180,7 +175,7 @@ public class DefaultUserDestinationResolverTests {
 	@Test
 	public void handleMessageEncodedUserName() {
 
-		String userName = "http://joe.openid.example.org/";
+		String userName = "https://joe.openid.example.org/";
 
 		TestSimpUser simpUser = new TestSimpUser(userName);
 		simpUser.addSessions(new TestSimpSession("openid123"));

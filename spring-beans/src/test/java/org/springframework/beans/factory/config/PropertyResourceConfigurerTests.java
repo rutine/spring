@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,6 +42,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.io.Resource;
 import org.springframework.tests.sample.beans.IndexedTestBean;
 import org.springframework.tests.sample.beans.TestBean;
+import org.springframework.util.StringUtils;
 
 import static org.junit.Assert.*;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.*;
@@ -838,12 +839,12 @@ public class PropertyResourceConfigurerTests {
 
 		@Override
 		protected String[] keysSpi() throws BackingStoreException {
-			return values.keySet().toArray(new String[values.size()]);
+			return StringUtils.toStringArray(values.keySet());
 		}
 
 		@Override
 		protected String[] childrenNamesSpi() throws BackingStoreException {
-			return children.keySet().toArray(new String[values.size()]);
+			return StringUtils.toStringArray(children.keySet());
 		}
 
 		@Override

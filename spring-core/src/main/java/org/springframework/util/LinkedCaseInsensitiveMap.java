@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,7 @@ import java.util.Set;
  *
  * @author Juergen Hoeller
  * @since 3.0
+ * @param <V> the value type
  */
 @SuppressWarnings("serial")
 public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable, Cloneable {
@@ -47,18 +48,19 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
 
 
 	/**
-	 * Create a new LinkedCaseInsensitiveMap for the default Locale.
-	 * @see java.lang.String#toLowerCase()
+	 * Create a new LinkedCaseInsensitiveMap that stores case-insensitive keys
+	 * according to the default Locale (by default in lower case).
+	 * @see #convertKey(String)
 	 */
 	public LinkedCaseInsensitiveMap() {
 		this((Locale) null);
 	}
 
 	/**
-	 * Create a new LinkedCaseInsensitiveMap that stores lower-case keys
-	 * according to the given Locale.
-	 * @param locale the Locale to use for lower-case conversion
-	 * @see java.lang.String#toLowerCase(java.util.Locale)
+	 * Create a new LinkedCaseInsensitiveMap that stores case-insensitive keys
+	 * according to the given Locale (by default in lower case).
+	 * @param locale the Locale to use for case-insensitive key conversion
+	 * @see #convertKey(String)
 	 */
 	public LinkedCaseInsensitiveMap(Locale locale) {
 		this(16, locale);
@@ -66,10 +68,10 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
 
 	/**
 	 * Create a new LinkedCaseInsensitiveMap that wraps a {@link LinkedHashMap}
-	 * with the given initial capacity and stores lower-case keys according
-	 * to the default Locale.
+	 * with the given initial capacity and stores case-insensitive keys
+	 * according to the default Locale (by default in lower case).
 	 * @param initialCapacity the initial capacity
-	 * @see java.lang.String#toLowerCase()
+	 * @see #convertKey(String)
 	 */
 	public LinkedCaseInsensitiveMap(int initialCapacity) {
 		this(initialCapacity, null);
@@ -77,11 +79,11 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
 
 	/**
 	 * Create a new LinkedCaseInsensitiveMap that wraps a {@link LinkedHashMap}
-	 * with the given initial capacity and stores lower-case keys according
-	 * to the given Locale.
+	 * with the given initial capacity and stores case-insensitive keys
+	 * according to the given Locale (by default in lower case).
 	 * @param initialCapacity the initial capacity
-	 * @param locale the Locale to use for lower-case conversion
-	 * @see java.lang.String#toLowerCase(java.util.Locale)
+	 * @param locale the Locale to use for case-insensitive key conversion
+	 * @see #convertKey(String)
 	 */
 	public LinkedCaseInsensitiveMap(int initialCapacity, Locale locale) {
 		this.targetMap = new LinkedHashMap<String, V>(initialCapacity) {
@@ -112,6 +114,8 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
 		this.locale = other.locale;
 	}
 
+
+	// Implementation of java.util.Map
 
 	@Override
 	public int size() {
@@ -227,16 +231,29 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
 	}
 
 
+	// Specific to LinkedCaseInsensitiveMap
+
+	/**
+	 * Return the locale used by this {@code LinkedCaseInsensitiveMap}.
+	 * Used for case-insensitive key conversion.
+	 * @since 4.3.10
+	 * @see #LinkedCaseInsensitiveMap(Locale)
+	 * @see #convertKey(String)
+	 */
+	public Locale getLocale() {
+		return this.locale;
+	}
+
 	/**
 	 * Convert the given key to a case-insensitive key.
 	 * <p>The default implementation converts the key
 	 * to lower-case according to this Map's Locale.
 	 * @param key the user-specified key
 	 * @return the key to use for storing
-	 * @see java.lang.String#toLowerCase(java.util.Locale)
+	 * @see String#toLowerCase(Locale)
 	 */
 	protected String convertKey(String key) {
-		return key.toLowerCase(this.locale);
+		return key.toLowerCase(getLocale());
 	}
 
 	/**

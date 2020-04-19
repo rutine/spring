@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,14 +24,16 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.util.Assert;
 
 /**
- * Cache decorator which synchronizes its {@link #put}, {@link #evict} and {@link #clear}
- * operations with Spring-managed transactions (through Spring's {@link TransactionSynchronizationManager},
- * performing the actual cache put/evict/clear operation only in the after-commit phase of a
- * successful transaction. If no transaction is active, {@link #put}, {@link #evict} and
+ * Cache decorator which synchronizes its {@link #put}, {@link #evict} and
+ * {@link #clear} operations with Spring-managed transactions (through Spring's
+ * {@link TransactionSynchronizationManager}, performing the actual cache
+ * put/evict/clear operation only in the after-commit phase of a successful
+ * transaction. If no transaction is active, {@link #put}, {@link #evict} and
  * {@link #clear} operations will be performed immediately, as usual.
  *
- * <p>Use of more aggressive operations such as {@link #putIfAbsent} cannot be deferred
- * to the after-commit phase of a running transaction. Use these with care.
+ * <p><b>Note:</b> Use of immediate operations such as {@link #putIfAbsent}
+ * cannot be deferred to the after-commit phase of a running transaction.
+ * Use these with care in a transactional environment.
  *
  * @author Juergen Hoeller
  * @author Stephane Nicoll
@@ -53,6 +55,13 @@ public class TransactionAwareCacheDecorator implements Cache {
 		this.targetCache = targetCache;
 	}
 
+
+	/**
+	 * Return the target Cache that this Cache should delegate to.
+	 */
+	public Cache getTargetCache() {
+		return this.targetCache;
+	}
 
 	@Override
 	public String getName() {
@@ -85,7 +94,7 @@ public class TransactionAwareCacheDecorator implements Cache {
 			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
 				@Override
 				public void afterCommit() {
-					targetCache.put(key, value);
+					TransactionAwareCacheDecorator.this.targetCache.put(key, value);
 				}
 			});
 		}
@@ -95,7 +104,7 @@ public class TransactionAwareCacheDecorator implements Cache {
 	}
 
 	@Override
-	public ValueWrapper putIfAbsent(final Object key, final Object value) {
+	public ValueWrapper putIfAbsent(Object key, Object value) {
 		return this.targetCache.putIfAbsent(key, value);
 	}
 
@@ -105,7 +114,7 @@ public class TransactionAwareCacheDecorator implements Cache {
 			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
 				@Override
 				public void afterCommit() {
-					targetCache.evict(key);
+					TransactionAwareCacheDecorator.this.targetCache.evict(key);
 				}
 			});
 		}

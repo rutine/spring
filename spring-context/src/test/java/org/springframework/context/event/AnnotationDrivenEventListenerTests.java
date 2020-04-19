@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,6 +60,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -488,10 +490,20 @@ public class AnnotationDrivenEventListenerTests {
 
 	@Test
 	public void conditionMatch() {
+		validateConditionMatch(ConditionalEventListener.class);
+	}
+
+	@Test
+	public void conditionMatchWithProxy() {
+		validateConditionMatch(ConditionalEventListener.class, MethodValidationPostProcessor.class);
+	}
+
+	private void validateConditionMatch(Class<?>... classes) {
 		long timestamp = System.currentTimeMillis();
-		load(ConditionalEventListener.class);
+		load(classes);
 		TestEvent event = new TestEvent(this, "OK");
-		TestEventListener listener = this.context.getBean(ConditionalEventListener.class);
+
+		ConditionalEventInterface listener = this.context.getBean(ConditionalEventInterface.class);
 		this.eventCollector.assertNoEventReceived(listener);
 
 		this.context.publishEvent(event);
@@ -500,6 +512,9 @@ public class AnnotationDrivenEventListenerTests {
 
 		this.context.publishEvent("OK");
 		this.eventCollector.assertEvent(listener, event, "OK");
+		this.eventCollector.assertTotalEventsCount(2);
+
+		this.context.publishEvent("NOT OK");
 		this.eventCollector.assertTotalEventsCount(2);
 
 		this.context.publishEvent(timestamp);
@@ -767,6 +782,7 @@ public class AnnotationDrivenEventListenerTests {
 
 		@EventListener
 		@Async
+		@Override
 		public void handleAsync(AnotherTestEvent event) {
 			assertTrue(!Thread.currentThread().getName().equals(event.content));
 			this.eventCollector.addEvent(this, event);
@@ -793,6 +809,7 @@ public class AnnotationDrivenEventListenerTests {
 
 		@EventListener
 		@Async
+		@Override
 		public void handleAsync(AnotherTestEvent event) {
 			assertTrue(!Thread.currentThread().getName().equals(event.content));
 			this.eventCollector.addEvent(this, event);
@@ -875,7 +892,6 @@ public class AnnotationDrivenEventListenerTests {
 	}
 
 
-
 	@EventListener
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface ConditionalEvent {
@@ -885,8 +901,21 @@ public class AnnotationDrivenEventListenerTests {
 	}
 
 
+	interface ConditionalEventInterface extends Identifiable {
+
+		void handle(TestEvent event);
+
+		void handleString(String payload);
+
+		void handleTimestamp(Long timestamp);
+
+		void handleRatio(Double ratio);
+	}
+
+
 	@Component
-	static class ConditionalEventListener extends TestEventListener {
+	@Validated
+	static class ConditionalEventListener extends TestEventListener implements ConditionalEventInterface {
 
 		@EventListener(condition = "'OK'.equals(#root.event.msg)")
 		@Override
@@ -894,18 +923,20 @@ public class AnnotationDrivenEventListenerTests {
 			super.handle(event);
 		}
 
-		@Override
 		@EventListener(condition = "#payload.startsWith('OK')")
+		@Override
 		public void handleString(String payload) {
 			super.handleString(payload);
 		}
 
 		@ConditionalEvent("#root.event.timestamp > #p0")
+		@Override
 		public void handleTimestamp(Long timestamp) {
 			collectEvent(timestamp);
 		}
 
 		@ConditionalEvent("@conditionEvaluator.valid(#p0)")
+		@Override
 		public void handleRatio(Double ratio) {
 			collectEvent(ratio);
 		}

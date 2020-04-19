@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,7 @@ import static org.springframework.test.util.AssertionErrors.*;
 
 /**
  * Factory for response content assertions.
+ *
  * <p>An instance of this class is typically accessed via
  * {@link MockMvcResultMatchers#content}.
  *
@@ -200,7 +201,7 @@ public class ContentResultMatchers {
 	/**
 	 * Parse the response content as {@link DOMSource} and apply the given
 	 * Hamcrest {@link Matcher}.
-	 * @see <a href="http://code.google.com/p/xml-matchers/">xml-matchers</a>
+	 * @see <a href="https://code.google.com/p/xml-matchers/">xml-matchers</a>
 	 */
 	public ResultMatcher source(final Matcher<? super Source> matcher) {
 		return new ResultMatcher() {
@@ -217,7 +218,6 @@ public class ContentResultMatchers {
 	 * are "similar" - i.e. they contain the same attribute-value pairs
 	 * regardless of formatting with a lenient checking (extensible, and non-strict array
 	 * ordering).
-	 *
 	 * @param jsonContent the expected JSON content
 	 * @since 4.1
 	 */
@@ -226,19 +226,15 @@ public class ContentResultMatchers {
 	}
 
 	/**
-	 * Parse the response content and the given string as JSON and assert the two
-	 * are "similar" - i.e. they contain the same attribute-value pairs
-	 * regardless of formatting.
-	 *
+	 * Parse the response content and the given string as JSON and assert the two are "similar" -
+	 * i.e. they contain the same attribute-value pairs regardless of formatting.
 	 * <p>Can compare in two modes, depending on {@code strict} parameter value:
 	 * <ul>
-	 *     <li>{@code true}: strict checking. Not extensible, and strict array ordering.</li>
-	 *     <li>{@code false}: lenient checking. Extensible, and non-strict array ordering.</li>
+	 * <li>{@code true}: strict checking. Not extensible, and strict array ordering.</li>
+	 * <li>{@code false}: lenient checking. Extensible, and non-strict array ordering.</li>
 	 * </ul>
-	 *
 	 * <p>Use of this matcher requires the <a
-	 * href="http://jsonassert.skyscreamer.org/">JSONassert<a/> library.
-	 *
+	 * href="https://jsonassert.skyscreamer.org/">JSONassert<a/> library.
 	 * @param jsonContent the expected JSON content
 	 * @param strict enables strict checking
 	 * @since 4.2

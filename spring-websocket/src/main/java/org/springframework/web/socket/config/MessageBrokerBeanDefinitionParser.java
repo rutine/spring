@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -119,7 +119,6 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext context) {
-
 		Object source = context.extractSource(element);
 		CompositeComponentDefinition compDefinition = new CompositeComponentDefinition(element.getTagName(), source);
 		context.pushContainingComponent(compDefinition);
@@ -150,13 +149,12 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 		for (Element endpointElem : DomUtils.getChildElementsByTagName(element, "stomp-endpoint")) {
 			RuntimeBeanReference requestHandler = registerRequestHandler(endpointElem, stompHandler, context, source);
 			String pathAttribute = endpointElem.getAttribute("path");
-			Assert.state(StringUtils.hasText(pathAttribute), "Invalid <stomp-endpoint> (no path mapping)");
-			List<String> paths = Arrays.asList(StringUtils.tokenizeToStringArray(pathAttribute, ","));
-			for (String path : paths) {
+			Assert.hasText(pathAttribute, "Invalid <stomp-endpoint> (no path mapping)");
+			for (String path : StringUtils.tokenizeToStringArray(pathAttribute, ",")) {
 				path = path.trim();
-				Assert.state(StringUtils.hasText(path), "Invalid <stomp-endpoint> path attribute: " + pathAttribute);
+				Assert.hasText(path, "Invalid <stomp-endpoint> path attribute: " + pathAttribute);
 				if (DomUtils.getChildElementByTagName(endpointElem, "sockjs") != null) {
-					path = path.endsWith("/") ? path + "**" : path + "/**";
+					path = (path.endsWith("/") ? path + "**" : path + "/**");
 				}
 				urlMap.put(path, requestHandler);
 			}
@@ -174,7 +172,6 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private RuntimeBeanReference registerUserRegistry(Element element, ParserContext context, Object source) {
-
 		Element relayElement = DomUtils.getChildElementByTagName(element, "stomp-broker-relay");
 		boolean multiServer = (relayElement != null && relayElement.hasAttribute("user-registry-broadcast"));
 
@@ -192,9 +189,7 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 		}
 	}
 
-	private ManagedMap<String, Object> registerHandlerMapping(Element element,
-			ParserContext context, Object source) {
-
+	private ManagedMap<String, Object> registerHandlerMapping(Element element, ParserContext context, Object source) {
 		RootBeanDefinition handlerMappingDef = new RootBeanDefinition(WebSocketHandlerMapping.class);
 
 		String orderAttribute = element.getAttribute("order");
@@ -240,6 +235,7 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 				}
 			}
 		}
+
 		ConstructorArgumentValues argValues = new ConstructorArgumentValues();
 		if (executor != null) {
 			executor.getPropertyValues().add("threadNamePrefix", name + "-");
@@ -247,8 +243,9 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 			registerBeanDefByName(executorName, executor, context, source);
 			argValues.addIndexedArgumentValue(0, new RuntimeBeanReference(executorName));
 		}
+
 		RootBeanDefinition channelDef = new RootBeanDefinition(ExecutorSubscribableChannel.class, argValues, null);
-		ManagedList<? super Object> interceptors = new ManagedList<Object>();
+		ManagedList<Object> interceptors = new ManagedList<Object>();
 		if (element != null) {
 			Element interceptorsElement = DomUtils.getChildElementByTagName(element, "interceptors");
 			interceptors.addAll(WebSocketNamespaceUtils.parseBeanSubElements(interceptorsElement, context));
@@ -336,7 +333,7 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 		else {
 			RuntimeBeanReference handshakeHandler = WebSocketNamespaceUtils.registerHandshakeHandler(element, context, source);
 			Element interceptorsElement = DomUtils.getChildElementByTagName(element, "handshake-interceptors");
-			ManagedList<? super Object> interceptors = WebSocketNamespaceUtils.parseBeanSubElements(interceptorsElement, context);
+			ManagedList<Object> interceptors = WebSocketNamespaceUtils.parseBeanSubElements(interceptorsElement, context);
 			String allowedOriginsAttribute = element.getAttribute("allowed-origins");
 			List<String> allowedOrigins = Arrays.asList(StringUtils.tokenizeToStringArray(allowedOriginsAttribute, ","));
 			interceptors.add(new OriginHandshakeInterceptor(allowedOrigins));
@@ -380,6 +377,10 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 			if (simpleBrokerElem.hasAttribute("heartbeat")) {
 				String heartbeatValue = simpleBrokerElem.getAttribute("heartbeat");
 				brokerDef.getPropertyValues().add("heartbeatValue", heartbeatValue);
+			}
+			if (simpleBrokerElem.hasAttribute("selector-header")) {
+				String headerName = simpleBrokerElem.getAttribute("selector-header");
+				brokerDef.getPropertyValues().add("selectorHeaderName", headerName);
 			}
 		}
 		else if (brokerRelayElem != null) {
@@ -457,7 +458,7 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 
 	private RuntimeBeanReference registerMessageConverter(Element element, ParserContext context, Object source) {
 		Element convertersElement = DomUtils.getChildElementByTagName(element, "message-converters");
-		ManagedList<? super Object> converters = new ManagedList<Object>();
+		ManagedList<Object> converters = new ManagedList<Object>();
 		if (convertersElement != null) {
 			converters.setSource(source);
 			for (Element beanElement : DomUtils.getChildElementsByTagName(convertersElement, "bean", "ref")) {
@@ -640,12 +641,15 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 		return name;
 	}
 
-	private static void registerBeanDefByName(String name, RootBeanDefinition beanDef, ParserContext context, Object source) {
+	private static void registerBeanDefByName(
+			String name, RootBeanDefinition beanDef, ParserContext context, Object source) {
+
 		beanDef.setSource(source);
 		beanDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		context.getRegistry().registerBeanDefinition(name, beanDef);
 		context.registerComponent(new BeanComponentDefinition(beanDef, name));
 	}
+
 
 	private static class DecoratingFactoryBean implements FactoryBean<WebSocketHandler> {
 
@@ -653,15 +657,13 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 
 		private final List<WebSocketHandlerDecoratorFactory> factories;
 
-
-		@SuppressWarnings("unused")
-		private DecoratingFactoryBean(WebSocketHandler handler, List<WebSocketHandlerDecoratorFactory> factories) {
+		public DecoratingFactoryBean(WebSocketHandler handler, List<WebSocketHandlerDecoratorFactory> factories) {
 			this.handler = handler;
 			this.factories = factories;
 		}
 
 		@Override
-		public WebSocketHandler getObject() throws Exception {
+		public WebSocketHandler getObject() {
 			WebSocketHandler result = this.handler;
 			for (WebSocketHandlerDecoratorFactory factory : this.factories) {
 				result = factory.decorate(result);

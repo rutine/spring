@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,6 +57,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.util.concurrent.SettableListenableFuture;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.socket.CloseStatus;
@@ -281,7 +282,7 @@ public class UndertowXhrTransport extends AbstractXhrTransport {
 			try {
 				ClientRequest request = new ClientRequest().setMethod(method).setPath(url.getPath());
 				request.getRequestHeaders().add(HttpString.tryFromString(HttpHeaders.HOST), url.getHost());
-				if (body != null && !body.isEmpty()) {
+				if (StringUtils.hasLength(body)) {
 					HttpString headerName = HttpString.tryFromString(HttpHeaders.CONTENT_LENGTH);
 					request.getRequestHeaders().add(headerName, body.length());
 				}
@@ -305,6 +306,7 @@ public class UndertowXhrTransport extends AbstractXhrTransport {
 			throw new SockJsTransportFailureException("Failed to execute request to " + url, ex);
 		}
 		catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
 			throw new SockJsTransportFailureException("Interrupted while processing request to " + url, ex);
 		}
 	}

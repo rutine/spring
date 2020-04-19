@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,6 +38,7 @@ import org.springframework.util.StreamUtils;
  * or Collections of {@link ResourceRegion ResourceRegions}.
  *
  * @author Brian Clozel
+ * @author Juergen Hoeller
  * @since 4.3
  */
 public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessageConverter<Object> {
@@ -51,8 +52,24 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
 
 
 	@Override
-	protected boolean supports(Class<?> clazz) {
-		// should not be called as we override canRead/canWrite
+	@SuppressWarnings("unchecked")
+	protected MediaType getDefaultContentType(Object object) {
+		if (jafPresent) {
+			if (object instanceof ResourceRegion) {
+				return ActivationMediaTypeFactory.getMediaType(((ResourceRegion) object).getResource());
+			}
+			else {
+				Collection<ResourceRegion> regions = (Collection<ResourceRegion>) object;
+				if (!regions.isEmpty()) {
+					return ActivationMediaTypeFactory.getMediaType(regions.iterator().next().getResource());
+				}
+			}
+		}
+		return MediaType.APPLICATION_OCTET_STREAM;
+	}
+
+	@Override
+	public boolean canRead(Class<?> clazz, MediaType mediaType) {
 		return false;
 	}
 
@@ -65,31 +82,14 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
 	public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage)
 			throws IOException, HttpMessageNotReadableException {
 
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	protected ResourceRegion readInternal(Class<?> clazz, HttpInputMessage inputMessage)
 			throws IOException, HttpMessageNotReadableException {
 
-		return null;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected MediaType getDefaultContentType(Object object) {
-		if (jafPresent) {
-			if(object instanceof ResourceRegion) {
-				return ActivationMediaTypeFactory.getMediaType(((ResourceRegion) object).getResource());
-			}
-			else {
-				Collection<ResourceRegion> regions = (Collection<ResourceRegion>) object;
-				if(regions.size() > 0) {
-					return ActivationMediaTypeFactory.getMediaType(regions.iterator().next().getResource());
-				}
-			}
-		}
-		return MediaType.APPLICATION_OCTET_STREAM;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
 	@Override
 	public boolean canWrite(Type type, Class<?> clazz, MediaType mediaType) {
 		if (!(type instanceof ParameterizedType)) {
-			return ResourceRegion.class.isAssignableFrom((Class) type);
+			return ResourceRegion.class.isAssignableFrom((Class<?>) type);
 		}
 		ParameterizedType parameterizedType = (ParameterizedType) type;
 		if (!(parameterizedType.getRawType() instanceof Class)) {
@@ -140,9 +140,11 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
 		}
 	}
 
+
 	protected void writeResourceRegion(ResourceRegion region, HttpOutputMessage outputMessage) throws IOException {
 		Assert.notNull(region, "ResourceRegion must not be null");
 		HttpHeaders responseHeaders = outputMessage.getHeaders();
+
 		long start = region.getPosition();
 		long end = start + region.getCount() - 1;
 		Long resourceLength = region.getResource().contentLength();
@@ -150,6 +152,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
 		long rangeLength = end - start + 1;
 		responseHeaders.add("Content-Range", "bytes " + start + '-' + end + '/' + resourceLength);
 		responseHeaders.setContentLength(rangeLength);
+
 		InputStream in = region.getResource().getInputStream();
 		try {
 			StreamUtils.copyRange(in, outputMessage.getBody(), start, end);
@@ -169,35 +172,46 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
 
 		Assert.notNull(resourceRegions, "Collection of ResourceRegion should not be null");
 		HttpHeaders responseHeaders = outputMessage.getHeaders();
+
 		MediaType contentType = responseHeaders.getContentType();
 		String boundaryString = MimeTypeUtils.generateMultipartBoundaryString();
 		responseHeaders.set(HttpHeaders.CONTENT_TYPE, "multipart/byteranges; boundary=" + boundaryString);
 		OutputStream out = outputMessage.getBody();
+
 		for (ResourceRegion region : resourceRegions) {
 			long start = region.getPosition();
 			long end = start + region.getCount() - 1;
 			InputStream in = region.getResource().getInputStream();
-			// Writing MIME header.
-			println(out);
-			print(out, "--" + boundaryString);
-			println(out);
-			if (contentType != null) {
-				print(out, "Content-Type: " + contentType.toString());
+			try {
+				// Writing MIME header.
 				println(out);
+				print(out, "--" + boundaryString);
+				println(out);
+				if (contentType != null) {
+					print(out, "Content-Type: " + contentType.toString());
+					println(out);
+				}
+				Long resourceLength = region.getResource().contentLength();
+				end = Math.min(end, resourceLength - 1);
+				print(out, "Content-Range: bytes " + start + '-' + end + '/' + resourceLength);
+				println(out);
+				println(out);
+				// Printing content
+				StreamUtils.copyRange(in, out, start, end);
 			}
-			Long resourceLength = region.getResource().contentLength();
-			end = Math.min(end, resourceLength - 1);
-			print(out, "Content-Range: bytes " + start + '-' + end + '/' + resourceLength);
-			println(out);
-			println(out);
-			// Printing content
-			StreamUtils.copyRange(in, out, start, end);
+			finally {
+				try {
+					in.close();
+				}
+				catch (IOException ex) {
+					// ignore
+				}
+			}
 		}
+
 		println(out);
 		print(out, "--" + boundaryString + "--");
 	}
-
-
 
 	private static void println(OutputStream os) throws IOException {
 		os.write('\r');

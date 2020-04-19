@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -94,7 +94,7 @@ public class WebMvcStompEndpointRegistry implements StompEndpointRegistry {
 		WebSocketHandler actual = WebSocketHandlerDecorator.unwrap(handler);
 		if (!(actual instanceof SubProtocolWebSocketHandler)) {
 			throw new IllegalArgumentException("No SubProtocolWebSocketHandler in " + handler);
-		};
+		}
 		return (SubProtocolWebSocketHandler) actual;
 	}
 
@@ -146,10 +146,8 @@ public class WebMvcStompEndpointRegistry implements StompEndpointRegistry {
 		this.stompHandler.setApplicationEventPublisher(applicationContext);
 	}
 
-
 	/**
-	 * Return a handler mapping with the mapped ViewControllers; or {@code null}
-	 * in case of no registrations.
+	 * Return a handler mapping with the mapped ViewControllers.
 	 */
 	public AbstractHandlerMapping getHandlerMapping() {
 		Map<String, Object> urlMap = new LinkedHashMap<String, Object>();

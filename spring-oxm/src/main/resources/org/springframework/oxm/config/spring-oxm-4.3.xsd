@@ -6,8 +6,8 @@
 		elementFormDefault="qualified"
 		attributeFormDefault="unqualified">
 
-	<xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-4.3.xsd"/>
-	<xsd:import namespace="http://www.springframework.org/schema/tool" schemaLocation="http://www.springframework.org/schema/tool/spring-tool-4.3.xsd"/>
+	<xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="https://www.springframework.org/schema/beans/spring-beans-4.3.xsd"/>
+	<xsd:import namespace="http://www.springframework.org/schema/tool" schemaLocation="https://www.springframework.org/schema/tool/spring-tool-4.3.xsd"/>
 
 	<xsd:annotation>
 		<xsd:documentation>
@@ -85,7 +85,7 @@
 			<xsd:annotation>
 				<xsd:documentation
 					source="java:org.springframework.oxm.castor.CastorMarshaller">
-					Defines a Castor Marshaller.
+					Defines a Castor Marshaller. Deprecated as of Spring Framework 4.3.13!
 				</xsd:documentation>
 				<xsd:appinfo>
 					<tool:annotation>

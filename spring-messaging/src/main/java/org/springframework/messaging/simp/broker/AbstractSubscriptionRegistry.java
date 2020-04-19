@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,7 @@ import org.springframework.util.MultiValueMap;
  */
 public abstract class AbstractSubscriptionRegistry implements SubscriptionRegistry {
 
-	private static MultiValueMap<String, String> EMPTY_MAP =
+	private static final MultiValueMap<String, String> EMPTY_MAP =
 			CollectionUtils.unmodifiableMultiValueMap(new LinkedMultiValueMap<String, String>(0));
 
 	protected final Log logger = LogFactory.getLog(getClass());

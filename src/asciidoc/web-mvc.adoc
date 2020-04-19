@@ -2,8 +2,11 @@
 = Web MVC framework
 
 
+
+
 [[mvc-introduction]]
 == Introduction to Spring Web MVC framework
+
 The Spring Web model-view-controller (MVC) framework is designed around a
 `DispatcherServlet` that dispatches requests to handlers, with configurable handler
 mappings, view resolution, locale, time zone and theme resolution as well as support for
@@ -73,7 +76,7 @@ in different situations, and as such is ideal for building web application modul
 guide the user through controlled navigations that drive business processes.
 
 For more information about SWF, consult the
-http://projects.spring.io/spring-webflow/[Spring Web Flow website].
+https://projects.spring.io/spring-webflow/[Spring Web Flow website].
 ****
 
 Spring's web module includes many unique web support features:
@@ -119,6 +122,7 @@ Spring's web module includes many unique web support features:
 
 [[mvc-introduction-pluggability]]
 === Pluggability of other MVC implementations
+
 Non-Spring MVC implementations are preferable for some projects. Many teams expect to
 leverage their existing investment in skills and tools, for example with JSF.
 
@@ -175,7 +179,6 @@ Java EE Servlet configuration in a Servlet 3.0+ environment:
 			registration.setLoadOnStartup(1);
 			registration.addMapping("/example/*");
 		}
-
 	}
 ----
 
@@ -310,20 +313,19 @@ Note that we can achieve the same with java-based configurations:
 		@Override
 		protected Class<?>[] getRootConfigClasses() {
 			// GolfingAppConfig defines beans that would be in root-context.xml
-			return new Class[] { GolfingAppConfig.class };
+			return new Class<?>[] { GolfingAppConfig.class };
 		}
 
 		@Override
 		protected Class<?>[] getServletConfigClasses() {
 			// GolfingWebConfig defines beans that would be in golfing-servlet.xml
-			return new Class[] { GolfingWebConfig.class };
+			return new Class<?>[] { GolfingWebConfig.class };
 		}
 
 		@Override
 		protected String[] getServletMappings() {
 			return new String[] { "/golfing/*" };
 		}
-
 	}
 ----
 
@@ -450,8 +452,8 @@ initialization parameters ( `init-param` elements) to the Servlet declaration in
 | Parameter| Explanation
 
 | `contextClass`
-| Class that implements `WebApplicationContext`, which instantiates the context used by
-  this Servlet. By default, the `XmlWebApplicationContext` is used.
+| Class that implements `ConfigurableWebApplicationContext`, to be instantiated and
+  locally configured by this Servlet. By default, `XmlWebApplicationContext` is used.
 
 | `contextConfigLocation`
 | String that is passed to the context instance (specified by `contextClass`) to
@@ -484,7 +486,6 @@ Portlet facilities.
 
 [TIP]
 ====
-
 Available in the https://github.com/spring-projects/[spring-projects Org on Github],
 a number of web applications leverage the annotation support described in this section
 including __MvcShowcase__, __MvcAjax__, __MvcBasic__, __PetClinic__, __PetCare__,
@@ -546,9 +547,9 @@ snippet:
 		xmlns:context="http://www.springframework.org/schema/context"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/context
-			http://www.springframework.org/schema/context/spring-context.xsd">
+			https://www.springframework.org/schema/context/spring-context.xsd">
 
 		<context:component-scan base-package="org.springframework.samples.petclinic.web"/>
 
@@ -774,10 +775,10 @@ __URI templates__ can be used for convenient access to selected parts of a URL i
 
 A URI Template is a URI-like string, containing one or more variable names. When you
 substitute values for these variables, the template becomes a URI. The
-http://bitworking.org/projects/URI-Templates/[proposed RFC] for URI Templates defines
+https://bitworking.org/projects/URI-Templates/[proposed RFC] for URI Templates defines
 how a URI is parameterized. For example, the URI Template
-`http://www.example.com/users/{userId}` contains the variable __userId__. Assigning the
-value __fred__ to the variable yields `http://www.example.com/users/fred`.
+`https://www.example.com/users/{userId}` contains the variable __userId__. Assigning the
+value __fred__ to the variable yields `https://www.example.com/users/fred`.
 
 In Spring MVC you can use the `@PathVariable` annotation on a method argument to bind it
 to the value of a URI template variable:
@@ -800,7 +801,6 @@ the value of `ownerId` is `fred`.
 
 [TIP]
 ====
-
 To process the @PathVariable annotation, Spring MVC needs to find the matching URI
 template variable by name. You can specify it in the annotation:
 
@@ -987,7 +987,7 @@ for such extensions. See <<mvc-config-content-negotiation>>.
 [NOTE]
 ====
 This was originally introduced as part of work for
-http://pivotal.io/security/cve-2015-5211[CVE-2015-5211].
+https://pivotal.io/security/cve-2015-5211[CVE-2015-5211].
 Below are additional recommendations from the report:
 
 * Encode rather than escape JSON responses. This is also an OWASP XSS recommendation.
@@ -1007,10 +1007,10 @@ Below are additional recommendations from the report:
 
 [[mvc-ann-matrix-variables]]
 ==== Matrix Variables
-The URI specification http://tools.ietf.org/html/rfc3986#section-3.3[RFC 3986] defines
+The URI specification https://tools.ietf.org/html/rfc3986#section-3.3[RFC 3986] defines
 the possibility of including name-value pairs within path segments. There is no specific
 term used in the spec. The general "URI path parameters" could be applied although the
-more unique http://www.w3.org/DesignIssues/MatrixURIs.html["Matrix URIs"], originating
+more unique https://www.w3.org/DesignIssues/MatrixURIs.html["Matrix URIs"], originating
 from an old post by Tim Berners-Lee, is also frequently used and fairly well known.
 Within Spring MVC these are referred to as matrix variables.
 
@@ -1098,7 +1098,6 @@ default it is set to `true`.
 
 [TIP]
 ====
-
 The MVC Java config and the MVC namespace both provide options for enabling the use of
 matrix variables.
 
@@ -1119,9 +1118,9 @@ to `false`.
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/mvc
-			http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+			https://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 		<mvc:annotation-driven enable-matrix-variables="true"/>
 
@@ -1151,7 +1150,6 @@ using constants provided in `MediaType` such as `APPLICATION_JSON_VALUE` and
 
 [TIP]
 ====
-
 The __consumes__ condition is supported on the type and on the method level. Unlike most
 other conditions, when used at the type level, method-level consumable types override
 rather than extend type-level consumable types.
@@ -1239,7 +1237,6 @@ specific request header value:
 
 [TIP]
 ====
-
 Although you can match to __Content-Type__ and __Accept__ header values using media type
 wild cards (for example __"content-type=text/*"__ will match to __"text/plain"__ and
 __"text/html"__), it is recommended to use the __consumes__ and __produces__ conditions
@@ -1697,7 +1694,6 @@ for more details.
 
 [TIP]
 ====
-
 What happens when a model attribute name is not explicitly specified? In such cases a
 default name is assigned to the model attribute based on its type. For example if the
 method returns an object of type `Account`, the default name used is "account". You can
@@ -1798,22 +1794,22 @@ controller or alternatively use the `binding` flag on the annotation:
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-@ModelAttribute
-public AccountForm setUpForm() {
-    return new AccountForm();
-}
+	@ModelAttribute
+	public AccountForm setUpForm() {
+		return new AccountForm();
+	}
 
-@ModelAttribute
-public Account findAccount(@PathVariable String accountId) {
-    return accountRepository.findOne(accountId);
-}
+	@ModelAttribute
+	public Account findAccount(@PathVariable String accountId) {
+		return accountRepository.findOne(accountId);
+	}
 
-@PostMapping("update")
-public String update(@Valid AccountUpdateForm form, BindingResult result,
-        **@ModelAttribute(binding=false)** Account account) {
+	@PostMapping("update")
+	public String update(@Valid AccountUpdateForm form, BindingResult result,
+			**@ModelAttribute(binding=false)** Account account) {
 
-    // ...
-}
+		// ...
+	}
 ----
 
 In addition to data binding you can also invoke validation using your own custom
@@ -2198,7 +2194,7 @@ documentation] for more details.
 
 It can sometimes be useful to filter contextually the object that will be serialized to the
 HTTP response body. In order to provide such capability, Spring MVC has built-in support for
-rendering with http://wiki.fasterxml.com/JacksonJsonViews[Jackson's Serialization Views].
+rendering with https://wiki.fasterxml.com/JacksonJsonViews[Jackson's Serialization Views].
 
 To use it with an `@ResponseBody` controller method or controller methods that return
 `ResponseEntity`, simply add the `@JsonView` annotation with a class argument specifying
@@ -2274,7 +2270,7 @@ to the model:
 [[mvc-ann-jsonp]]
 ==== Jackson JSONP Support
 
-In order to enable http://en.wikipedia.org/wiki/JSONP[JSONP] support for `@ResponseBody`
+In order to enable https://en.wikipedia.org/wiki/JSONP[JSONP] support for `@ResponseBody`
 and `ResponseEntity` methods, declare an `@ControllerAdvice` bean that extends
 `AbstractJsonpResponseBodyAdvice` as shown below where the constructor argument indicates
 the JSONP query parameter name(s):
@@ -2294,6 +2290,12 @@ the JSONP query parameter name(s):
 For controllers relying on view resolution, JSONP is automatically enabled when the
 request has a query parameter named `jsonp` or `callback`. Those names can be
 customized through `jsonpParameterNames` property.
+
+[NOTE]
+====
+As of Spring Framework 4.3.18, JSONP support is deprecated and will be removed as of
+Spring Framework 5.1, <<cors,CORS>> should be used instead.
+====
 
 
 [[mvc-ann-async]]
@@ -2429,7 +2431,7 @@ which also provides registration methods for timeout and completion.
 
 A controller method can use `DeferredResult` and `Callable` to produce its
 return value asynchronously and that can be used to implement techniques such as
-http://spring.io/blog/2012/05/08/spring-mvc-3-2-preview-techniques-for-real-time-updates/[long polling]
+https://spring.io/blog/2012/05/08/spring-mvc-3-2-preview-techniques-for-real-time-updates/[long polling]
 where the server can push an event to the client as soon as possible.
 
 What if you wanted to push multiple events on a single HTTP response?
@@ -2468,8 +2470,8 @@ the response.
 [[mvc-ann-async-sse]]
 ==== HTTP Streaming With Server-Sent Events
 
-`SseEmitter` is a sub-class of `ResponseBodyEmitter` providing support for
-http://www.w3.org/TR/eventsource/[Server-Sent Events].
+`SseEmitter` is a subclass of `ResponseBodyEmitter` providing support for
+https://www.w3.org/TR/eventsource/[Server-Sent Events].
 Server-sent events is a just another variation on the same "HTTP Streaming"
 technique except events pushed from the server are formatted according to
 the W3C Server-Sent Events specification.
@@ -2486,7 +2488,7 @@ falling back to a very wide range of browsers (including Internet Explorer)
 and also higher-level messaging patterns for interacting with clients through
 a publish-subscribe model within a more messaging-centric architecture.
 For further background on this see
-http://blog.pivotal.io/pivotal/products/websocket-architecture-in-spring-4-0[the following blog post].
+https://blog.pivotal.io/pivotal/products/websocket-architecture-in-spring-4-0[the following blog post].
 
 [[mvc-ann-async-output-stream]]
 ==== HTTP Streaming Directly To The OutputStream
@@ -2532,7 +2534,7 @@ For applications configured with a `web.xml` be sure to update to version 3.0:
 	<web-app xmlns="http://java.sun.com/xml/ns/javaee"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				http://java.sun.com/xml/ns/javaee
-				http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+				https://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 		version="3.0">
 
 		...
@@ -2557,7 +2559,7 @@ Below is some example web.xml configuration:
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="
 				http://java.sun.com/xml/ns/javaee
-				http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+				https://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 		version="3.0">
 
 		<filter>
@@ -2731,7 +2733,7 @@ the example below:
 			if (openingTime <= hour && hour < closingTime) {
 				return true;
 			}
-			response.sendRedirect("http://host.com/outsideOfficeHours.html");
+			response.sendRedirect("https://host.com/outsideOfficeHours.html");
 			return false;
 		}
 	}
@@ -2752,7 +2754,6 @@ extend the `HandlerInterceptor` interface.
 
 [TIP]
 ====
-
 In the example above, the configured interceptor will apply to all requests handled with
 annotated controller methods. If you want to narrow down the URL paths to which an
 interceptor applies, you can use the MVC namespace or the MVC Java config, or declare
@@ -2765,6 +2766,7 @@ writes to and commits the response before `postHandle` is called which makes it 
 to change the response, for example to add a header. Instead an application can implement
 `ResponseBodyAdvice` and either declare it as an `@ControllerAdvice` bean or configure it
 directly on `RequestMappingHandlerAdapter`.
+
 
 
 
@@ -3035,7 +3037,7 @@ name will be treated as the redirect URL.
 The net effect is the same as if the controller had returned a `RedirectView`, but now
 the controller itself can simply operate in terms of logical view names. A logical view
 name such as `redirect:/myapp/some/resource` will redirect relative to the current
-Servlet context, while a name such as `redirect:http://myhost.com/some/arbitrary/path`
+Servlet context, while a name such as `redirect:https://myhost.com/some/arbitrary/path`
 will redirect to an absolute URL.
 
 Note that the controller handler is annotated with the `@ResponseStatus`, the annotation
@@ -3069,17 +3071,17 @@ by the client. Two strategies exist for a client to request a representation fro
 server:
 
 * Use a distinct URI for each resource, typically by using a different file extension in
-  the URI. For example, the URI `http://www.example.com/users/fred.pdf` requests a PDF
-  representation of the user fred, and `http://www.example.com/users/fred.xml` requests
+  the URI. For example, the URI `https://www.example.com/users/fred.pdf` requests a PDF
+  representation of the user fred, and `https://www.example.com/users/fred.xml` requests
   an XML representation.
 * Use the same URI for the client to locate the resource, but set the `Accept` HTTP
-  request header to list the http://en.wikipedia.org/wiki/Internet_media_type[media
+  request header to list the https://en.wikipedia.org/wiki/Internet_media_type[media
   types] that it understands. For example, an HTTP request for
-  `http://www.example.com/users/fred` with an `Accept` header set to `application/pdf`
+  `https://www.example.com/users/fred` with an `Accept` header set to `application/pdf`
   requests a PDF representation of the user fred, while
-  `http://www.example.com/users/fred` with an `Accept` header set to `text/xml` requests
+  `https://www.example.com/users/fred` with an `Accept` header set to `text/xml` requests
   an XML representation. This strategy is known as
-  http://en.wikipedia.org/wiki/Content_negotiation[content negotiation].
+  https://en.wikipedia.org/wiki/Content_negotiation[content negotiation].
 
 [NOTE]
 ====
@@ -3205,11 +3207,11 @@ Spring MVC has two main abstractions in support of flash attributes. `FlashMap` 
 to hold flash attributes while `FlashMapManager` is used to store, retrieve, and manage
 `FlashMap` instances.
 
-Flash attribute support is always "on" and does not need to enabled explicitly although
-if not used, it never causes HTTP session creation. On each request there is an "input"
-`FlashMap` with attributes passed from a previous request (if any) and an "output"
-`FlashMap` with attributes to save for a subsequent request. Both `FlashMap` instances
-are accessible from anywhere in Spring MVC through static methods in
+Flash attribute support is always "on" and does not need to be enabled explicitly
+although if not used, it never causes HTTP session creation. On each request there is
+an "input" `FlashMap` with attributes passed from a previous request (if any) and an
+"output" `FlashMap` with attributes to save for a subsequent request. Both `FlashMap`
+instances are accessible from anywhere in Spring MVC through static methods in
 `RequestContextUtils`.
 
 Annotated controllers typically do not need to work with `FlashMap` directly. Instead an
@@ -3252,7 +3254,7 @@ For example you can expand and encode a URI template string:
 [subs="verbatim,quotes"]
 ----
 	UriComponents uriComponents = UriComponentsBuilder.fromUriString(
-			"http://example.com/hotels/{hotel}/bookings/{booking}").build();
+			"https://example.com/hotels/{hotel}/bookings/{booking}").build();
 
 	URI uri = uriComponents.expand("42", "21").encode().toUri();
 ----
@@ -3271,7 +3273,7 @@ You can also expand and encode using individual URI components:
 			.encode();
 ----
 
-In a Servlet environment the `ServletUriComponentsBuilder` sub-class provides static
+In a Servlet environment the `ServletUriComponentsBuilder` subclass provides static
 factory methods to copy available URL information from a Servlet requests:
 
 [source,java,indent=0]
@@ -3318,7 +3320,8 @@ also have the literal part of the servlet mapping included:
 [[mvc-links-to-controllers]]
 === Building URIs to Controllers and methods
 
-Spring MVC also provides a mechanism for building links to controller methods. For example, given:
+Spring MVC provides a mechanism to prepare links to controller methods. For example,
+the following MVC controller easily allows for link creation:
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3328,10 +3331,9 @@ Spring MVC also provides a mechanism for building links to controller methods. F
 	public class BookingController {
 
 		@GetMapping("/bookings/{booking}")
-		public String getBooking(@PathVariable Long booking) {
-
-		// ...
-        }
+		public ModelAndView getBooking(@PathVariable Long booking) {
+			// ...
+		}
 	}
 ----
 
@@ -3366,6 +3368,16 @@ akin to mock testing through proxies to avoid referring to the controller method
 	URI uri = uriComponents.encode().toUri();
 ----
 
+[NOTE]
+====
+Controller method signatures are limited in their design when supposed to be usable for
+link creation with `fromMethodCall`. Aside from needing a proper parameter signature,
+there is a technical limitation on the return type: namely generating a runtime proxy
+for link builder invocations, so the return type must not be `final`. In particular,
+the common `String` return type for view names does not work here; use `ModelAndView`
+or even plain `Object` (with a `String` return value) instead.
+====
+
 The above examples use static methods in `MvcUriComponentsBuilder`. Internally they rely
 on `ServletUriComponentsBuilder` to prepare a base URL from the scheme, host, port,
 context path and servlet path of the current request. This works well in most cases,
@@ -3387,6 +3399,38 @@ with a base URL and then use the instance-based "withXxx" methods. For example:
 
 	URI uri = uriComponents.encode().toUri();
 ----
+
+
+[[mvc-links-to-controllers-forwarded-headers]]
+=== Working with "Forwarded" and "X-Forwarded-*" Headers
+
+As a request goes through proxies such as load balancers the host, port, and
+scheme may change presenting a challenge for applications that need to create links
+to resources since the links should reflect the host, port, and scheme of the
+original request as seen from a client perspective.
+
+https://tools.ietf.org/html/rfc7239[RFC 7239] defines the "Forwarded" HTTP header
+for proxies to use to provide information about the original request. There are also
+other non-standard headers in use such as "X-Forwarded-Host", "X-Forwarded-Port",
+and "X-Forwarded-Proto".
+
+Both `ServletUriComponentsBuilder` and `MvcUriComponentsBuilder` detect, extract, and use
+information from the "Forwarded" header, or from "X-Forwarded-Host", "X-Forwarded-Port",
+and "X-Forwarded-Proto" if "Forwarded" is not present, so that the resulting links reflect
+the original request.
+
+The `ForwardedHeaderFilter` provides an alternative to do the same once and globally for
+the entire application. The filter wraps the request in order to overlay host, port, and
+scheme information and also "hides" any forwarded headers for subsequent processing.
+
+Note that there are security considerations when using forwarded headers as explained
+in Section 8 of RFC 7239. At the application level it is difficult to determine whether
+forwarded headers can be trusted or not. This is why the network upstream should be
+configured correctly to filter out untrusted forwarded headers from the outside.
+
+Applications that don't have a proxy and don't need to use forwarded headers can
+configure the `ForwardedHeaderFilter` to remove and ignore such headers.
+
 
 
 [[mvc-links-to-controllers-from-views]]
@@ -3418,12 +3462,12 @@ For example given:
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-    @RequestMapping("/people/{id}/addresses")
-    public class PersonAddressController {
+	@RequestMapping("/people/{id}/addresses")
+	public class PersonAddressController {
 
-        @RequestMapping("/{country}")
-        public HttpEntity getAddress(@PathVariable String country) { ... }
-    }
+		@RequestMapping("/{country}")
+		public HttpEntity getAddress(@PathVariable String country) { ... }
+	}
 ----
 
 You can prepare a link from a JSP as follows:
@@ -3554,7 +3598,7 @@ handler mappings (see <<mvc-handlermapping>>). It will detect a parameter in the
 and change the locale. It calls `setLocale()` on the `LocaleResolver` that also exists
 in the context. The following example shows that calls to all `{asterisk}.view` resources
 containing a parameter named `siteLanguage` will now change the locale. So, for example,
-a request for the following URL, `http://www.sf.net/home.view?siteLanguage=nl` will
+a request for the following URL, `https://www.sf.net/home.view?siteLanguage=nl` will
 change the site language to Dutch.
 
 [source,xml,indent=0]
@@ -3690,7 +3734,7 @@ request with a simple request parameter.
 Spring's built-in multipart support handles file uploads in web applications. You enable
 this multipart support with pluggable `MultipartResolver` objects, defined in the
 `org.springframework.web.multipart` package. Spring provides one `MultipartResolver`
-implementation for use with http://jakarta.apache.org/commons/fileupload[__Commons
+implementation for use with https://jakarta.apache.org/commons/fileupload[__Commons
 FileUpload__] and another for use with Servlet 3.0 multipart request parsing.
 
 By default, Spring does no multipart handling, because some developers want to handle
@@ -3937,11 +3981,11 @@ especially when relying on `@ResponseBody` methods rather than on view resolutio
 may be more convenient to directly set the status of the response and optionally write
 error content to the body of the response.
 
-You can do that with `@ExceptionHandler` methods. When declared within a controller such
-methods apply to exceptions raised by `@RequestMapping` methods of that controller (or
-any of its sub-classes). You can also declare an `@ExceptionHandler` method within an
-`@ControllerAdvice` class in which case it handles exceptions from `@RequestMapping`
-methods from many controllers. Below is an example of a controller-local
+You can do that with `@ExceptionHandler` methods. When declared within a controller,
+such methods apply to exceptions raised by `@RequestMapping` methods of that controller
+(or any of its subclasses). You can also declare an `@ExceptionHandler` method within
+an `@ControllerAdvice` class in which case it handles exceptions from `@RequestMapping`
+methods from many controllers. Below is an example for a controller-local
 `@ExceptionHandler` method:
 
 [source,java,indent=0]
@@ -3950,34 +3994,59 @@ methods from many controllers. Below is an example of a controller-local
 	@Controller
 	public class SimpleController {
 
-		// @RequestMapping methods omitted ...
+		// ...
 
-		@ExceptionHandler(IOException.class)
-		public ResponseEntity<String> handleIOException(IOException ex) {
-			// prepare responseEntity
-			return responseEntity;
+		@ExceptionHandler
+		public ResponseEntity<String> handle(IOException ex) {
+			// ...
 		}
-
 	}
 ----
 
-The `@ExceptionHandler` value can be set to an array of Exception types. If an exception
-is thrown that matches one of the types in the list, then the method annotated with the
-matching `@ExceptionHandler` will be invoked. If the annotation value is not set then
-the exception types listed as method arguments are used.
+The exception may match against a top-level exception being propagated (i.e. a direct
+`IOException` thrown), or against the immediate cause within a top-level wrapper exception
+(e.g. an `IOException` wrapped inside an `IllegalStateException`).
 
-Much like standard controller methods annotated with a `@RequestMapping` annotation, the
-method arguments and return values of `@ExceptionHandler` methods can be flexible. For
-example, the `HttpServletRequest` can be accessed in Servlet environments and the
+For matching exception types, preferably declare the target exception as a method argument
+as shown above. When multiple exception methods match, a root exception match is generally
+preferred to a cause exception match. More specifically, the `ExceptionDepthComparator` is
+used to sort exceptions based on their depth from the thrown exception type.
+
+Alternatively, the `@ExceptionHandler` value can be set to an array of exception types.
+If an exception is thrown that matches one of the types in the list, then the method
+annotated with the matching `@ExceptionHandler` will be invoked. If the annotation value
+is not set, then the declared method parameter type will be used for matching.
+
+[TIP]
+====
+For `@ExceptionHandler` methods, a root exception match will be preferred to just
+matching a cause of the current exception, among the handler methods of a particular
+controller or advice bean. However, a cause match on a higher-priority `@ControllerAdvice`
+will still be preferred to a any match (whether root or cause level) on a lower-priority
+advice bean. As a consequence, when using a multi-advice arrangement, please declare your
+primary root exception mappings on a prioritized advice bean with a corresponding order!
+====
+
+Much like standard controller methods annotated with a `@RequestMapping` annotation,
+the method arguments and return values of `@ExceptionHandler` methods can be flexible.
+For example, the `HttpServletRequest` can be accessed in Servlet environments and the
 `PortletRequest` in Portlet environments. The return type can be a `String`, which is
 interpreted as a view name, a `ModelAndView` object, a `ResponseEntity`, or you can also
 add the `@ResponseBody` to have the method return value converted with message
 converters and written to the response stream.
 
+Last but not least, an `@ExceptionHandler` method implementation may choose to back
+out of dealing with a given exception instance by rethrowing it in its original form.
+This is useful in scenarios where you are only interested in root-level matches or in
+matches within a specific context that cannot be statically determined. A rethrown
+exception will be propagated through the remaining resolution chain, just like if
+the given `@ExceptionHandler` method would not have matched in the first place.
+
 
 
 [[mvc-ann-rest-spring-mvc-exceptions]]
 === Handling Standard Spring MVC Exceptions
+
 Spring MVC may raise a number of exceptions while processing a request. The
 `SimpleMappingExceptionResolver` can easily map any exception to a default error view as
 needed. However, when working with clients that interpret responses in an automated way
@@ -4123,7 +4192,7 @@ or in a JSP:
 [[mvc-web-security]]
 == Web Security
 
-The http://projects.spring.io/spring-security/[Spring Security] project provides features
+The https://projects.spring.io/spring-security/[Spring Security] project provides features
 to protect web applications from malicious exploits. Check out the reference documentation in the sections on
 {doc-spring-security}/htmlsingle/#csrf["CSRF protection"],
 {doc-spring-security}/htmlsingle/#headers["Security Response Headers"], and also
@@ -4135,7 +4204,7 @@ https://github.com/spring-projects/spring-mvc-showcase/commit/361adc124c05a8187b
 for an example.
 
 Another option is to use a framework dedicated to Web Security.
-http://hdiv.org/[HDIV] is one such framework and integrates with Spring MVC.
+https://hdiv.org/[HDIV] is one such framework and integrates with Spring MVC.
 
 
 
@@ -4295,7 +4364,7 @@ semantics of name generation for collections clearer:
 
 
 [[mvc-coc-r2vnt]]
-=== The View - RequestToViewNameTranslator
+=== Default view name
 
 The `RequestToViewNameTranslator` interface determines a logical `View` name when no
 such logical view name is explicitly supplied. It has just one implementation, the
@@ -4328,7 +4397,7 @@ with this example:
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd">
+			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 		<!-- this bean with the well known name generates view names for us -->
 		<bean id="viewNameTranslator"
@@ -4361,18 +4430,17 @@ then resolved into the `/WEB-INF/jsp/registration.jsp` view by the
 
 [TIP]
 ====
-
 You do not need to define a `DefaultRequestToViewNameTranslator` bean explicitly. If you
 like the default settings of the `DefaultRequestToViewNameTranslator`, you can rely on
 the Spring Web MVC `DispatcherServlet` to instantiate an instance of this class if one
 is not explicitly configured.
-
 ====
 
 Of course, if you need to change the default settings, then you do need to configure
 your own `DefaultRequestToViewNameTranslator` bean explicitly. Consult the comprehensive
 `DefaultRequestToViewNameTranslator` javadocs for details on the various properties
 that can be configured.
+
 
 
 
@@ -4386,7 +4454,7 @@ responsible for this, along with conditional headers such as `'Last-Modified'` a
 The `'Cache-Control'` HTTP response header advises private caches (e.g. browsers) and
 public caches (e.g. proxies) on how they can cache HTTP responses for further reuse.
 
-An http://en.wikipedia.org/wiki/HTTP_ETag[ETag] (entity tag) is an HTTP response header
+An https://en.wikipedia.org/wiki/HTTP_ETag[ETag] (entity tag) is an HTTP response header
 returned by an HTTP/1.1 compliant web server used to determine change in content at a
 given URL. It can be considered to be the more sophisticated successor to the
 `Last-Modified` header. When a server returns a representation with an ETag header, the
@@ -4395,6 +4463,7 @@ content has not changed, the server returns `304: Not Modified`.
 
 This section describes the different choices available to configure HTTP caching in a
 Spring Web MVC application.
+
 
 
 [[mvc-caching-cachecontrol]]
@@ -4423,17 +4492,19 @@ accepted as an argument in several Spring Web MVC APIs.
 [subs="verbatim,quotes"]
 ----
 	// Cache for an hour - "Cache-Control: max-age=3600"
-    CacheControl ccCacheOneHour = CacheControl.maxAge(1, TimeUnit.HOURS);
+	CacheControl ccCacheOneHour = CacheControl.maxAge(1, TimeUnit.HOURS);
 
-    // Prevent caching - "Cache-Control: no-store"
-    CacheControl ccNoStore = CacheControl.noStore();
+	// Prevent caching - "Cache-Control: no-store"
+	CacheControl ccNoStore = CacheControl.noStore();
 
-    // Cache for ten days in public and private caches,
-    // public caches should not transform the response
-    // "Cache-Control: max-age=864000, public, no-transform"
-    CacheControl ccCustom = CacheControl.maxAge(10, TimeUnit.DAYS)
-    									.noTransform().cachePublic();
+	// Cache for ten days in public and private caches,
+	// public caches should not transform the response
+	// "Cache-Control: max-age=864000, public, no-transform"
+	CacheControl ccCustom = CacheControl.maxAge(10, TimeUnit.DAYS)
+										.noTransform().cachePublic();
 ----
+
+
 
 [[mvc-caching-static-resources]]
 === HTTP caching support for static resources
@@ -4446,7 +4517,6 @@ metadata, but also `'Cache-Control'` headers if properly configured.
 
 You can set the `cachePeriod` attribute on a `ResourceHttpRequestHandler` or use
 a `CacheControl` instance, which supports more specific directives:
-
 
 [source,java,indent=0]
 [subs="verbatim"]
@@ -4474,6 +4544,7 @@ And in XML:
 		<mvc:cache-control max-age="3600" cache-public="true"/>
 	</mvc:resources>
 ----
+
 
 
 [[mvc-caching-etag-lastmodified]]
@@ -4583,8 +4654,8 @@ You configure the `ShallowEtagHeaderFilter` in `web.xml`:
 		<filter-class>org.springframework.web.filter.ShallowEtagHeaderFilter</filter-class>
 		<!-- Optional parameter that configures the filter to write weak ETags
 		<init-param>
-        	<param-name>writeWeakETag</param-name>
-        	<param-value>true</param-value>
+			<param-name>writeWeakETag</param-name>
+			<param-value>true</param-value>
 		</init-param>
 		-->
 	</filter>
@@ -4663,7 +4734,7 @@ This is recommended for applications that use Java-based Spring configuration:
 
 		@Override
 		protected Class<?>[] getServletConfigClasses() {
-			return new Class[] { MyWebConfig.class };
+			return new Class<?>[] { MyWebConfig.class };
 		}
 
 		@Override
@@ -4735,6 +4806,7 @@ override the `createDispatcherServlet` method.
 
 [[mvc-config]]
 == Configuring Spring MVC
+
 <<mvc-servlet-special-bean-types>> and <<mvc-servlet-config>> explained about Spring
 MVC's special beans and the default implementations used by the `DispatcherServlet`. In
 this section you'll learn about two additional ways of configuring Spring MVC. Namely
@@ -4755,6 +4827,7 @@ to the created Spring MVC beans. But let's start from the beginning.
 
 [[mvc-config-enable]]
 === Enabling the MVC Java Config or the MVC XML Namespace
+
 To enable MVC Java config add the annotation `@EnableWebMvc` to one of your
 `@Configuration` classes:
 
@@ -4764,7 +4837,6 @@ To enable MVC Java config add the annotation `@EnableWebMvc` to one of your
 	@Configuration
 	@EnableWebMvc
 	public class WebConfig {
-
 	}
 ----
 
@@ -4781,9 +4853,9 @@ context defined):
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/mvc
-			http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+			https://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 		<mvc:annotation-driven/>
 
@@ -4801,7 +4873,7 @@ It also enables the following:
 in addition to the JavaBeans PropertyEditors used for Data Binding.
 . Support for <<format,formatting>> Number fields using the `@NumberFormat` annotation
 through the `ConversionService`.
-. Support for <<format,formatting>> `Date`, `Calendar`, `Long`, and Joda Time fields using the
+. Support for <<format,formatting>> `Date`, `Calendar`, `Long`, and Joda-Time fields using the
 `@DateTimeFormat` annotation.
 . Support for <<mvc-config-validation,validating>> `@Controller` inputs with `@Valid`, if
 a JSR-303 Provider is present on the classpath.
@@ -4844,8 +4916,8 @@ in order to provide a better default configuration.
 
 This builder customizes Jackson's default properties with the following ones:
 
-. http://fasterxml.github.io/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/DeserializationFeature.html#FAIL_ON_UNKNOWN_PROPERTIES[`DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`] is disabled.
-. http://fasterxml.github.io/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/MapperFeature.html#DEFAULT_VIEW_INCLUSION[`MapperFeature.DEFAULT_VIEW_INCLUSION`] is disabled.
+. https://fasterxml.github.io/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/DeserializationFeature.html#FAIL_ON_UNKNOWN_PROPERTIES[`DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`] is disabled.
+. https://fasterxml.github.io/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/MapperFeature.html#DEFAULT_VIEW_INCLUSION[`MapperFeature.DEFAULT_VIEW_INCLUSION`] is disabled.
 
 It also automatically registers the following well-known modules if they are detected on the classpath:
 
@@ -4871,13 +4943,12 @@ and override the methods you need:
 	public class WebConfig extends WebMvcConfigurerAdapter {
 
 		// Override configuration methods...
-
 	}
 ----
 
 To customize the default configuration of `<mvc:annotation-driven/>` check what
 attributes and sub-elements it supports. You can view the
-http://schema.spring.io/mvc/spring-mvc.xsd[Spring MVC XML schema] or use the code
+https://schema.spring.io/mvc/spring-mvc.xsd[Spring MVC XML schema] or use the code
 completion feature of your IDE to discover what attributes and sub-elements are
 available.
 
@@ -4886,8 +4957,8 @@ available.
 === Conversion and Formatting
 
 By default formatters for `Number` and `Date` types are installed, including support for
-the `@NumberFormat` and `@DateTimeFormat` annotations. Full support for the Joda Time
-formatting library is also installed if Joda Time is present on the classpath. To
+the `@NumberFormat` and `@DateTimeFormat` annotations. Full support for the Joda-Time
+formatting library is also installed if Joda-Time is present on the classpath. To
 register custom formatters and converters, override the `addFormatters` method:
 
 [source,java,indent=0]
@@ -4899,9 +4970,8 @@ register custom formatters and converters, override the `addFormatters` method:
 
 		@Override
 		public void addFormatters(FormatterRegistry registry) {
-			// Add formatters and/or converters
+			// ...
 		}
-
 	}
 ----
 
@@ -4917,9 +4987,9 @@ To register custom formatters and converters simply supply a `ConversionService`
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/mvc
-			http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+			https://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 		<mvc:annotation-driven conversion-service="conversionService"/>
 
@@ -4995,7 +5065,6 @@ Alternatively you can configure your own global `Validator` instance:
 		public Validator getValidator(); {
 			// return "global" validator
 		}
-
 	}
 ----
 
@@ -5010,9 +5079,9 @@ and in XML:
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/mvc
-			http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+			https://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 		<mvc:annotation-driven validator="globalValidator"/>
 
@@ -5089,6 +5158,7 @@ And in XML use the `<mvc:interceptors>` element:
 
 [[mvc-config-content-negotiation]]
 === Content Negotiation
+
 You can configure how Spring MVC determines the requested media types from the request.
 The available options are to check the URL path for a file extension, check the
 "Accept" header, a specific query parameter, or to fall back on a default content
@@ -5156,6 +5226,7 @@ JSON) if no content types were requested.
 
 [[mvc-config-view-controller]]
 === View Controllers
+
 This is a shortcut for defining a `ParameterizableViewController` that immediately
 forwards to a view when invoked. Use it in static cases when there is no Java controller
 logic to execute before the view generates the response.
@@ -5173,7 +5244,6 @@ An example of forwarding a request for `"/"` to a view called `"home"` in Java:
 		public void addViewControllers(ViewControllerRegistry registry) {
 			registry.addViewController("/").setViewName("home");
 		}
-
 	}
 ----
 
@@ -5186,8 +5256,10 @@ And the same in XML use the `<mvc:view-controller>` element:
 ----
 
 
+
 [[mvc-config-view-resolvers]]
 === View Resolvers
+
 The MVC config simplifies the registration of view resolvers.
 
 The following is a Java config example that configures content negotiation view
@@ -5206,7 +5278,6 @@ JSON rendering:
 			registry.enableContentNegotiation(new MappingJackson2JsonView());
 			registry.jsp();
 		}
-
 	}
 ----
 
@@ -5270,7 +5341,6 @@ In Java config simply add the respective "Configurer" bean:
 			configurer.setTemplateLoaderPath("/WEB-INF/");
 			return configurer;
 		}
-
 	}
 ----
 
@@ -5408,10 +5478,9 @@ Java config example;
 		public void addResourceHandlers(ResourceHandlerRegistry registry) {
 			registry.addResourceHandler("/resources/**")
 					.addResourceLocations("/public-resources/")
-					.resourceChain(true).addResolver(
-						new VersionResourceResolver().addContentVersionStrategy("/**"));
+					.resourceChain(true)
+					.addResolver(new VersionResourceResolver().addContentVersionStrategy("/**"));
 		}
-
 	}
 ----
 
@@ -5449,7 +5518,8 @@ It also works by rewriting resource URLs in templates
 
 
 [[mvc-default-servlet-handler]]
-=== Falling Back On the "Default" Servlet To Serve Resources
+=== Default Servlet
+
 This allows for mapping the `DispatcherServlet` to "/" (thus overriding the mapping
 of the container's default Servlet), while still allowing static resource requests to be
 handled by the container's default Servlet. It configures a
@@ -5475,7 +5545,6 @@ To enable the feature using the default setup use:
 		public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 			configurer.enable();
 		}
-
 	}
 ----
 
@@ -5539,21 +5608,21 @@ Below is an example in Java config:
 		@Override
 		public void configurePathMatch(PathMatchConfigurer configurer) {
 			configurer
-			    .setUseSuffixPatternMatch(true)
-			    .setUseTrailingSlashMatch(false)
-			    .setUseRegisteredSuffixPatternMatch(true)
-			    .setPathMatcher(antPathMatcher())
-			    .setUrlPathHelper(urlPathHelper());
+				.setUseSuffixPatternMatch(true)
+				.setUseTrailingSlashMatch(false)
+				.setUseRegisteredSuffixPatternMatch(true)
+				.setPathMatcher(antPathMatcher())
+				.setUrlPathHelper(urlPathHelper());
 		}
 
 		@Bean
 		public UrlPathHelper urlPathHelper() {
-		    //...
+			//...
 		}
 
 		@Bean
 		public PathMatcher antPathMatcher() {
-		    //...
+			//...
 		}
 
 	}
@@ -5564,17 +5633,17 @@ And the same in XML, use the `<mvc:path-matching>` element:
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
-    <mvc:annotation-driven>
-        <mvc:path-matching
-            suffix-pattern="true"
-            trailing-slash="false"
-            registered-suffixes-only="true"
-            path-helper="pathHelper"
-            path-matcher="pathMatcher"/>
-    </mvc:annotation-driven>
+	<mvc:annotation-driven>
+		<mvc:path-matching
+			suffix-pattern="true"
+			trailing-slash="false"
+			registered-suffixes-only="true"
+			path-helper="pathHelper"
+			path-matcher="pathMatcher"/>
+	</mvc:annotation-driven>
 
-    <bean id="pathHelper" class="org.example.app.MyPathHelper"/>
-    <bean id="pathMatcher" class="org.example.app.MyPathMatcher"/>
+	<bean id="pathHelper" class="org.example.app.MyPathHelper"/>
+	<bean id="pathMatcher" class="org.example.app.MyPathMatcher"/>
 ----
 
 
@@ -5620,8 +5689,8 @@ that adds support for accessing parameter names (feature added in Java 8).
 [NOTE]
 ====
 Enabling indentation with Jackson XML support requires
-http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.codehaus.woodstox%22%20AND%20a%3A%22woodstox-core-asl%22[`woodstox-core-asl`]
-dependency in addition to http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22jackson-dataformat-xml%22[`jackson-dataformat-xml`] one.
+https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.codehaus.woodstox%22%20AND%20a%3A%22woodstox-core-asl%22[`woodstox-core-asl`]
+dependency in addition to https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22jackson-dataformat-xml%22[`jackson-dataformat-xml`] one.
 ====
 
 Other interesting Jackson modules are available:
@@ -5634,23 +5703,23 @@ It is also possible to do the same in XML:
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
-    <mvc:annotation-driven>
-        <mvc:message-converters>
-            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-                <property name="objectMapper" ref="objectMapper"/>
-            </bean>
-            <bean class="org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter">
-                <property name="objectMapper" ref="xmlMapper"/>
-            </bean>
-        </mvc:message-converters>
-    </mvc:annotation-driven>
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="objectMapper" ref="objectMapper"/>
+			</bean>
+			<bean class="org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter">
+				<property name="objectMapper" ref="xmlMapper"/>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
 
-    <bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"
-          p:indentOutput="true"
-          p:simpleDateFormat="yyyy-MM-dd"
-          p:modulesToInstall="com.fasterxml.jackson.module.paramnames.ParameterNamesModule"/>
+	<bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"
+		  p:indentOutput="true"
+		  p:simpleDateFormat="yyyy-MM-dd"
+		  p:modulesToInstall="com.fasterxml.jackson.module.paramnames.ParameterNamesModule"/>
 
-    <bean id="xmlMapper" parent="objectMapper" p:createXmlMapper="true"/>
+	<bean id="xmlMapper" parent="objectMapper" p:createXmlMapper="true"/>
 ----
 
 

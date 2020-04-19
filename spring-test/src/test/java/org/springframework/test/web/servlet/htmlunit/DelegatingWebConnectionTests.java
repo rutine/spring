@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,6 @@ import com.gargoylesoftware.htmlunit.WebConnection;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.WebResponseData;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,7 +81,7 @@ public class DelegatingWebConnectionTests {
 	@Before
 	public void setup() throws Exception {
 		request = new WebRequest(new URL("http://localhost/"));
-		WebResponseData data = new WebResponseData("".getBytes("UTF-8"), 200, "", Collections.<NameValuePair> emptyList());
+		WebResponseData data = new WebResponseData("".getBytes("UTF-8"), 200, "", Collections.emptyList());
 		expectedResponse = new WebResponse(data, request, 100L);
 		webConnection = new DelegatingWebConnection(defaultConnection,
 				new DelegateWebConnection(matcher1, connection1), new DelegateWebConnection(matcher2, connection2));
@@ -132,16 +131,15 @@ public class DelegatingWebConnectionTests {
 
 		WebClient webClient = new WebClient();
 
-		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(TestController.class).build();
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup().build();
 		MockMvcWebConnection mockConnection = new MockMvcWebConnection(mockMvc, webClient);
 
 		WebRequestMatcher cdnMatcher = new UrlRegexRequestMatcher(".*?//code.jquery.com/.*");
 		WebConnection httpConnection = new HttpWebConnection(webClient);
-		WebConnection webConnection = new DelegatingWebConnection(mockConnection, new DelegateWebConnection(cdnMatcher, httpConnection));
+		webClient.setWebConnection(
+				new DelegatingWebConnection(mockConnection, new DelegateWebConnection(cdnMatcher, httpConnection)));
 
-		webClient.setWebConnection(webConnection);
-
-		Page page = webClient.getPage("http://code.jquery.com/jquery-1.11.0.min.js");
+		Page page = webClient.getPage("https://code.jquery.com/jquery-1.11.0.min.js");
 		assertThat(page.getWebResponse().getStatusCode(), equalTo(200));
 		assertThat(page.getWebResponse().getContentAsString(), not(isEmptyString()));
 	}

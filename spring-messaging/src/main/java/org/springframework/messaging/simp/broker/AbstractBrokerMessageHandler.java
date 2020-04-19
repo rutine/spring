@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -105,7 +105,7 @@ public abstract class AbstractBrokerMessageHandler
 		this.clientOutboundChannel = outboundChannel;
 		this.brokerChannel = brokerChannel;
 
-		destinationPrefixes = (destinationPrefixes != null) ? destinationPrefixes : Collections.<String>emptyList();
+		destinationPrefixes = (destinationPrefixes != null ? destinationPrefixes : Collections.<String>emptyList());
 		this.destinationPrefixes = Collections.unmodifiableCollection(destinationPrefixes);
 	}
 
@@ -153,9 +153,7 @@ public abstract class AbstractBrokerMessageHandler
 	@Override
 	public void start() {
 		synchronized (this.lifecycleMonitor) {
-			if (logger.isInfoEnabled()) {
-				logger.info("Starting...");
-			}
+			logger.info("Starting...");
 			this.clientInboundChannel.subscribe(this);
 			this.brokerChannel.subscribe(this);
 			if (this.clientInboundChannel instanceof InterceptableChannel) {
@@ -173,9 +171,7 @@ public abstract class AbstractBrokerMessageHandler
 	@Override
 	public void stop() {
 		synchronized (this.lifecycleMonitor) {
-			if (logger.isInfoEnabled()) {
-				logger.info("Stopping...");
-			}
+			logger.info("Stopping...");
 			stopInternal();
 			this.clientInboundChannel.unsubscribe(this);
 			this.brokerChannel.unsubscribe(this);
@@ -206,9 +202,7 @@ public abstract class AbstractBrokerMessageHandler
 	 */
 	@Override
 	public final boolean isRunning() {
-		synchronized (this.lifecycleMonitor) {
-			return this.running;
-		}
+		return this.running;
 	}
 
 	/**
@@ -242,7 +236,7 @@ public abstract class AbstractBrokerMessageHandler
 
 
 	protected boolean checkDestinationPrefix(String destination) {
-		if ((destination == null) || CollectionUtils.isEmpty(this.destinationPrefixes)) {
+		if (destination == null || CollectionUtils.isEmpty(this.destinationPrefixes)) {
 			return true;
 		}
 		for (String prefix : this.destinationPrefixes) {

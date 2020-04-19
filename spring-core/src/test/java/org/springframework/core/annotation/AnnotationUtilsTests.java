@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +37,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.subpackage.NonPublicAnnotatedClass;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
 
 import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
@@ -54,6 +52,7 @@ import static org.springframework.core.annotation.AnnotationUtils.*;
  * @author Sam Brannen
  * @author Chris Beams
  * @author Phillip Webb
+ * @author Oleg Zhurakousky
  */
 public class AnnotationUtilsTests {
 
@@ -62,23 +61,8 @@ public class AnnotationUtilsTests {
 
 
 	@Before
-	public void clearCachesBeforeTests() {
-		clearCaches();
-	}
-
-	static void clearCaches() {
-		clearCache("findAnnotationCache", "annotatedInterfaceCache", "metaPresentCache", "synthesizableCache",
-				"attributeAliasesCache", "attributeMethodsCache", "aliasDescriptorCache");
-	}
-
-	static void clearCache(String... cacheNames) {
-		stream(cacheNames).forEach(cacheName -> getCache(cacheName).clear());
-	}
-
-	static Map<?, ?> getCache(String cacheName) {
-		Field field = ReflectionUtils.findField(AnnotationUtils.class, cacheName);
-		ReflectionUtils.makeAccessible(field);
-		return (Map<?, ?>) ReflectionUtils.getField(field, null);
+	public void clearCacheBeforeTests() {
+		AnnotationUtils.clearCache();
 	}
 
 
@@ -90,7 +74,7 @@ public class AnnotationUtilsTests {
 		assertNotNull(findAnnotation(m, Order.class));
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findMethodAnnotationWithAnnotationOnMethodInInterface() throws Exception {
 		Method m = Leaf.class.getMethod("fromInterfaceImplementedByRoot");
@@ -102,7 +86,7 @@ public class AnnotationUtilsTests {
 		assertNotNull(findAnnotation(m, Order.class));
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findMethodAnnotationWithMetaAnnotationOnLeaf() throws Exception {
 		Method m = Leaf.class.getMethod("metaAnnotatedOnLeaf");
@@ -111,7 +95,7 @@ public class AnnotationUtilsTests {
 		assertNotNull(findAnnotation(m, Order.class));
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findMethodAnnotationWithMetaMetaAnnotationOnLeaf() throws Exception {
 		Method m = Leaf.class.getMethod("metaMetaAnnotatedOnLeaf");
@@ -128,7 +112,7 @@ public class AnnotationUtilsTests {
 		assertNotNull(findAnnotation(m, Order.class));
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findMethodAnnotationWithMetaAnnotationOnRoot() throws Exception {
 		Method m = Leaf.class.getMethod("metaAnnotatedOnRoot");
@@ -160,12 +144,8 @@ public class AnnotationUtilsTests {
 		assertNull(getAnnotation(bridgeMethod, Order.class));
 		assertNotNull(findAnnotation(bridgeMethod, Order.class));
 
-		// As of OpenJDK 8 b99, invoking getAnnotation() on a bridge method actually finds
-		// an annotation on its 'bridged' method. This differs from the previous behavior
-		// of JDK 5 through 7 and from the current behavior of the Eclipse compiler;
-		// however, we need to ensure that the tests pass in the Gradle build. So we
-		// comment out the following assertion.
-		// assertNull(bridgeMethod.getAnnotation(Transactional.class));
+		// Inconsistent behavior between javac and Eclipse compiler
+		// assertNotNull(bridgeMethod.getAnnotation(Transactional.class));
 		assertNotNull(getAnnotation(bridgeMethod, Transactional.class));
 		assertNotNull(findAnnotation(bridgeMethod, Transactional.class));
 	}
@@ -207,7 +187,7 @@ public class AnnotationUtilsTests {
 		assertNotNull(order);
 	}
 
-	/** @since 4.1.2 */
+	// @since 4.1.2
 	@Test
 	public void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverAnnotationsOnInterfaces() {
 		Component component = findAnnotation(ClassWithLocalMetaAnnotationAndMetaAnnotatedInterface.class, Component.class);
@@ -215,7 +195,7 @@ public class AnnotationUtilsTests {
 		assertEquals("meta2", component.value());
 	}
 
-	/** @since 4.0.3 */
+	// @since 4.0.3
 	@Test
 	public void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverInheritedAnnotations() {
 		Transactional transactional = findAnnotation(SubSubClassWithInheritedAnnotation.class, Transactional.class);
@@ -223,7 +203,7 @@ public class AnnotationUtilsTests {
 		assertTrue("readOnly flag for SubSubClassWithInheritedAnnotation", transactional.readOnly());
 	}
 
-	/** @since 4.0.3 */
+	// @since 4.0.3
 	@Test
 	public void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverInheritedComposedAnnotations() {
 		Component component = findAnnotation(SubSubClassWithInheritedMetaAnnotation.class, Component.class);
@@ -258,42 +238,42 @@ public class AnnotationUtilsTests {
 		assertNull("Should not find @Component on MetaCycleAnnotatedClass", component);
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findClassAnnotationOnInheritedAnnotationInterface() {
 		Transactional tx = findAnnotation(InheritedAnnotationInterface.class, Transactional.class);
 		assertNotNull("Should find @Transactional on InheritedAnnotationInterface", tx);
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findClassAnnotationOnSubInheritedAnnotationInterface() {
 		Transactional tx = findAnnotation(SubInheritedAnnotationInterface.class, Transactional.class);
 		assertNotNull("Should find @Transactional on SubInheritedAnnotationInterface", tx);
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findClassAnnotationOnSubSubInheritedAnnotationInterface() {
 		Transactional tx = findAnnotation(SubSubInheritedAnnotationInterface.class, Transactional.class);
 		assertNotNull("Should find @Transactional on SubSubInheritedAnnotationInterface", tx);
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findClassAnnotationOnNonInheritedAnnotationInterface() {
 		Order order = findAnnotation(NonInheritedAnnotationInterface.class, Order.class);
 		assertNotNull("Should find @Order on NonInheritedAnnotationInterface", order);
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findClassAnnotationOnSubNonInheritedAnnotationInterface() {
 		Order order = findAnnotation(SubNonInheritedAnnotationInterface.class, Order.class);
 		assertNotNull("Should find @Order on SubNonInheritedAnnotationInterface", order);
 	}
 
-	/** @since 4.2 */
+	// @since 4.2
 	@Test
 	public void findClassAnnotationOnSubSubNonInheritedAnnotationInterface() {
 		Order order = findAnnotation(SubSubNonInheritedAnnotationInterface.class, Order.class);
@@ -301,7 +281,7 @@ public class AnnotationUtilsTests {
 	}
 
 	@Test
-	public void findAnnotationDeclaringClassForAllScenarios() throws Exception {
+	public void findAnnotationDeclaringClassForAllScenarios() {
 		// no class-level annotation
 		assertNull(findAnnotationDeclaringClass(Transactional.class, NonAnnotatedInterface.class));
 		assertNull(findAnnotationDeclaringClass(Transactional.class, NonAnnotatedClass.class));
@@ -410,7 +390,7 @@ public class AnnotationUtilsTests {
 	}
 
 	@Test
-	public void isAnnotationInheritedForAllScenarios() throws Exception {
+	public void isAnnotationInheritedForAllScenarios() {
 		// no class-level annotation
 		assertFalse(isAnnotationInherited(Transactional.class, NonAnnotatedInterface.class));
 		assertFalse(isAnnotationInherited(Transactional.class, NonAnnotatedClass.class));
@@ -519,7 +499,7 @@ public class AnnotationUtilsTests {
 	}
 
 	@Test
-	public void getDefaultValueFromNonPublicAnnotation() throws Exception {
+	public void getDefaultValueFromNonPublicAnnotation() {
 		Annotation[] declaredAnnotations = NonPublicAnnotatedClass.class.getDeclaredAnnotations();
 		assertEquals(1, declaredAnnotations.length);
 		Annotation annotation = declaredAnnotations[0];
@@ -530,7 +510,7 @@ public class AnnotationUtilsTests {
 	}
 
 	@Test
-	public void getDefaultValueFromAnnotationType() throws Exception {
+	public void getDefaultValueFromAnnotationType() {
 		assertEquals(Ordered.LOWEST_PRECEDENCE, getDefaultValue(Order.class, VALUE));
 		assertEquals(Ordered.LOWEST_PRECEDENCE, getDefaultValue(Order.class));
 	}
@@ -562,7 +542,7 @@ public class AnnotationUtilsTests {
 	}
 
 	@Test
-	public void getRepeatableAnnotationsDeclaredOnClassWithAttributeAliases() throws Exception {
+	public void getRepeatableAnnotationsDeclaredOnClassWithAttributeAliases() {
 		final List<String> expectedLocations = asList("A", "B");
 
 		Set<ContextConfig> annotations = getRepeatableAnnotations(ConfigHierarchyTestCase.class, ContextConfig.class, null);
@@ -726,7 +706,7 @@ public class AnnotationUtilsTests {
 	public void getAttributeOverrideNameFromWrongTargetAnnotation() throws Exception {
 		Method attribute = AliasedComposedContextConfig.class.getDeclaredMethod("xmlConfigFile");
 		assertThat("xmlConfigFile is not an alias for @Component.",
-			getAttributeOverrideName(attribute, Component.class), is(nullValue()));
+				getAttributeOverrideName(attribute, Component.class), is(nullValue()));
 	}
 
 	@Test
@@ -860,12 +840,6 @@ public class AnnotationUtilsTests {
 	}
 
 	@Test
-	public void synthesizeAnnotationsFromNullSources() throws Exception {
-		assertNull("null annotation", synthesizeAnnotation(null, null));
-		assertNull("null map", synthesizeAnnotation(null, WebMapping.class, null));
-	}
-
-	@Test
 	public void synthesizeAlreadySynthesizedAnnotation() throws Exception {
 		Method method = WebController.class.getMethod("handleMappedWithValueAttribute");
 		WebMapping webMapping = method.getAnnotation(WebMapping.class);
@@ -926,7 +900,6 @@ public class AnnotationUtilsTests {
 	public void synthesizeAnnotationWithAttributeAliasWithMirroredAliasForWrongAttribute() throws Exception {
 		AliasForWithMirroredAliasForWrongAttribute annotation =
 				AliasForWithMirroredAliasForWrongAttributeClass.class.getAnnotation(AliasForWithMirroredAliasForWrongAttribute.class);
-
 		exception.expect(AnnotationConfigurationException.class);
 		exception.expectMessage(startsWith("Attribute 'bar' in"));
 		exception.expectMessage(containsString(AliasForWithMirroredAliasForWrongAttribute.class.getName()));
@@ -1034,18 +1007,18 @@ public class AnnotationUtilsTests {
 	@Test
 	public void synthesizeAnnotationWithImplicitAliasesWithImpliedAliasNamesOmitted() throws Exception {
 		assertAnnotationSynthesisWithImplicitAliasesWithImpliedAliasNamesOmitted(
-			ValueImplicitAliasesWithImpliedAliasNamesOmittedContextConfigClass.class, "value");
+				ValueImplicitAliasesWithImpliedAliasNamesOmittedContextConfigClass.class, "value");
 		assertAnnotationSynthesisWithImplicitAliasesWithImpliedAliasNamesOmitted(
-			LocationsImplicitAliasesWithImpliedAliasNamesOmittedContextConfigClass.class, "location");
+				LocationsImplicitAliasesWithImpliedAliasNamesOmittedContextConfigClass.class, "location");
 		assertAnnotationSynthesisWithImplicitAliasesWithImpliedAliasNamesOmitted(
-			XmlFilesImplicitAliasesWithImpliedAliasNamesOmittedContextConfigClass.class, "xmlFile");
+				XmlFilesImplicitAliasesWithImpliedAliasNamesOmittedContextConfigClass.class, "xmlFile");
 	}
 
-	private void assertAnnotationSynthesisWithImplicitAliasesWithImpliedAliasNamesOmitted(Class<?> clazz,
-			String expected) throws Exception {
+	private void assertAnnotationSynthesisWithImplicitAliasesWithImpliedAliasNamesOmitted(
+			Class<?> clazz, String expected) {
 
 		ImplicitAliasesWithImpliedAliasNamesOmittedContextConfig config = clazz.getAnnotation(
-			ImplicitAliasesWithImpliedAliasNamesOmittedContextConfig.class);
+				ImplicitAliasesWithImpliedAliasNamesOmittedContextConfig.class);
 		assertNotNull(config);
 
 		ImplicitAliasesWithImpliedAliasNamesOmittedContextConfig synthesizedConfig = synthesizeAnnotation(config);
@@ -1241,6 +1214,13 @@ public class AnnotationUtilsTests {
 	}
 
 	@Test
+	public void synthesizeAnnotationWithAttributeAliasesWithDifferentValues() throws Exception {
+		ContextConfig contextConfig = synthesizeAnnotation(ContextConfigMismatch.class.getAnnotation(ContextConfig.class));
+		exception.expect(AnnotationConfigurationException.class);
+		getValue(contextConfig);
+	}
+
+	@Test
 	public void synthesizeAnnotationFromMapWithMinimalAttributesWithAttributeAliases() throws Exception {
 		Map<String, Object> map = Collections.singletonMap("location", "test.xml");
 		ContextConfig contextConfig = synthesizeAnnotation(map, ContextConfig.class, null);
@@ -1357,11 +1337,6 @@ public class AnnotationUtilsTests {
 		assertNotNull(synthesizedWebMapping2);
 
 		assertThat(webMappingWithAliases.toString(), is(not(synthesizedWebMapping1.toString())));
-
-		// The unsynthesized annotation for handleMappedWithSamePathAndValueAttributes()
-		// should produce the same toString() results as synthesized annotations for
-		// handleMappedWithPathAttribute()
-		assertToStringForWebMappingWithPathAndValue(webMappingWithPathAndValue);
 		assertToStringForWebMappingWithPathAndValue(synthesizedWebMapping1);
 		assertToStringForWebMappingWithPathAndValue(synthesizedWebMapping2);
 	}
@@ -1819,13 +1794,13 @@ public class AnnotationUtilsTests {
 	interface InterfaceWithRepeated {
 
 		@MyRepeatable("A")
-		@MyRepeatableContainer({ @MyRepeatable("B"), @MyRepeatable("C") })
+		@MyRepeatableContainer({@MyRepeatable("B"), @MyRepeatable("C")})
 		@MyRepeatableMeta1
 		void foo();
 	}
 
 	@MyRepeatable("A")
-	@MyRepeatableContainer({ @MyRepeatable("B"), @MyRepeatable("C") })
+	@MyRepeatableContainer({@MyRepeatable("B"), @MyRepeatable("C")})
 	@MyRepeatableMeta1
 	static class MyRepeatableClass {
 	}
@@ -1834,7 +1809,7 @@ public class AnnotationUtilsTests {
 	}
 
 	@MyRepeatable("X")
-	@MyRepeatableContainer({ @MyRepeatable("Y"), @MyRepeatable("Z") })
+	@MyRepeatableContainer({@MyRepeatable("Y"), @MyRepeatable("Z")})
 	@MyRepeatableMeta2
 	static class SubMyRepeatableWithAdditionalLocalDeclarationsClass extends MyRepeatableClass {
 	}
@@ -1964,7 +1939,7 @@ public class AnnotationUtilsTests {
 		BrokenContextConfig[] value();
 	}
 
-	@Hierarchy({ @ContextConfig("A"), @ContextConfig(location = "B") })
+	@Hierarchy({@ContextConfig("A"), @ContextConfig(location = "B")})
 	static class ConfigHierarchyTestCase {
 	}
 
@@ -2316,7 +2291,7 @@ public class AnnotationUtilsTests {
 		Filter[] excludeFilters() default {};
 	}
 
-	@ComponentScan(excludeFilters = { @Filter(pattern = "*Foo"), @Filter(pattern = "*Bar") })
+	@ComponentScan(excludeFilters = {@Filter(pattern = "*Foo"), @Filter(pattern = "*Bar")})
 	static class ComponentScanClass {
 	}
 
@@ -2342,6 +2317,10 @@ public class AnnotationUtilsTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface AnnotationWithoutDefaults {
 		String text();
+	}
+
+	@ContextConfig(value = "foo", location = "bar")
+	interface ContextConfigMismatch {
 	}
 
 }

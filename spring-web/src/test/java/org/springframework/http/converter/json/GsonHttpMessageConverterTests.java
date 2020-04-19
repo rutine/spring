@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.google.gson.reflect.TypeToken;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -39,12 +40,13 @@ import static org.junit.Assert.*;
  * Gson 2.x converter tests.
  *
  * @author Roy Clarkson
+ * @author Juergen Hoeller
  */
 public class GsonHttpMessageConverterTests {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 
-	private GsonHttpMessageConverter converter = new GsonHttpMessageConverter();
+	private final GsonHttpMessageConverter converter = new GsonHttpMessageConverter();
 
 
 	@Test
@@ -76,9 +78,9 @@ public class GsonHttpMessageConverterTests {
 		assertEquals("Foo", result.getString());
 		assertEquals(42, result.getNumber());
 		assertEquals(42F, result.getFraction(), 0F);
-		assertArrayEquals(new String[]{"Foo", "Bar"}, result.getArray());
+		assertArrayEquals(new String[] {"Foo", "Bar"}, result.getArray());
 		assertTrue(result.isBool());
-		assertArrayEquals(new byte[]{0x1, 0x2}, result.getBytes());
+		assertArrayEquals(new byte[] {0x1, 0x2}, result.getBytes());
 	}
 
 	@Test
@@ -94,7 +96,7 @@ public class GsonHttpMessageConverterTests {
 		assertEquals(42, n.longValue());
 		n = (Number) result.get("fraction");
 		assertEquals(42D, n.doubleValue(), 0D);
-		List<String> array = new ArrayList<String>();
+		List<String> array = new ArrayList<>();
 		array.add("Foo");
 		array.add("Bar");
 		assertEquals(array, result.get("array"));
@@ -104,7 +106,7 @@ public class GsonHttpMessageConverterTests {
 		for (int i = 0; i < 2; i++) {
 			bytes[i] = resultBytes.get(i).byteValue();
 		}
-		assertArrayEquals(new byte[]{0x1, 0x2}, bytes);
+		assertArrayEquals(new byte[] {0x1, 0x2}, bytes);
 	}
 
 	@Test
@@ -114,19 +116,40 @@ public class GsonHttpMessageConverterTests {
 		body.setString("Foo");
 		body.setNumber(42);
 		body.setFraction(42F);
-		body.setArray(new String[]{"Foo", "Bar"});
+		body.setArray(new String[] {"Foo", "Bar"});
 		body.setBool(true);
-		body.setBytes(new byte[]{0x1, 0x2});
+		body.setBytes(new byte[] {0x1, 0x2});
 		this.converter.write(body, null, outputMessage);
-		Charset utf8 = Charset.forName("UTF-8");
-		String result = outputMessage.getBodyAsString(utf8);
+		String result = outputMessage.getBodyAsString(UTF8);
 		assertTrue(result.contains("\"string\":\"Foo\""));
 		assertTrue(result.contains("\"number\":42"));
 		assertTrue(result.contains("fraction\":42.0"));
 		assertTrue(result.contains("\"array\":[\"Foo\",\"Bar\"]"));
 		assertTrue(result.contains("\"bool\":true"));
 		assertTrue(result.contains("\"bytes\":[1,2]"));
-		assertEquals("Invalid content-type", new MediaType("application", "json", utf8),
+		assertEquals("Invalid content-type", new MediaType("application", "json", UTF8),
+				outputMessage.getHeaders().getContentType());
+	}
+
+	@Test
+	public void writeWithBaseType() throws IOException {
+		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+		MyBean body = new MyBean();
+		body.setString("Foo");
+		body.setNumber(42);
+		body.setFraction(42F);
+		body.setArray(new String[] {"Foo", "Bar"});
+		body.setBool(true);
+		body.setBytes(new byte[] {0x1, 0x2});
+		this.converter.write(body, MyBase.class, null, outputMessage);
+		String result = outputMessage.getBodyAsString(UTF8);
+		assertTrue(result.contains("\"string\":\"Foo\""));
+		assertTrue(result.contains("\"number\":42"));
+		assertTrue(result.contains("fraction\":42.0"));
+		assertTrue(result.contains("\"array\":[\"Foo\",\"Bar\"]"));
+		assertTrue(result.contains("\"bool\":true"));
+		assertTrue(result.contains("\"bytes\":[1,2]"));
+		assertEquals("Invalid content-type", new MediaType("application", "json", UTF8),
 				outputMessage.getHeaders().getContentType());
 	}
 
@@ -166,8 +189,7 @@ public class GsonHttpMessageConverterTests {
 		};
 		String body = "[{\"bytes\":[1,2],\"array\":[\"Foo\",\"Bar\"]," +
 				"\"number\":42,\"string\":\"Foo\",\"bool\":true,\"fraction\":42.0}]";
-		MockHttpInputMessage inputMessage = new MockHttpInputMessage(
-				body.getBytes(UTF8));
+		MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(UTF8));
 		inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
 
 		List<MyBean> results = (List<MyBean>) converter.read(List.class, inputMessage);
@@ -176,37 +198,65 @@ public class GsonHttpMessageConverterTests {
 		assertEquals("Foo", result.getString());
 		assertEquals(42, result.getNumber());
 		assertEquals(42F, result.getFraction(), 0F);
-		assertArrayEquals(new String[] { "Foo", "Bar" }, result.getArray());
+		assertArrayEquals(new String[] {"Foo", "Bar"}, result.getArray());
 		assertTrue(result.isBool());
-		assertArrayEquals(new byte[] { 0x1, 0x2 }, result.getBytes());
+		assertArrayEquals(new byte[] {0x1, 0x2}, result.getBytes());
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void readParameterizedType() throws IOException {
+	public void readAndWriteParameterizedType() throws Exception {
 		ParameterizedTypeReference<List<MyBean>> beansList = new ParameterizedTypeReference<List<MyBean>>() {
 		};
 
 		String body = "[{\"bytes\":[1,2],\"array\":[\"Foo\",\"Bar\"]," +
 				"\"number\":42,\"string\":\"Foo\",\"bool\":true,\"fraction\":42.0}]";
-		MockHttpInputMessage inputMessage = new MockHttpInputMessage(
-				body.getBytes(UTF8));
+		MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(UTF8));
 		inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
 
-		GsonHttpMessageConverter converter = new GsonHttpMessageConverter();
 		List<MyBean> results = (List<MyBean>) converter.read(beansList.getType(), null, inputMessage);
 		assertEquals(1, results.size());
 		MyBean result = results.get(0);
 		assertEquals("Foo", result.getString());
 		assertEquals(42, result.getNumber());
 		assertEquals(42F, result.getFraction(), 0F);
-		assertArrayEquals(new String[] { "Foo", "Bar" }, result.getArray());
+		assertArrayEquals(new String[] {"Foo", "Bar"}, result.getArray());
 		assertTrue(result.isBool());
-		assertArrayEquals(new byte[] { 0x1, 0x2 }, result.getBytes());
+		assertArrayEquals(new byte[] {0x1, 0x2}, result.getBytes());
+
+		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+		converter.write(results, beansList.getType(), new MediaType("application", "json"), outputMessage);
+		JSONAssert.assertEquals(body, outputMessage.getBodyAsString(UTF8), true);
 	}
 
 	@Test
-	public void prefixJson() throws Exception {
+	@SuppressWarnings("unchecked")
+	public void writeParameterizedBaseType() throws Exception {
+		ParameterizedTypeReference<List<MyBean>> beansList = new ParameterizedTypeReference<List<MyBean>>() {};
+		ParameterizedTypeReference<List<MyBase>> baseList = new ParameterizedTypeReference<List<MyBase>>() {};
+
+		String body = "[{\"bytes\":[1,2],\"array\":[\"Foo\",\"Bar\"]," +
+				"\"number\":42,\"string\":\"Foo\",\"bool\":true,\"fraction\":42.0}]";
+		MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(UTF8));
+		inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
+
+		List<MyBean> results = (List<MyBean>) converter.read(beansList.getType(), null, inputMessage);
+		assertEquals(1, results.size());
+		MyBean result = results.get(0);
+		assertEquals("Foo", result.getString());
+		assertEquals(42, result.getNumber());
+		assertEquals(42F, result.getFraction(), 0F);
+		assertArrayEquals(new String[] {"Foo", "Bar"}, result.getArray());
+		assertTrue(result.isBool());
+		assertArrayEquals(new byte[] {0x1, 0x2}, result.getBytes());
+
+		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+		converter.write(results, baseList.getType(), new MediaType("application", "json"), outputMessage);
+		JSONAssert.assertEquals(body, outputMessage.getBodyAsString(UTF8), true);
+	}
+
+	@Test
+	public void prefixJson() throws IOException {
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 		this.converter.setPrefixJson(true);
 		this.converter.writeInternal("foo", null, outputMessage);
@@ -214,7 +264,7 @@ public class GsonHttpMessageConverterTests {
 	}
 
 	@Test
-	public void prefixJsonCustom() throws Exception {
+	public void prefixJsonCustom() throws IOException {
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 		this.converter.setJsonPrefix(")))");
 		this.converter.writeInternal("foo", null, outputMessage);
@@ -222,9 +272,21 @@ public class GsonHttpMessageConverterTests {
 	}
 
 
-	public static class MyBean {
+	public static class MyBase {
 
 		private String string;
+
+		public String getString() {
+			return string;
+		}
+
+		public void setString(String string) {
+			this.string = string;
+		}
+	}
+
+
+	public static class MyBean extends MyBase {
 
 		private int number;
 
@@ -235,30 +297,6 @@ public class GsonHttpMessageConverterTests {
 		private boolean bool;
 
 		private byte[] bytes;
-
-		public byte[] getBytes() {
-			return bytes;
-		}
-
-		public void setBytes(byte[] bytes) {
-			this.bytes = bytes;
-		}
-
-		public boolean isBool() {
-			return bool;
-		}
-
-		public void setBool(boolean bool) {
-			this.bool = bool;
-		}
-
-		public String getString() {
-			return string;
-		}
-
-		public void setString(String string) {
-			this.string = string;
-		}
 
 		public int getNumber() {
 			return number;
@@ -283,6 +321,32 @@ public class GsonHttpMessageConverterTests {
 		public void setArray(String[] array) {
 			this.array = array;
 		}
+
+		public boolean isBool() {
+			return bool;
+		}
+
+		public void setBool(boolean bool) {
+			this.bool = bool;
+		}
+
+		public byte[] getBytes() {
+			return bytes;
+		}
+
+		public void setBytes(byte[] bytes) {
+			this.bytes = bytes;
+		}
+	}
+
+
+	public static class ListHolder<E> {
+
+		public List<E> listField;
+	}
+
+
+	public static class MyBeanListHolder extends ListHolder<MyBean> {
 	}
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
  *     <em>用于BeanFactory实例化简单对象的默认策略</em>
  *     <p>1.使用CGLIB动态生成方法需要被重写的新对象(方法依赖注入)</p>
  * </prev>
- * 
+ *
  * Default object instantiation strategy for use in BeanFactories.
  *
  * <p>Uses CGLIB to generate subclasses dynamically if methods need to be
@@ -257,7 +257,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
         public int accept(Method method) {
             MethodOverride methodOverride = getBeanDefinition().getMethodOverrides().getOverride(method);
             if (logger.isTraceEnabled()) {
-                logger.trace("Override for '" + method.getName() + "' is [" + methodOverride + "]");
+                logger.trace("MethodOverride for " + method + ": " + methodOverride);
             }
             if (methodOverride == null) {
                 return PASSTHROUGH;

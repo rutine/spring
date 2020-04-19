@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,6 +37,7 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -87,10 +88,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		this.targetClass = targetClass;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 
-		EventListener ann = AnnotatedElementUtils.findMergedAnnotation(method, EventListener.class);
+		Method targetMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+		EventListener ann = AnnotatedElementUtils.findMergedAnnotation(targetMethod, EventListener.class);
+
 		this.declaredEventTypes = resolveDeclaredEventTypes(method, ann);
 		this.condition = (ann != null ? ann.condition() : null);
-		this.order = resolveOrder(method);
+		this.order = resolveOrder(targetMethod);
 
 		this.methodKey = new AnnotatedElementKey(method, targetClass);
 	}
@@ -183,9 +186,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
 	/**
 	 * Resolve the method arguments to use for the specified {@link ApplicationEvent}.
-	 * <p>These arguments will be used to invoke the method handled by this instance. Can
-	 * return {@code null} to indicate that no suitable arguments could be resolved and
-	 * therefore the method should not be invoked at all for the specified event.
+	 * <p>These arguments will be used to invoke the method handled by this instance.
+	 * Can return {@code null} to indicate that no suitable arguments could be resolved
+	 * and therefore the method should not be invoked at all for the specified event.
 	 */
 	protected Object[] resolveArguments(ApplicationEvent event) {
 		ResolvableType declaredEventType = getResolvableType(event);
@@ -195,13 +198,15 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		if (this.method.getParameterTypes().length == 0) {
 			return new Object[0];
 		}
-		if (!ApplicationEvent.class.isAssignableFrom(declaredEventType.getRawClass()) &&
+		Class<?> eventClass = declaredEventType.getRawClass();
+		if ((eventClass == null || !ApplicationEvent.class.isAssignableFrom(eventClass)) &&
 				event instanceof PayloadApplicationEvent) {
-			return new Object[] {((PayloadApplicationEvent) event).getPayload()};
+			Object payload = ((PayloadApplicationEvent) event).getPayload();
+			if (eventClass == null || eventClass.isInstance(payload)) {
+				return new Object[] {payload};
+			}
 		}
-		else {
-			return new Object[] {event};
-		}
+		return new Object[] {event};
 	}
 
 	protected void handleResult(Object result) {
@@ -224,7 +229,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
 	private void publishEvent(Object event) {
 		if (event != null) {
-			Assert.notNull(this.applicationContext, "ApplicationContext must no be null");
+			Assert.notNull(this.applicationContext, "ApplicationContext must not be null");
 			this.applicationContext.publishEvent(event);
 		}
 	}

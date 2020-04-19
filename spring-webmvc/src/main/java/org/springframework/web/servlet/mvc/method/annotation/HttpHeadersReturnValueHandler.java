@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,14 +46,14 @@ public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHa
 
 		mavContainer.setRequestHandled(true);
 
-		Assert.isInstanceOf(HttpHeaders.class, returnValue, "HttpHeaders expected");
+		Assert.state(returnValue instanceof HttpHeaders, "HttpHeaders expected");
 		HttpHeaders headers = (HttpHeaders) returnValue;
 
 		if (!headers.isEmpty()) {
 			HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
 			ServletServerHttpResponse outputMessage = new ServletServerHttpResponse(servletResponse);
 			outputMessage.getHeaders().putAll(headers);
-			outputMessage.getBody(); // flush headers
+			outputMessage.getBody();  // flush headers
 		}
 	}
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,7 +75,7 @@ public abstract class StompClientSupport {
 
 	/**
 	 * Configure a scheduler to use for heartbeats and for receipt tracking.
-	 * <p><strong>Note:</strong> some transports have built-in support to work
+	 * <p><strong>Note:</strong> Some transports have built-in support to work
 	 * with heartbeats and therefore do not require a TaskScheduler.
 	 * Receipts however, if needed, do require a TaskScheduler to be configured.
 	 * <p>By default, this is not set.
@@ -100,8 +100,8 @@ public abstract class StompClientSupport {
 	 * that default and for example set it to "0,0" if they require a
 	 * TaskScheduler to be configured first.
 	 * @param heartbeat the value for the CONNECT "heart-beat" header
-	 * @see <a href="http://stomp.github.io/stomp-specification-1.2.html#Heart-beating">
-	 * http://stomp.github.io/stomp-specification-1.2.html#Heart-beating</a>
+	 * @see <a href="https://stomp.github.io/stomp-specification-1.2.html#Heart-beating">
+	 * https://stomp.github.io/stomp-specification-1.2.html#Heart-beating</a>
 	 */
 	public void setDefaultHeartbeat(long[] heartbeat) {
 		if (heartbeat == null || heartbeat.length != 2 || heartbeat[0] < 0 || heartbeat[1] < 0) {
@@ -123,7 +123,8 @@ public abstract class StompClientSupport {
 	 * is set to "0,0", and {@code true} otherwise.
 	 */
 	public boolean isDefaultHeartbeatEnabled() {
-		return (getDefaultHeartbeat() != null && getDefaultHeartbeat()[0] != 0 && getDefaultHeartbeat()[1] != 0);
+		long[] heartbeat = getDefaultHeartbeat();
+		return (heartbeat[0] != 0 && heartbeat[1] != 0);
 	}
 
 	/**

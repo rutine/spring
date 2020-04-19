@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,7 @@ import org.springframework.util.StringUtils;
 /**
  * Factory for assertions on the response content using
  * <a href="https://github.com/jayway/JsonPath">JsonPath</a> expressions.
+ *
  * <p>An instance of this class is typically accessed via
  * {@link MockMvcResultMatchers#jsonPath(String, Matcher)} or
  * {@link MockMvcResultMatchers#jsonPath(String, Object...)}.
@@ -77,6 +78,8 @@ public class JsonPathResultMatchers {
 	/**
 	 * Evaluate the JSON path expression against the response content and
 	 * assert the resulting value with the given Hamcrest {@link Matcher}.
+	 * @see #value(Matcher, Class)
+	 * @see #value(Object)
 	 */
 	public <T> ResultMatcher value(final Matcher<T> matcher) {
 		return new ResultMatcher() {
@@ -89,8 +92,30 @@ public class JsonPathResultMatchers {
 	}
 
 	/**
+	 * An overloaded variant of {@link #value(Matcher)} that also accepts a
+	 * target type for the resulting value that the matcher can work reliably
+	 * against.
+	 * <p>This can be useful for matching numbers reliably &mdash; for example,
+	 * to coerce an integer into a double.
+	 * @since 4.3.15
+	 * @see #value(Matcher)
+	 * @see #value(Object)
+	 */
+	public <T> ResultMatcher value(final Matcher<T> matcher, final Class<T> targetType) {
+		return new ResultMatcher() {
+			@Override
+			public void match(MvcResult result) throws Exception {
+				String content = getContent(result);
+				jsonPathHelper.assertValue(content, matcher, targetType);
+			}
+		};
+	}
+
+	/**
 	 * Evaluate the JSON path expression against the response content and
 	 * assert that the result is equal to the supplied value.
+	 * @see #value(Matcher)
+	 * @see #value(Matcher, Class)
 	 */
 	public ResultMatcher value(final Object expectedValue) {
 		return new ResultMatcher() {
@@ -258,9 +283,8 @@ public class JsonPathResultMatchers {
 				MatcherAssert.assertThat(reason, content, StringStartsWith.startsWith(this.prefix));
 				return content.substring(this.prefix.length());
 			}
-			catch (StringIndexOutOfBoundsException oobe) {
-				throw new AssertionError(
-						"JSON prefix \"" + this.prefix + "\" not found, exception: " + oobe.getMessage());
+			catch (StringIndexOutOfBoundsException ex) {
+				throw new AssertionError("JSON prefix \"" + this.prefix + "\" not found: " + ex);
 			}
 		}
 		else {

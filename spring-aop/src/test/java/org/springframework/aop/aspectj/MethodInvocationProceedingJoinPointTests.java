@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,7 +44,7 @@ import static org.junit.Assert.*;
  * @author Ramnivas Laddad
  * @since 2.0
  */
-public final class MethodInvocationProceedingJoinPointTests {
+public class MethodInvocationProceedingJoinPointTests {
 
 	@Test
 	public void testingBindingWithJoinPoint() {
@@ -217,7 +217,7 @@ public final class MethodInvocationProceedingJoinPointTests {
 			itb.unreliableFileOperation();
 		}
 		catch (IOException ex) {
-			// we don't realy care...
+			// we don't really care...
 		}
 	}
 

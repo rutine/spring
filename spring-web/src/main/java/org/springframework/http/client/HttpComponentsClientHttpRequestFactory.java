@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,7 @@ import org.springframework.util.ClassUtils;
 
 /**
  * {@link org.springframework.http.client.ClientHttpRequestFactory} implementation that
- * uses <a href="http://hc.apache.org/httpcomponents-client-ga/">Apache HttpComponents
+ * uses <a href="https://hc.apache.org/httpcomponents-client-ga/">Apache HttpComponents
  * HttpClient</a> to create requests.
  *
  * <p>Allows to use a pre-configured {@link HttpClient} instance -
@@ -85,7 +85,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 	 * with a default {@link HttpClient}.
 	 */
 	public HttpComponentsClientHttpRequestFactory() {
-		this(HttpClients.createSystem());
+		this.httpClient = HttpClients.createSystem();
 	}
 
 	/**
@@ -94,8 +94,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 	 * @param httpClient the HttpClient instance to use for this request factory
 	 */
 	public HttpComponentsClientHttpRequestFactory(HttpClient httpClient) {
-		Assert.notNull(httpClient, "HttpClient must not be null");
-		this.httpClient = httpClient;
+		setHttpClient(httpClient);
 	}
 
 
@@ -104,6 +103,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 	 * {@linkplain #createRequest(URI, HttpMethod) synchronous execution}.
 	 */
 	public void setHttpClient(HttpClient httpClient) {
+		Assert.notNull(httpClient, "HttpClient must not be null");
 		this.httpClient = httpClient;
 	}
 
@@ -195,6 +195,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 	 * Indicates whether this request factory should buffer the request body internally.
 	 * <p>Default is {@code true}. When sending large amounts of data via POST or PUT, it is
 	 * recommended to change this property to {@code false}, so as not to run out of memory.
+	 * @since 4.0
 	 */
 	public void setBufferRequestBody(boolean bufferRequestBody) {
 		this.bufferRequestBody = bufferRequestBody;
@@ -203,9 +204,6 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 
 	@Override
 	public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
-		HttpClient client = getHttpClient();
-		Assert.state(client != null, "Synchronous execution requires an HttpClient to be set");
-
 		HttpUriRequest httpRequest = createHttpUriRequest(httpMethod, uri);
 		postProcessHttpRequest(httpRequest);
 		HttpContext context = createHttpContext(httpMethod, uri);
@@ -221,7 +219,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 				config = ((Configurable) httpRequest).getConfig();
 			}
 			if (config == null) {
-				config = createRequestConfig(client);
+				config = createRequestConfig(getHttpClient());
 			}
 			if (config != null) {
 				context.setAttribute(HttpClientContext.REQUEST_CONFIG, config);
@@ -229,10 +227,10 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 		}
 
 		if (this.bufferRequestBody) {
-			return new HttpComponentsClientHttpRequest(client, httpRequest, context);
+			return new HttpComponentsClientHttpRequest(getHttpClient(), httpRequest, context);
 		}
 		else {
-			return new HttpComponentsStreamingClientHttpRequest(client, httpRequest, context);
+			return new HttpComponentsStreamingClientHttpRequest(getHttpClient(), httpRequest, context);
 		}
 	}
 
@@ -269,7 +267,6 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 	 * the factory-level {@link RequestConfig}, if necessary.
 	 * @param clientConfig the config held by the current
 	 * @return the merged request config
-	 * (may be {@code null} if the given client config is {@code null})
 	 * @since 4.2
 	 */
 	protected RequestConfig mergeRequestConfig(RequestConfig clientConfig) {
@@ -350,8 +347,9 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 	 */
 	@Override
 	public void destroy() throws Exception {
-		if (this.httpClient instanceof Closeable) {
-			((Closeable) this.httpClient).close();
+		HttpClient httpClient = getHttpClient();
+		if (httpClient instanceof Closeable) {
+			((Closeable) httpClient).close();
 		}
 	}
 
@@ -361,7 +359,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 	 * extends {@link org.apache.http.client.methods.HttpEntityEnclosingRequestBase}
 	 * rather than {@link org.apache.http.client.methods.HttpRequestBase} and
 	 * hence allows HTTP delete with a request body. For use with the RestTemplate
-	 * exchange methods which allow the combination of HTTP DELETE with entity.
+	 * exchange methods which allow the combination of HTTP DELETE with an entity.
 	 * @since 4.1.2
 	 */
 	private static class HttpDelete extends HttpEntityEnclosingRequestBase {

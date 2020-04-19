@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -103,8 +103,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	private final AspectInstanceFactory aspectInstanceFactory;
 
 	/**
-	 * The name of the aspect (ref bean) in which this advice was defined (used
-	 * when determining advice precedence so that we can determine
+	 * The name of the aspect (ref bean) in which this advice was defined
+	 * (used when determining advice precedence so that we can determine
 	 * whether two pieces of advice come from the same aspect).
 	 */
 	private String aspectName;
@@ -118,13 +118,13 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	 * This will be non-null if the creator of this advice object knows the argument names
 	 * and sets them explicitly
 	 */
-	private String[] argumentNames = null;
+	private String[] argumentNames;
 
 	/** Non-null if after throwing advice binds the thrown value */
-	private String throwingName = null;
+	private String throwingName;
 
 	/** Non-null if after returning advice binds the return value */
-	private String returningName = null;
+	private String returningName;
 
 	private Class<?> discoveredReturningType = Object.class;
 
@@ -227,7 +227,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	}
 
 	/**
-	 * Sets the <b>declaration order</b> of this advice within the aspect
+	 * Set the declaration order of this advice within the aspect.
 	 */
 	public void setDeclarationOrder(int order) {
 		this.declarationOrder = order;
@@ -295,8 +295,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			}
 			catch (Throwable ex) {
 				throw new IllegalArgumentException("Returning name '" + name  +
-						"' is neither a valid argument name nor the fully-qualified name of a Java type on the classpath. " +
-						"Root cause: " + ex);
+						"' is neither a valid argument name nor the fully-qualified " +
+						"name of a Java type on the classpath. Root cause: " + ex);
 			}
 		}
 	}
@@ -329,8 +329,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			}
 			catch (Throwable ex) {
 				throw new IllegalArgumentException("Throwing name '" + name  +
-						"' is neither a valid argument name nor the fully-qualified name of a Java type on the classpath. " +
-						"Root cause: " + ex);
+						"' is neither a valid argument name nor the fully-qualified " +
+						"name of a Java type on the classpath. Root cause: " + ex);
 			}
 		}
 	}
@@ -366,7 +366,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	 * to which argument name. There are multiple strategies for determining
 	 * this binding, which are arranged in a ChainOfResponsibility.
 	 */
-	public synchronized final void calculateArgumentBindings() {
+	public final synchronized void calculateArgumentBindings() {
 		// The simple case... nothing to bind.
 		if (this.argumentsIntrospected || this.parameterTypes.length == 0) {
 			return;
@@ -374,10 +374,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 
 		int numUnboundArgs = this.parameterTypes.length;
 		Class<?>[] parameterTypes = this.aspectJAdviceMethod.getParameterTypes();
-		if (maybeBindJoinPoint(parameterTypes[0]) || maybeBindProceedingJoinPoint(parameterTypes[0])) {
-			numUnboundArgs--;
-		}
-		else if (maybeBindJoinPointStaticPart(parameterTypes[0])) {
+		if (maybeBindJoinPoint(parameterTypes[0]) || maybeBindProceedingJoinPoint(parameterTypes[0]) ||
+				maybeBindJoinPointStaticPart(parameterTypes[0])) {
 			numUnboundArgs--;
 		}
 

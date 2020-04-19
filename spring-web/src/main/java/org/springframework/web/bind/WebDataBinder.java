@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -201,8 +201,8 @@ public class WebDataBinder extends DataBinder {
 	 * @see #getFieldDefaultPrefix
 	 */
 	protected void checkFieldDefaults(MutablePropertyValues mpvs) {
-		if (getFieldDefaultPrefix() != null) {
-			String fieldDefaultPrefix = getFieldDefaultPrefix();
+		String fieldDefaultPrefix = getFieldDefaultPrefix();
+		if (fieldDefaultPrefix != null) {
 			PropertyValue[] pvArray = mpvs.getPropertyValues();
 			for (PropertyValue pv : pvArray) {
 				if (pv.getName().startsWith(fieldDefaultPrefix)) {
@@ -228,8 +228,8 @@ public class WebDataBinder extends DataBinder {
 	 * @see #getEmptyValue(String, Class)
 	 */
 	protected void checkFieldMarkers(MutablePropertyValues mpvs) {
-		if (getFieldMarkerPrefix() != null) {
-			String fieldMarkerPrefix = getFieldMarkerPrefix();
+		String fieldMarkerPrefix = getFieldMarkerPrefix();
+		if (fieldMarkerPrefix != null) {
 			PropertyValue[] pvArray = mpvs.getPropertyValues();
 			for (PropertyValue pv : pvArray) {
 				if (pv.getName().startsWith(fieldMarkerPrefix)) {
@@ -246,13 +246,13 @@ public class WebDataBinder extends DataBinder {
 
 	/**
 	 * Determine an empty value for the specified field.
-	 * <p>Default implementation returns:
+	 * <p>The default implementation returns:
 	 * <ul>
-	 *     <li>{@code Boolean.FALSE} for boolean fields
-	 *     <li>an empty array for array types
-	 *     <li>Collection implementations for Collection types
-	 *     <li>Map implementations for Map types
-	 *     <li>else, {@code null} is used as default
+	 * <li>{@code Boolean.FALSE} for boolean fields
+	 * <li>an empty array for array types
+	 * <li>Collection implementations for Collection types
+	 * <li>Map implementations for Map types
+	 * <li>else, {@code null} is used as default
 	 * </ul>
 	 * @param field the name of the field
 	 * @param fieldType the type of the field
@@ -275,17 +275,20 @@ public class WebDataBinder extends DataBinder {
 				else if (Map.class.isAssignableFrom(fieldType)) {
 					return CollectionFactory.createMap(fieldType, 0);
 				}
-			} catch (IllegalArgumentException exc) {
-				return null;
+			}
+			catch (IllegalArgumentException ex) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Failed to create default value - falling back to null: " + ex.getMessage());
+				}
 			}
 		}
-		// Default value: try null.
+		// Default value: null.
 		return null;
 	}
 
 	/**
 	 * Bind all multipart files contained in the given request, if any
-	 * (in case of a multipart request).
+	 * (in case of a multipart request). To be called by subclasses.
 	 * <p>Multipart files will only be added to the property values if they
 	 * are not empty or if we're configured to bind empty multipart files too.
 	 * @param multipartFiles Map of field name String to MultipartFile object

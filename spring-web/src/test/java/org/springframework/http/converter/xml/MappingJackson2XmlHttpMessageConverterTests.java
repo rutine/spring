@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@
 package org.springframework.http.converter.xml;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -27,11 +26,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.MockHttpInputMessage;
 import org.springframework.http.MockHttpOutputMessage;
-import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.json.MappingJacksonValue;
 
@@ -130,7 +127,7 @@ public class MappingJackson2XmlHttpMessageConverterTests {
 
 		MappingJacksonValue jacksonValue = new MappingJacksonValue(bean);
 		jacksonValue.setSerializationView(MyJacksonView1.class);
-		this.writeInternal(jacksonValue, outputMessage);
+		this.converter.write(jacksonValue, null, outputMessage);
 
 		String result = outputMessage.getBodyAsString(Charset.forName("UTF-8"));
 		assertThat(result, containsString("<withView1>with</withView1>"));
@@ -146,7 +143,7 @@ public class MappingJackson2XmlHttpMessageConverterTests {
 
 	@Test
 	public void readWithExternalReference() throws IOException {
-		String body = "<!DOCTYPE MyBean SYSTEM \"http://192.168.28.42/1.jsp\" [" +
+		String body = "<!DOCTYPE MyBean SYSTEM \"https://192.168.28.42/1.jsp\" [" +
 				"  <!ELEMENT root ANY >\n" +
 				"  <!ENTITY ext SYSTEM \"" +
 				new ClassPathResource("external.txt", getClass()).getURI() +
@@ -184,14 +181,6 @@ public class MappingJackson2XmlHttpMessageConverterTests {
 
 		this.thrown.expect(HttpMessageNotReadableException.class);
 		this.converter.read(MyBean.class, inputMessage);
-	}
-
-
-	private void writeInternal(Object object, HttpOutputMessage outputMessage) throws Exception {
-		Method method = AbstractHttpMessageConverter.class.getDeclaredMethod(
-				"writeInternal", Object.class, HttpOutputMessage.class);
-		method.setAccessible(true);
-		method.invoke(this.converter, object, outputMessage);
 	}
 
 

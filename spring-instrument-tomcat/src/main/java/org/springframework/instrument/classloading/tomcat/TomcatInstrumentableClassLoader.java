@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,8 +30,8 @@ import org.springframework.instrument.classloading.WeavingTransformer;
  * to loaded classes without the need to use a VM-wide agent.
  *
  * <p>To be registered using a
- * <a href="http://tomcat.apache.org/tomcat-6.0-doc/config/loader.html">{@code Loader}</a> tag
- * in Tomcat's <a href="http://tomcat.apache.org/tomcat-6.0-doc/config/context.html">{@code Context}</a>
+ * <a href="https://tomcat.apache.org/tomcat-6.0-doc/config/loader.html">{@code Loader}</a> tag
+ * in Tomcat's <a href="https://tomcat.apache.org/tomcat-6.0-doc/config/context.html">{@code Context}</a>
  * definition in the {@code server.xml} file, with the Spring-provided "spring-instrument-tomcat.jar"
  * file deployed into Tomcat's "lib" directory. The required configuration tag looks as follows:
  *

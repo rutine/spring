@@ -1,5 +1,6 @@
 [[websocket]]
 = WebSocket Support
+
 This part of the reference documentation covers Spring Framework's support for
 WebSocket-style messaging in web applications including use of STOMP as an
 application level WebSocket sub-protocol.
@@ -22,9 +23,11 @@ applications.
 
 
 
+
 [[websocket-intro]]
 == Introduction
-The WebSocket protocol http://tools.ietf.org/html/rfc6455[RFC 6455] defines an important
+
+The WebSocket protocol https://tools.ietf.org/html/rfc6455[RFC 6455] defines an important
 new capability for web applications: full-duplex, two-way communication between client
 and server. It is an exciting new capability on the heels of a long history of
 techniques to make the web more interactive including Java Applets, XMLHttpRequest,
@@ -40,21 +43,22 @@ server can use it to send messages to each other.
 
 Spring Framework 4 includes a new `spring-websocket` module with comprehensive
 WebSocket support. It is compatible with the Java WebSocket API standard
-(http://jcp.org/en/jsr/detail?id=356[JSR-356])
+(https://jcp.org/en/jsr/detail?id=356[JSR-356])
 and also provides additional value-add as explained in the rest of the introduction.
 
 
 
 [[websocket-into-fallback-options]]
 === WebSocket Fallback Options
+
 An important challenge to adoption is the lack of support for WebSocket in some
 browsers. Notably the first Internet Explorer version to support WebSocket is
-version 10 (see http://caniuse.com/websockets for support by browser versions).
+version 10 (see https://caniuse.com/websockets for support by browser versions).
 Furthermore, some restrictive proxies may be configured in ways that either
 preclude the attempt to do an HTTP upgrade or otherwise break connection after
 some time because it has remained opened for too long. A good overview on this
 topic from Peter Lubbers is available in the InfoQ article
-http://www.infoq.com/articles/Web-Sockets-Proxy-Servers["How HTML5 Web Sockets Interact With Proxy Servers"].
+https://www.infoq.com/articles/Web-Sockets-Proxy-Servers["How HTML5 Web Sockets Interact With Proxy Servers"].
 
 Therefore to build a WebSocket application today, fallback options are required in
 order to simulate the WebSocket API where necessary. The Spring Framework provides
@@ -66,6 +70,7 @@ application otherwise.
 
 [[websocket-intro-architecture]]
 === A Messaging Architecture
+
 Aside from short-to-midterm adoption challenges, using WebSocket
 brings up important design considerations that are important to recognize
 early on, especially in contrast to what we know about building web applications today.
@@ -83,7 +88,7 @@ to traditional messaging applications (e.g. JMS, AMQP).
 
 Spring Framework 4 includes a new `spring-messaging` module with key
 abstractions from the
-http://projects.spring.io/spring-integration/[Spring Integration] project
+https://projects.spring.io/spring-integration/[Spring Integration] project
 such as `Message`, `MessageChannel`, `MessageHandler`, and others that can serve as
 a foundation for such a messaging architecture. The module also includes a
 set of annotations for mapping messages to methods, similar to the Spring MVC
@@ -93,6 +98,7 @@ annotation based programming model.
 
 [[websocket-intro-sub-protocol]]
 === Sub-Protocol Support in WebSocket
+
 WebSocket does imply a __messaging architecture__ but does not mandate the
 use of any specific __messaging protocol__. It is a very thin layer over TCP
 that transforms a stream of bytes into a stream of messages
@@ -108,7 +114,7 @@ most web applications today are written using a web framework rather than the
 Servlet API alone.
 
 For this reason the WebSocket RFC defines the use of
-http://tools.ietf.org/html/rfc6455#section-1.9[sub-protocols].
+https://tools.ietf.org/html/rfc6455#section-1.9[sub-protocols].
 During the handshake, the client and server can use the header
 `Sec-WebSocket-Protocol` to agree on a sub-protocol, i.e. a higher, application-level
 protocol to use. The use of a sub-protocol is not required, but
@@ -117,7 +123,7 @@ format that both the client and server can understand. That format can be custom
 framework-specific, or a standard messaging protocol.
 
 The Spring Framework provides support for using
-http://stomp.github.io/stomp-specification-1.2.html#Abstract[STOMP] -- a simple, messaging protocol
+https://stomp.github.io/stomp-specification-1.2.html#Abstract[STOMP] -- a simple, messaging protocol
 originally created for use in scripting languages with frames inspired
 by HTTP. STOMP is widely supported and well suited for use over
 WebSocket and over the web.
@@ -126,6 +132,7 @@ WebSocket and over the web.
 
 [[websocket-intro-when-to-use]]
 === Should I Use WebSocket?
+
 With all the design considerations surrounding the use of WebSocket, it is
 reasonable to ask, "When is it appropriate to use?".
 
@@ -169,6 +176,7 @@ WebSocket clients or to a specific user.
 
 [[websocket-server]]
 == WebSocket API
+
 The Spring Framework provides a WebSocket API designed to adapt to various WebSocket engines.
 Currently the list includes WebSocket runtimes such as Tomcat 7.0.47+, Jetty 9.1+,
 GlassFish 4.1+, WebLogic 12.1.3+, and Undertow 1.0+ (and WildFly 8.0+). Additional support
@@ -191,7 +199,8 @@ directly.
 
 
 [[websocket-server-handler]]
-=== Create and Configure a WebSocketHandler
+=== WebSocketHandler
+
 Creating a WebSocket server is as simple as implementing `WebSocketHandler` or more
 likely extending either `TextWebSocketHandler` or `BinaryWebSocketHandler`:
 
@@ -249,9 +258,9 @@ XML configuration equivalent:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<websocket:handlers>
 			<websocket:mapping path="/myHandler" handler="myHandler"/>
@@ -271,7 +280,8 @@ into other HTTP serving environments with the help of
 
 
 [[websocket-server-handshake]]
-=== Customizing the WebSocket Handshake
+=== WebSocket Handshake
+
 The easiest way to customize the initial HTTP WebSocket handshake request is through
 a `HandshakeInterceptor`, which exposes "before" and "after" the handshake methods.
 Such an interceptor can be used to preclude the handshake or to make any attributes
@@ -304,9 +314,9 @@ And the XML configuration equivalent:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<websocket:handlers>
 			<websocket:mapping path="/myHandler" handler="myHandler"/>
@@ -333,6 +343,7 @@ Both the Java-config and XML namespace make it possible to configure a custom
 
 [[websocket-server-decorators]]
 === WebSocketHandler Decoration
+
 Spring provides a `WebSocketHandlerDecorator` base class that can be used to decorate
 a `WebSocketHandler` with additional behavior. Logging and exception handling
 implementations are provided and added by default when using the WebSocket Java-config
@@ -343,7 +354,8 @@ session with status `1011` that indicates a server error.
 
 
 [[websocket-server-deployment]]
-=== Deployment Considerations
+=== Deployment
+
 The Spring WebSocket API is easy to integrate into a Spring MVC application where
 the `DispatcherServlet` serves both HTTP WebSocket handshake as well as other
 HTTP requests. It is also easy to integrate into other HTTP processing scenarios
@@ -386,7 +398,7 @@ through the use of the `<absolute-ordering />` element in `web.xml`:
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="
 			http://java.sun.com/xml/ns/javaee
-			http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+			https://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 		version="3.0">
 
 		<absolute-ordering/>
@@ -405,7 +417,7 @@ Java initialization API, if required:
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="
 			http://java.sun.com/xml/ns/javaee
-			http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+			https://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 		version="3.0">
 
 		<absolute-ordering>
@@ -414,6 +426,8 @@ Java initialization API, if required:
 
 	</web-app>
 ----
+
+
 
 [[websocket-server-runtime-configuration]]
 === Configuring the WebSocket Engine
@@ -453,9 +467,9 @@ or WebSocket XML namespace:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<bean class="org.springframework...ServletServerContainerFactoryBean">
 			<property name="maxTextMessageBufferSize" value="8192"/>
@@ -511,9 +525,9 @@ or WebSocket XML namespace:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<websocket:handlers>
 			<websocket:mapping path="/echo" handler="echoHandler"/>
@@ -540,6 +554,8 @@ or WebSocket XML namespace:
 
 	</beans>
 ----
+
+
 
 [[websocket-server-allowed-origins]]
 === Configuring allowed origins
@@ -578,7 +594,7 @@ WebSocket and SockJS allowed origins can be configured as shown bellow:
 
 		@Override
 		public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-			registry.addHandler(myHandler(), "/myHandler").setAllowedOrigins("http://mydomain.com");
+			registry.addHandler(myHandler(), "/myHandler").setAllowedOrigins("https://mydomain.com");
 		}
 
 		@Bean
@@ -599,11 +615,11 @@ XML configuration equivalent:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
-		<websocket:handlers allowed-origins="http://mydomain.com">
+		<websocket:handlers allowed-origins="https://mydomain.com">
 			<websocket:mapping path="/myHandler" handler="myHandler" />
 		</websocket:handlers>
 
@@ -613,16 +629,21 @@ XML configuration equivalent:
 ----
 
 
+
+
 [[websocket-fallback]]
-== SockJS Fallback Options
+== SockJS Fallback
+
 As explained in the <<websocket-into-fallback-options,introduction>>, WebSocket is not
 supported in all browsers yet and may be precluded by restrictive network proxies.
 This is why Spring provides fallback options that emulate the WebSocket API as close
 as possible based on the https://github.com/sockjs/sockjs-protocol[SockJS protocol]
 (version 0.3.3).
 
+
+
 [[websocket-fallback-sockjs-overview]]
-=== Overview of SockJS
+=== Overview
 
 The goal of SockJS is to let applications use a WebSocket API but fall back to
 non-WebSocket alternatives when necessary at runtime, i.e. without the need to
@@ -632,7 +653,7 @@ SockJS consists of:
 
 * The https://github.com/sockjs/sockjs-protocol[SockJS protocol]
 defined in the form of executable
-http://sockjs.github.io/sockjs-protocol/sockjs-protocol-0.3.3.html[narrated tests].
+https://sockjs.github.io/sockjs-protocol/sockjs-protocol-0.3.3.html[narrated tests].
 * The https://github.com/sockjs/sockjs-client/[SockJS JavaScript client] - a client library for use in browsers.
 * SockJS server implementations including one in the Spring Framework `spring-websocket` module.
 * As of 4.1 `spring-websocket` also provides a SockJS Java client.
@@ -679,11 +700,13 @@ see each transport one at a time. The SockJS client also provides a debug flag
 which enables helpful messages in the browser console. On the server side enable
 `TRACE` logging for `org.springframework.web.socket`.
 For even more detail refer to the SockJS protocol
-http://sockjs.github.io/sockjs-protocol/sockjs-protocol-0.3.3.html[narrated test].
+https://sockjs.github.io/sockjs-protocol/sockjs-protocol-0.3.3.html[narrated test].
+
 
 
 [[websocket-fallback-sockjs-enable]]
 === Enable SockJS
+
 SockJS is easy to enable through Java configuration:
 
 [source,java,indent=0]
@@ -716,9 +739,9 @@ and the XML configuration equivalent:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<websocket:handlers>
 			<websocket:mapping path="/myHandler" handler="myHandler"/>
@@ -744,15 +767,17 @@ https://github.com/sockjs/sockjs-client/[sockjs-client] page and the list of
 transport types supported by browser. The client also provides several
 configuration options, for example, to specify which transports to include.
 
+
+
 [[websocket-fallback-xhr-vs-iframe]]
-=== HTTP Streaming in IE 8, 9: Ajax/XHR vs IFrame
+=== IE 8, 9
 
 Internet Explorer 8 and 9 are and will remain common for some time. They are
 a key reason for having SockJS. This section covers important
 considerations about running in those browsers.
 
 The SockJS client supports Ajax/XHR streaming in IE 8 and 9 via Microsoft's
-http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx[XDomainRequest].
+https://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx[XDomainRequest].
 That works across domains but does not support sending cookies.
 Cookies are very often essential for Java applications.
 However since the SockJS client can be used with many server
@@ -825,15 +850,17 @@ be cached. For details on how to enable it see the
 https://github.com/sockjs/sockjs-client/[SockJS client] page.
 ====
 
+
+
 [[websocket-fallback-sockjs-heartbeat]]
-=== Heartbeat Messages
+=== Heartbeats
 
 The SockJS protocol requires servers to send heartbeat messages to preclude proxies
 from concluding a connection is hung. The Spring SockJS configuration has a property
 called `heartbeatTime` that can be used to customize the frequency. By default a
 heartbeat is sent after 25 seconds assuming no other messages were sent on that
 connection. This 25 seconds value is in line with the following
-http://tools.ietf.org/html/rfc6202[IETF recommendation] for public Internet applications.
+https://tools.ietf.org/html/rfc6202[IETF recommendation] for public Internet applications.
 
 [NOTE]
 ====
@@ -846,8 +873,10 @@ for scheduling heartbeats tasks. The task scheduler is backed by a thread pool
 with default settings based on the number of available processors. Applications
 should consider customizing the settings according to their specific needs.
 
+
+
 [[websocket-fallback-sockjs-servlet3-async]]
-=== Servlet 3 Async Requests
+=== Client disconnects
 
 HTTP streaming and HTTP long polling SockJS transports require a connection to remain
 open longer than usual. For an overview of these techniques see
@@ -874,8 +903,10 @@ defined in `AbstractSockJsSession`. If you need to see the stack traces, set tha
 log category to TRACE.
 ====
 
+
+
 [[websocket-fallback-cors]]
-=== CORS Headers for SockJS
+=== SockJS and CORS
 
 If you allow cross-origin requests (see <<websocket-server-allowed-origins>>), the SockJS protocol
 uses CORS for cross-domain support in the XHR streaming and polling transports. Therefore
@@ -901,8 +932,9 @@ Alternatively if the CORS configuration allows it consider excluding URLs with t
 SockJS endpoint prefix thus letting Spring's `SockJsService` handle it.
 
 
+
 [[websocket-fallback-sockjs-client]]
-=== SockJS Client
+=== SockJsClient
 
 A SockJS Java client is provided in order to connect to remote SockJS endpoints without
 using a browser. This can be especially useful when there is a need for bidirectional
@@ -963,39 +995,40 @@ Consider also customizing these server-side SockJS related properties (see Javad
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-@Configuration
-public class WebSocketConfig extends WebSocketMessageBrokerConfigurationSupport {
+	@Configuration
+	public class WebSocketConfig extends WebSocketMessageBrokerConfigurationSupport {
 
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/sockjs").withSockJS()
-            .setStreamBytesLimit(512 * 1024)
-            .setHttpMessageCacheSize(1000)
-            .setDisconnectDelay(30 * 1000);
-    }
+		@Override
+		public void registerStompEndpoints(StompEndpointRegistry registry) {
+			registry.addEndpoint("/sockjs").withSockJS()
+				.setStreamBytesLimit(512 * 1024)
+				.setHttpMessageCacheSize(1000)
+				.setDisconnectDelay(30 * 1000);
+		}
 
-    // ...
-
-}
+		// ...
+	}
 ----
 
 
 
 
 [[websocket-stomp]]
-== STOMP Over WebSocket Messaging Architecture
+== STOMP
+
 The WebSocket protocol defines two types of messages, text and binary, but their
-content is undefined. It's expected that the client and server may agree on using
-a sub-protocol (i.e. a higher-level protocol) to define message semantics.
-While the use of a sub-protocol with WebSocket is completely optional either way
-client and server will need to agree on some kind of protocol to help interpret
-messages.
+content is undefined. The defines a mechanism for client and server to negotiate a
+sub-protocol -- i.e. a higher level messaging protocol, to use on top of WebSocket to
+define what kind of messages each can send, what is the format and content for each
+message, and so on. The use of a sub-protocol is optional but either way client and
+server will need to agree on some protocol that defines message content.
 
 
 
 [[websocket-stomp-overview]]
-=== Overview of STOMP
-http://stomp.github.io/stomp-specification-1.2.html#Abstract[STOMP] is a simple
+=== Overview
+
+https://stomp.github.io/stomp-specification-1.2.html#Abstract[STOMP] is a simple
 text-oriented messaging protocol that was originally created for scripting languages
 such as Ruby, Python, and Perl to connect to enterprise message brokers. It is
 designed to address a subset of commonly used messaging patterns. STOMP can be
@@ -1083,30 +1116,36 @@ client subscription.
 
 The above overview is intended to provide the most basic understanding of the
 STOMP protocol. It is recommended to review the protocol
-http://stomp.github.io/stomp-specification-1.2.html[specification] in full.
+https://stomp.github.io/stomp-specification-1.2.html[specification] in full.
 
-The benefits of using STOMP as a WebSocket sub-protocol:
 
-* No need to invent a custom message format
-* Use existing https://github.com/jmesnil/stomp-websocket[stomp.js] client in the browser
-* Ability to route messages to based on destination
-* Option to use full-fledged message broker such as RabbitMQ, ActiveMQ, etc. for broadcasting
 
-Most importantly the use of STOMP (vs plain WebSocket) enables the Spring Framework
-to provide a programming model for application-level use in the same way that
-Spring MVC provides a programming model based on HTTP.
+[[websocket-stomp-benefits]]
+=== Benefits
+
+Use of STOMP as a sub-protocol enables the Spring Framework and Spring Security to
+provide a richer programming model vs using raw WebSockets. The same point can be
+made about how HTTP vs raw TCP and how it enables Spring MVC and other web frameworks
+to provide rich functionality. The following is a list of benefits:
+
+* No need to invent a custom messaging protocol and message format.
+* STOMP clients are available including a <<websocket-stomp-client,Java client>>
+in the Spring Framework.
+* Message brokers such as RabbitMQ, ActiveMQ, and others can be used (optionally) to
+manage subscriptions and broadcast messages.
+* Application logic can be organized in any number of ``@Controller``'s and messages
+routed to them based on the STOMP destination header vs handling raw WebSocket messages
+with a single `WebSocketHandler` for a given connection.
+* Use Spring Security to secure messages based on STOMP destinations and message types.
 
 
 
 [[websocket-stomp-enable]]
-=== Enable STOMP over WebSocket
-The Spring Framework provides support for using STOMP over WebSocket through
-the +spring-messaging+ and +spring-websocket+ modules.
-Here is an example of exposing a STOMP WebSocket/SockJS endpoint at the URL path
-`/portfolio` where messages whose destination starts with "/app" are routed to
-message-handling methods (i.e. application work) and messages whose destinations
-start with "/topic" or "/queue" will be routed to the message broker (i.e.
-broadcasting to other connected clients):
+=== Enable STOMP
+
+STOMP over WebSocket support is available in the `spring-messaging` and the
+`spring-websocket` modules. Once you have those dependencies, you can expose a STOMP
+endpoints, over WebSocket with <<websocket-fallback>>, as shown below:
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -1124,15 +1163,21 @@ broadcasting to other connected clients):
 		}
 
 		@Override
-        public void configureMessageBroker(MessageBrokerRegistry config) {
-            config.setApplicationDestinationPrefixes("/app");
-            config.enableSimpleBroker("/topic", "/queue");
-        }
-
+		public void configureMessageBroker(MessageBrokerRegistry config) {
+			config.setApplicationDestinationPrefixes("/app");
+			config.enableSimpleBroker("/topic", "/queue");
+		}
 	}
 ----
 
-and in XML:
+<1> `"/portfolio"` is the HTTP URL for the endpoint to which a WebSocket (or SockJS)
+client will need to connect to for the WebSocket handshake.
+<2> STOMP messages whose destination header begins with `"/app"` are routed to
+`@MessageMapping` methods in `@Controller` classes.
+<3> Use the built-in, message broker for subscriptions and broadcasting;
+Route messages whose destination header begins with "/topic" or "/queue" to the broker.
+
+The same configuration in XML:
 
 [source,xml,indent=0]
 [subs="verbatim,quotes,attributes"]
@@ -1142,9 +1187,9 @@ and in XML:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<websocket:message-broker application-destination-prefix="/app">
 			<websocket:stomp-endpoint path="/portfolio">
@@ -1158,30 +1203,27 @@ and in XML:
 
 [NOTE]
 ====
-The "/app" prefix is arbitrary. You can pick any prefix. It's simply meant to differentiate
-messages to be routed to message-handling methods to do application work vs messages
-to be routed to the broker to broadcast to subscribed clients.
-
-The "/topic" and "/queue" prefixes depend on the broker in use. In the case of the simple,
-in-memory broker the prefixes do not have any special meaning; it's merely a convention
-that indicates how the destination is used (pub-sub targetting many subscribers or
-point-to-point messages typically targeting an individual recipient).
-In the case of using a dedicated broker, most brokers use "/topic" as
-a prefix for destinations with pub-sub semantics and "/queue" for destinations
-with point-to-point semantics. Check the STOMP page of the broker to see the destination
-semantics it supports.
+For the built-in, simple broker the "/topic" and "/queue" prefixes do not have any special
+meaning. They're merely a convention to differentiate between pub-sub vs point-to-point
+messaging (i.e. many subscribers vs one consumer). When using an external broker, please
+check the STOMP page of the broker to understand what kind of STOMP destinations and
+prefixes it supports.
 ====
 
-
-On the browser side, a client might connect as follows using
-https://github.com/jmesnil/stomp-websocket[stomp.js] and the
-https://github.com/sockjs/sockjs-client[sockjs-client]:
+To connect from a browser, for SockJS you can use the
+https://github.com/sockjs/sockjs-client[sockjs-client]. For STOMP many applications have
+used the https://github.com/jmesnil/stomp-websocket[jmesnil/stomp-websocket] library
+(also known as stomp.js) which is feature complete and has been used in production for
+years but is no longer maintained. At present the
+https://github.com/JSteunou/webstomp-client[JSteunou/webstomp-client] is the most
+actively maintained and evolving successor of that library and the example code below
+is based on it:
 
 [source,javascript,indent=0]
 [subs="verbatim,quotes"]
 ----
 	var socket = new SockJS("/spring-websocket-portfolio/portfolio");
-	var stompClient = Stomp.over(socket);
+	var stompClient = webstomp.over(socket);
 
 	stompClient.connect({}, function(frame) {
 	}
@@ -1204,64 +1246,76 @@ Even if it did, they would be ignored, or rather overridden, on the server side.
 sections <<websocket-stomp-handle-broker-relay-configure>> and
 <<websocket-stomp-authentication>> for more information on authentication.
 
+For a more example code see:
+
+* https://spring.io/guides/gs/messaging-stomp-websocket/[Using WebSocket to build an
+interactive web application] getting started guide.
+* https://github.com/rstoyanchev/spring-websocket-portfolio[Stock Portfolio] sample
+application.
+
+
 
 [[websocket-stomp-message-flow]]
 === Flow of Messages
 
-When a STOMP endpoint is configured, the Spring application acts as the STOMP broker
-to connected clients. This section provides a big picture overview of how messages flow
-within the application.
+Once a STOMP endpoint is exposed, the Spring application becomes a STOMP broker for
+connected clients. This section describes the flow of messages on the server side.
 
-The `spring-messaging` module provides the foundation for asynchronous message processing.
-It contains a number of abstractions that originated in the
-https://spring.io/spring-integration[Spring Integration] project and are intended
-for use as building blocks in messaging applications:
+The `spring-messaging` module contains foundational support for messaging applications
+that originated in https://spring.io/spring-integration[Spring Integration] and was
+later extracted and incorporated into the Spring Framework for broader use across many
+https://spring.io/projects[Spring projects] and application scenarios.
+Below is a list of a few of the available messaging abstractions:
 
 * {api-spring-framework}/messaging/Message.html[Message] --
-a message with headers and a payload.
+simple representation for a message including headers and payload.
 * {api-spring-framework}/messaging/MessageHandler.html[MessageHandler] --
-a contract for handling a message.
+contract for handling a message.
 * {api-spring-framework}/messaging/MessageChannel.html[MessageChannel] --
-a contract for sending a message enabling loose coupling between senders and receivers.
+contract for sending a message that enables loose coupling between producers and consumers.
 * {api-spring-framework}/messaging/SubscribableChannel.html[SubscribableChannel] --
-extends `MessageChannel` and sends messages to registered `MessageHandler` subscribers.
+`MessageChannel` with `MessageHandler` subscribers.
 * {api-spring-framework}/messaging/support/ExecutorSubscribableChannel.html[ExecutorSubscribableChannel] --
-a concrete implementation of `SubscribableChannel` that can deliver messages
-asynchronously via a thread pool.
+`SubscribableChannel` that uses an `Executor` for delivering messages.
 
-The `@EnableWebSocketMessageBroker` Java config and the `<websocket:message-broker>` XML config
-both assemble a concrete message flow. Below is a diagram of the part of the setup when using
-the simple, in-memory broker:
+Both the Java config (i.e. `@EnableWebSocketMessageBroker`) and the XML namespace config
+(i.e. `<websocket:message-broker>`) use the above components to assemble a message
+workflow. The diagram below shows the components used when the simple, built-in message
+broker is enabled:
 
 image::images/message-flow-simple-broker.png[width=640]
 
-The above setup that includes 3 message channels:
+There are 3 message channels in the above diagram:
 
-* `"clientInboundChannel"` for messages from WebSocket clients.
-* `"clientOutboundChannel"` for messages to WebSocket clients.
-* `"brokerChannel"` for messages to the broker from within the application.
+* `"clientInboundChannel"` -- for passing messages received from WebSocket clients.
+* `"clientOutboundChannel"` -- for sending server messages to WebSocket clients.
+* `"brokerChannel"` -- for sending messages to the message broker from within
+server-side, application code.
 
-The same three channels are also used with a dedicated broker except here a
-"broker relay" takes the place of the simple broker:
+The next diagram shows the components used when an external broker (e.g. RabbitMQ)
+is configured for managing subscriptions and broadcasting messages:
 
 image::images/message-flow-broker-relay.png[width=640]
 
-Messages on the `"clientInboundChannel"` can flow to annotated
-methods for application handling (e.g. a stock trade execution request) or can
-be forwarded to the broker (e.g. client subscribing for stock quotes).
-The STOMP destination is used for simple prefix-based routing. For example
-the "/app" prefix could route messages to annotated methods while the "/topic"
-and "/queue" prefixes could route messages to the broker.
+The main difference in the above diagram is the use of the "broker relay" for passing
+messages up to the external STOMP broker over TCP, and for passing messages down from the
+broker to subscribed clients.
 
-When a message-handling annotated method has a return type, its return
-value is sent as the payload of a Spring `Message` to the `"brokerChannel"`.
-The broker in turn broadcasts the message to clients. Sending a message
-to a destination can also be done from anywhere in the application with
-the help of a messaging template. For example, an HTTP POST handling method
-can broadcast a message to connected clients, or a service component may
-periodically broadcast stock quotes.
+When messages are received from a WebSocket connectin, they're decoded to STOMP frames,
+then turned into a Spring `Message` representation, and sent to the
+`"clientInboundChannel"` for further processing. For example STOMP messages whose
+destination header starts with `"/app"` may be routed to `@MessageMapping` methods in
+annotated controllers, while `"/topic"` and `"/queue"` messages may be routed directly
+to the message broker.
 
-Below is a simple example to illustrate the flow of messages:
+An annotated `@Controller` handling a STOMP message from a client may send a message to
+the message broker through the `"brokerChannel"`, and the broker will broadcast the
+message to matching subscribers through the `"clientOutboundChannel"`. The same
+controller can also do the same in response to HTTP requests, so a client may perform an
+HTTP POST and then an `@PostMapping` method can send a message to the message broker
+to broadcast to subscribed clients.
+
+Let's trace the flow through a simple example. Given the following server setup:
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -1295,18 +1349,22 @@ Below is a simple example to illustrate the flow of messages:
 
 ----
 
-The following explains the message flow for the above example:
-
-* WebSocket clients connect to the WebSocket endpoint at "/portfolio".
-* Subscriptions to "/topic/greeting" pass through the "clientInboundChannel"
-and are forwarded to the broker.
-* Greetings sent to "/app/greeting" pass through the "clientInboundChannel"
-and are forwarded to the `GreetingController`. The controller adds the current
-time, and the return value is passed through the "brokerChannel" as a message
-to "/topic/greeting" (destination is selected based on a convention but can be
-overridden via `@SendTo`).
-* The broker in turn broadcasts messages to subscribers, and they pass through
-the `"clientOutboundChannel"`.
+. Client connects to `"http://localhost:8080/portfolio"` and once a WebSocket connection
+is established, STOMP frames begin to flow on it.
+. Client sends SUBSCRIBE frame with destination header `"/topic/greeting"`. Once received
+and decoded, the message is sent to the `"clientInboundChannel"`, then routed to the
+message broker which stores the client subscription.
+. Client sends SEND frame to `"/app/greeting"`. The `"/app"` prefix helps to route it to
+annotated controllers. After the `"/app"` prefix is stripped, the remaining `"/greeting"`
+part of the destination is mapped to the `@MessageMapping` method in `GreetingController`.
+. The value returned from `GreetingController` is turned into a Spring `Message` with
+a payload based on the return value and a default destination header of
+`"/topic/greeting"` (derived from the input destination with `"/app"` replaced by
+`"/topic"`). The resulting message is sent to the "brokerChannel" and handled
+by the message broker.
+. The message broker finds all matching subscribers, and sends a MESSAGE frame to each
+through the `"clientOutboundChannel"` from where messages are encoded as STOMP frames
+and sent on the WebSocket connection.
 
 The next section provides more details on annotated methods including the
 kinds of arguments and return values supported.
@@ -1314,87 +1372,152 @@ kinds of arguments and return values supported.
 
 
 [[websocket-stomp-handle-annotations]]
-=== Annotation Message Handling
+=== Annotated Controllers
 
-The `@MessageMapping` annotation is supported on methods of `@Controller` classes.
-It can be used for mapping methods to message destinations and can also be combined
-with the type-level `@MessageMapping` for expressing shared mappings across all
-annotated methods within a controller.
+Applications can use annotated `@Controller` classes to handle messages from clients.
+Such classes can declare `@MessageMapping`, `@SubscribeMapping`, and `@ExceptionHandler`
+methods as described next.
 
-By default destination mappings are treated as Ant-style, slash-separated, path
-patterns, e.g. "/foo*", "/foo/**". etc. They can also contain template variables,
-e.g. "/foo/{id}" that can then be referenced via `@DestinationVariable`-annotated
-method arguments.
 
-[NOTE]
+[[websocket-stomp-message-mapping]]
+==== `@MessageMapping`
+
+The `@MessageMapping` annotation can be used on methods to route messages based on their
+destination. It is supported at the method level as well as at the type level. At type
+level `@MessageMapping` is used to express shared mappings across all methods in a
+controller.
+
+By default destination mappings are expected to be Ant-style, path patterns, e.g. "/foo*",
+"/foo/**". The patterns include support for template variables, e.g. "/foo/{id}", that can
+be referenced with `@DestinationVariable` method arguments.
+
+[TIP]
 ====
-Applications can also use dot-separated destinations (vs slash).
+Applications can choose to switch to a dot-separated destination convention.
 See <<websocket-stomp-destination-separator>>.
 ====
 
-The following method arguments are supported for `@MessageMapping` methods:
+`@MessageMapping` methods can have flexible signatures with the following arguments:
 
-* `Message` method argument to get access to the complete message being processed.
-* `@Payload`-annotated argument for access to the payload of a message, converted with
-a `org.springframework.messaging.converter.MessageConverter`.
-The presence of the annotation is not required since it is assumed by default.
-Payload method arguments annotated with validation annotations (like `@Validated`) will
-be subject to JSR-303 validation.
-* `@Header`-annotated arguments for access to a specific header value along with
-type conversion using an `org.springframework.core.convert.converter.Converter`
-if necessary.
-* `@Headers`-annotated method argument that must also be assignable to `java.util.Map`
-for access to all headers in the message.
-* `MessageHeaders` method argument for getting access to a map of all headers.
-* `MessageHeaderAccessor`, `SimpMessageHeaderAccessor`, or `StompHeaderAccessor`
-for access to headers via typed accessor methods.
-* `@DestinationVariable`-annotated arguments for access to template
-variables extracted from the message destination. Values will be converted to
-the declared method argument type as necessary.
-* `java.security.Principal` method arguments reflecting the user logged in at
-the time of the WebSocket HTTP handshake.
+[cols="1,2", options="header"]
+|===
+| Method argument | Description
 
-A return value from an `@MessageMapping` method will be converted with a
-`org.springframework.messaging.converter.MessageConverter` and used as the body
-of a new message that is then sent, by default, to the `"brokerChannel"` with
-the same destination as the client message but using the prefix `"/topic"` by
-default. An `@SendTo` message level annotation can be used to specify any
-other destination instead. It can also be set a class-level to share a common
+| `Message`
+| For access to the complete message.
+
+| `MessageHeaders`
+| For access to the headers within the `Message`.
+
+| `MessageHeaderAccessor`, `SimpMessageHeaderAccessor`, `StompHeaderAccessor`
+| For access to the headers via typed accessor methods.
+
+| `@Payload`
+| For access to the payload of the message, converted (e.g. from JSON) via a configured
+`MessageConverter`.
+
+The presence of this annotation is not required since it is assumed by default if no
+other argument is matched.
+
+Payload arguments may be annotated with `@javax.validation.Valid` or Spring's `@Validated`
+in order to be automatically validated.
+
+| `@Header`
+| For access to a specific header value along with type conversion using an
+`org.springframework.core.convert.converter.Converter` if necessary.
+
+| `@Headers`
+| For access to all headers in the message. This argument must be assignable to
+`java.util.Map`.
+
+| `@DestinationVariable`
+| For access to template variables extracted from the message destination.
+Values will be converted to the declared method argument type as necessary.
+
+| `java.security.Principal`
+| Reflects the user logged in at the time of the WebSocket HTTP handshake.
+
+|===
+
+When an `@MessageMapping` method returns a value, by default the value is serialized to
+a payload through a configured `MessageConverter`, and then sent as a `Message` to the
+`"brokerChannel"` from where it is broadcast to subscribers. The destination of the
+outbound message is the same as that of the inbound message but prefixed with `"/topic"`.
+
+You can use the `@SendTo` method annotation to customize the destination to send
+the payload to. `@SendTo` can also be used at the class level to share a default target
+destination to send messages to. `@SendToUser` is an variant for sending messages only to
+the user associated with a message. See <<websocket-stomp-user-destination>> for details.
+
+The return value from an `@MessageMapping` method may be wrapped with `ListenableFuture`,
+`CompletableFuture`, or `CompletionStage` in order to produce the payload asynchronously.
+
+As an alternative to returning a payload from an `@MessageMapping` method you can also
+send messages using the `SimpMessagingTemplate`, which is also how return values are
+handled under the covers. See <<websocket-stomp-handle-send>>.
+
+
+[[websocket-stomp-subscribe-mapping]]
+==== `@SubscribeMapping`
+
+The `@SubscribeMapping` annotation is used in combination with `@MessageMapping` in order
+to narrow the mapping to subscription messages. In such scenarios, the `@MessageMapping`
+annotation specifies the destination while `@SubscribeMapping` indicates interest in
+subscription messages only.
+
+An `@SubscribeMapping` method is generally no different from any `@MessageMapping`
+method with respect to mapping and input arguments. For example you can combine it with a
+type-level `@MessageMapping` to express a shared destination prefix, and you can use the
+same <<websocket-stomp-message-mapping,method arguments>> as any @MessageMapping` method.
+
+The key difference with `@SubscribeMapping` is that the return value of the method is
+serialized as a payload and sent, not to the "brokerChannel" but to the
+"clientOutboundChannel", effectively replying directly to the client rather than
+broadcasting through the broker. This is useful for implementing one-off, request-reply
+message exchanges, and never holding on to the subscription. A common scenario for this
+pattern is application initialization when data must be loaded and presented.
+
+A `@SubscribeMapping` method can also be annotated with `@SendTo` in which case the
+return value is sent to the `"brokerChannel"` with the explicitly specified target
 destination.
 
-A response message may also be provided asynchronously via a `ListenableFuture`
-or `CompletableFuture`/`CompletionStage` return type signature, analogous to
-deferred results in an MVC handler method.
 
-A `@SubscribeMapping` annotation can be used to map subscription requests to
-`@Controller` methods. It is supported on the method level, but can also be
-combined with a type level `@MessageMapping` annotation that expresses shared
-mappings across all message handling methods within the same controller.
+[[websocket-stomp-exception-handler]]
+==== `@MessageExceptionHandler`
 
-By default the return value from an `@SubscribeMapping` method is sent as a
-message directly back to the connected client and does not pass through the
-broker. This is useful for implementing request-reply message interactions; for
-example, to fetch application data when the application UI is being initialized.
-Or alternatively an `@SubscribeMapping` method can be annotated with `@SendTo`
-in which case the resulting message is sent to the `"brokerChannel"` using
-the specified target destination.
+An application can use `@MessageExceptionHandler` methods to handle exceptions from
+`@MessageMapping` methods. Exceptions of interest can be declared in the annotation
+itself, or through a method argument if you want to get access to the exception instance:
 
-[NOTE]
-====
-In some cases a controller may need to be decorated with an AOP proxy at runtime.
-One example is if you choose to have `@Transactional` annotations directly on the
-controller. When this is the case, for controllers specifically, we recommend
-using class-based proxying. This is typically the default choice with controllers.
-However if a controller must implement an interface that is not a Spring Context
-callback (e.g. `InitializingBean`, `*Aware`, etc), you may need to explicitly
-configure class-based proxying. For example with `<tx:annotation-driven />`,
-change to `<tx:annotation-driven proxy-target-class="true" />`.
-====
+[source,java,indent=0]
+[subs="verbatim,quotes"]
+----
+	@Controller
+	public class MyController {
+
+		// ...
+
+		@MessageExceptionHandler
+		public ApplicationError handleException(MyException exception) {
+			// ...
+			return appError;
+		}
+	}
+----
+
+`@MessageExceptionHandler` methods support flexible method signatures and support the same
+method argument types and return values as
+<<websocket-stomp-message-mapping,@MessageMapping>> methods.
+
+Typically `@MessageExceptionHandler` methods apply within the `@Controller` class (or
+class hierarchy) they are declared in. If you want such methods to apply more globally,
+across controllers, you can declare them in a class marked with `@ControllerAdvice`.
+This is comparable to <<web.adoc#mvc-ann-controller-advice,similar support>> in Spring MVC.
 
 
 
 [[websocket-stomp-handle-send]]
-=== Sending Messages
+=== Send Messages
 
 What if you want to send messages to connected clients from any part of the
 application? Any application component can send messages to the `"brokerChannel"`.
@@ -1428,6 +1551,7 @@ But it can also be qualified by its name "brokerMessagingTemplate" if another
 bean of the same type exists.
 
 
+
 [[websocket-stomp-handle-simple-broker]]
 === Simple Broker
 
@@ -1444,9 +1568,8 @@ See <<websocket-stomp-destination-separator>>.
 
 
 
-
 [[websocket-stomp-handle-broker-relay]]
-=== Full-Featured Broker
+=== External Broker
 
 The simple broker is great for getting started but supports only a subset of
 STOMP commands (e.g. no acks, receipts, etc.), relies on a simple message
@@ -1454,8 +1577,8 @@ sending loop, and is not suitable for clustering. As an alternative, application
 can upgrade to using a full-featured message broker.
 
 Check the STOMP documentation for your message broker of choice (e.g.
-http://www.rabbitmq.com/stomp.html[RabbitMQ],
-http://activemq.apache.org/stomp.html[ActiveMQ], etc.), install the broker,
+https://www.rabbitmq.com/stomp.html[RabbitMQ],
+https://activemq.apache.org/stomp.html[ActiveMQ], etc.), install the broker,
 and run it with STOMP support enabled. Then enable the STOMP broker relay in the
 Spring configuration instead of the simple broker.
 
@@ -1492,9 +1615,9 @@ XML configuration equivalent:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<websocket:message-broker application-destination-prefix="/app">
 			<websocket:stomp-endpoint path="/portfolio" />
@@ -1535,8 +1658,10 @@ subscribed WebSocket clients.
 
 In effect, the broker relay enables robust and scalable message broadcasting.
 
+
+
 [[websocket-stomp-handle-broker-relay-configure]]
-=== Connections To Full-Featured Broker
+=== Connect to Broker
 
 A STOMP broker relay maintains a single "system" TCP connection to the broker.
 This connection is used for messages originating from the server-side application
@@ -1555,8 +1680,8 @@ values ``guest``/``guest``.
 ====
 The STOMP broker relay always sets the `login` and `passcode` headers on every `CONNECT`
 frame that it forwards to the broker on behalf of clients. Therefore WebSocket clients
-need not set those headers; they will be ignored. As the following section explains,
-instead WebSocket clients should rely on HTTP authentication to protect the WebSocket
+need not set those headers; they will be ignored. As the <<websocket-stomp-authentication>>
+explains, instead WebSocket clients should rely on HTTP authentication to protect the WebSocket
 endpoint and establish the client identity.
 ====
 
@@ -1566,13 +1691,47 @@ and receiving heartbeats (10 seconds each by default). If connectivity to the br
 is lost, the broker relay will continue to try to reconnect, every 5 seconds,
 until it succeeds.
 
-[NOTE]
-====
-A Spring bean can implement `ApplicationListener<BrokerAvailabilityEvent>` in order
+Any Spring bean can implement `ApplicationListener<BrokerAvailabilityEvent>` in order
 to receive notifications when the "system" connection to the broker is lost and
 re-established. For example a Stock Quote service broadcasting stock quotes can
 stop trying to send messages when there is no active "system" connection.
-====
+
+By default, the STOMP broker relay always connects, and reconnects as needed if
+connectivity is lost, to the same host and port. If you wish to supply multiple addresses,
+on each attempt to connect, you can configure a supplier of addresses, instead of a
+fixed host and port. For example:
+
+[source,java,indent=0]
+[subs="verbatim,quotes"]
+----
+@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+
+	// ...
+
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
+		registry.enableStompBrokerRelay("/queue/", "/topic/").setTcpClient(createTcpClient());
+		registry.setApplicationDestinationPrefixes("/app");
+	}
+
+	private Reactor2TcpClient<byte[]> createTcpClient() {
+
+		Supplier<InetSocketAddress> addressSupplier = new Supplier<InetSocketAddress>() {
+			@Override
+			public InetSocketAddress get() {
+				// Select address to connect to ...
+			}
+		};
+
+		StompDecoder decoder = new StompDecoder();
+		Reactor2StompCodec codec = new Reactor2StompCodec(new StompEncoder(), decoder);
+		return new Reactor2TcpClient<>(addressSupplier, codec);
+	}
+
+}
+----
 
 The STOMP broker relay can also be configured with a `virtualHost` property.
 The value of this property will be set as the `host` header of every `CONNECT` frame
@@ -1580,79 +1739,89 @@ and may be useful for example in a cloud environment where the actual host to wh
 the TCP connection is established is different from the host providing the
 cloud-based STOMP service.
 
-[[websocket-stomp-destination-separator]]
-=== Using Dot as Separator in @MessageMapping Destinations
 
-Although slash-separated path patterns are familiar to web developers, in messaging
-it is common to use a "." as the separator, for example in the names of topics, queues,
-exchanges, etc. Applications can also switch to using "." (dot) instead of "/" (slash)
-as the separator in `@MessageMapping` mappings by configuring a custom `AntPathMatcher`.
+
+[[websocket-stomp-destination-separator]]
+=== Dot as Separator
+
+When messages are routed to `@MessageMapping` methods, they're matched with
+`AntPathMatcher` and by default patterns are expected to use slash "/" as separator.
+This is a good convention in a web applications and similar to HTTP URLs. However if
+you are more used to messaging conventions, you can switch to using dot "." as separator.
 
 In Java config:
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-  @Configuration
-  @EnableWebSocketMessageBroker
-  public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+	@Configuration
+	@EnableWebSocketMessageBroker
+	public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    // ...
+		// ...
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-      registry.enableStompBrokerRelay("/queue/", "/topic/");
-      registry.setApplicationDestinationPrefixes("/app");
-      registry.setPathMatcher(new AntPathMatcher("."));
-    }
-
-  }
+		@Override
+		public void configureMessageBroker(MessageBrokerRegistry registry) {
+			registry.setPathMatcher(**new AntPathMatcher("."));**
+			registry.enableStompBrokerRelay("/queue", "/topic");
+			registry.setApplicationDestinationPrefixes("/app");
+		}
+	}
 ----
 
-In XML config:
+In XML:
 
 [source,xml,indent=0]
 [subs="verbatim,quotes,attributes"]
 ----
-  <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:websocket="http://www.springframework.org/schema/websocket"
-    xsi:schemaLocation="
-      http://www.springframework.org/schema/beans
-      http://www.springframework.org/schema/beans/spring-beans.xsd
-      http://www.springframework.org/schema/websocket
-      http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+	<beans xmlns="http://www.springframework.org/schema/beans"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xmlns:websocket="http://www.springframework.org/schema/websocket"
+			xsi:schemaLocation="
+					http://www.springframework.org/schema/beans
+					https://www.springframework.org/schema/beans/spring-beans.xsd
+					http://www.springframework.org/schema/websocket
+					https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
-    <websocket:message-broker application-destination-prefix="/app" path-matcher="pathMatcher">
-      <websocket:stomp-endpoint path="/stomp" />
-      <websocket:simple-broker prefix="/topic, /queue"/>
-    </websocket:message-broker>
+		<websocket:message-broker application-destination-prefix="/app" path-matcher="**pathMatcher**">
+			<websocket:stomp-endpoint path="/stomp"/>
+			<websocket:stomp-broker-relay prefix="/topic,/queue" />
+		</websocket:message-broker>
 
-    <bean id="pathMatcher" class="org.springframework.util.AntPathMatcher">
-      <constructor-arg index="0" value="." />
-    </bean>
+		**
+		<bean id="pathMatcher" class="org.springframework.util.AntPathMatcher">
+			<constructor-arg index="0" value="."/>
+		</bean>
+		**
 
-  </beans>
+	</beans>
 ----
 
-And below is a simple example to illustrate a controller with "." separator:
+After that a controller may use dot "." as separator in `@MessageMapping` methods:
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-  @Controller
-  @MessageMapping("foo")
-  public class FooController {
-    
-    @MessageMapping("bar.{baz}")
-    public void handleBaz(@DestinationVariable String baz) {
-    }
+	@Controller
+	@MessageMapping("foo")
+	public class FooController {
 
-  }
+		@MessageMapping("bar.{baz}")
+		public void handleBaz(@DestinationVariable String baz) {
+			// ...
+		}
+	}
 ----
 
-If the application prefix is set to "/app" then the foo method is effectively mapped to "/app/foo.bar.{baz}".
+The client can now send a message to `"/app/foo.bar.baz123"`.
 
+In the example above we did not change the prefixes on the "broker relay" because those
+depend entirely on the external message broker. Check the STOMP documentation pages of
+the broker you're using to see what conventions it supports for the destination header.
+
+The "simple broker" on the other hand does rely on the configured `PathMatcher` so if
+you switch the separator that will also apply to the broker and the way matches
+destinations from a message to patterns in subscriptions.
 
 
 
@@ -1695,14 +1864,14 @@ Spring Security provides
 https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#websocket[WebSocket sub-protocol authorization]
 that uses a `ChannelInterceptor` to authorize messages based on the user header in them.
 Also Spring Session provides a
-http://docs.spring.io/spring-session/docs/current/reference/html5/#websocket[WebSocket integration]
+https://docs.spring.io/spring-session/docs/current/reference/html5/#websocket[WebSocket integration]
 that ensures the user HTTP session does not expire when the WebSocket session is still active.
 ====
 
 
 
 [[websocket-stomp-authentication-token-based]]
-=== Token-based Authentication
+=== Token Authentication
 
 https://github.com/spring-projects/spring-security-oauth[Spring Security OAuth]
 provides support for token based security including JSON Web Token (JWT).
@@ -1748,30 +1917,26 @@ user and associate it with subsequent STOMP messages on the same session:
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-  @Configuration
-  @EnableWebSocketMessageBroker
-  public class MyConfig extends AbstractWebSocketMessageBrokerConfigurer {
+	@Configuration
+	@EnableWebSocketMessageBroker
+	public class MyConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-      registration.setInterceptors(new ChannelInterceptorAdapter() {
-
-          @Override
-          public Message<?> preSend(Message<?> message, MessageChannel channel) {
-
-              StompHeaderAccessor accessor =
-                  MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
-              if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                  Principal user = ... ; // access authentication header(s)
-                  accessor.setUser(user);
-              }
-
-              return message;
-          }
-      });
-    }
-  }
+		@Override
+		public void configureClientInboundChannel(ChannelRegistration registration) {
+			registration.setInterceptors(new ChannelInterceptorAdapter() {
+				@Override
+				public Message<?> preSend(Message<?> message, MessageChannel channel) {
+					StompHeaderAccessor accessor =
+							MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+					if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+						Authentication user = ... ; // access authentication header(s)
+						accessor.setUser(user);
+					}
+					return message;
+				}
+			});
+		}
+	}
 ----
 
 Also note that when using Spring Security's authorization for messages, at present
@@ -1779,7 +1944,6 @@ you will need to ensure that the authentication `ChannelInterceptor` config is o
 ahead of Spring Security's. This is best done by declaring the custom interceptor in
 its own sub-class of `AbstractWebSocketMessageBrokerConfigurer` marked with
 `@Order(Ordered.HIGHEST_PRECEDENCE + 99)`.
-
 
 
 
@@ -1811,16 +1975,16 @@ the class-level to share a common destination):
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-@Controller
-public class PortfolioController {
+	@Controller
+	public class PortfolioController {
 
-    @MessageMapping("/trade")
-    @SendToUser("/queue/position-updates")
-    public TradeResult executeTrade(Trade trade, Principal principal) {
-        // ...
-        return tradeResult;
-    }
-}
+		@MessageMapping("/trade")
+		@SendToUser("/queue/position-updates")
+		public TradeResult executeTrade(Trade trade, Principal principal) {
+			// ...
+			return tradeResult;
+		}
+	}
 ----
 
 If the user has more than one session, by default all of the sessions subscribed
@@ -1831,23 +1995,22 @@ setting the `broadcast` attribute to false, for example:
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-@Controller
-public class MyController {
+	@Controller
+	public class MyController {
 
-    @MessageMapping("/action")
-    public void handleAction() throws Exception{
-        // raise MyBusinessException here
-    }
+		@MessageMapping("/action")
+		public void handleAction() throws Exception{
+			// raise MyBusinessException here
+		}
 
-    @MessageExceptionHandler
-    @SendToUser(destinations="/queue/errors", broadcast=false)
-    public ApplicationError handleException(MyBusinessException exception) {
-        // ...
-        return appError;
-    }
-}
+		@MessageExceptionHandler
+		@SendToUser(destinations="/queue/errors", broadcast=false)
+		public ApplicationError handleException(MyBusinessException exception) {
+			// ...
+			return appError;
+		}
+	}
 ----
-
 
 [NOTE]
 ====
@@ -1893,7 +2056,7 @@ over, all unique user queues are removed. For example, RabbitMQ creates auto-del
 queues when destinations like `/exchange/amq.direct/position-updates` are used.
 So in that case the client could subscribe to `/user/exchange/amq.direct/position-updates`.
 Similarly, ActiveMQ has
-http://activemq.apache.org/delete-inactive-destinations.html[configuration options]
+https://activemq.apache.org/delete-inactive-destinations.html[configuration options]
 for purging inactive destinations.
 ====
 
@@ -1906,9 +2069,8 @@ of the `message-broker` element in XML.
 
 
 
-
 [[websocket-stomp-appplication-context-events]]
-=== Listening To ApplicationContext Events and Intercepting Messages
+=== Events and Interception
 
 Several `ApplicationContext` events (listed below) are published and can be
 received by implementing Spring's `ApplicationListener` interface.
@@ -1948,22 +2110,23 @@ will typically notice the broker is not responding within 10 seconds. Clients ne
 implement their own reconnect logic.
 ====
 
-Furthermore, an application can directly intercept every incoming and outgoing message by
-registering a `ChannelInterceptor` on the respective message channel. For example
-to intercept inbound messages:
+The above events reflect points in the lifecycle of a STOMP connection. They're not meant
+to provide notification for every message sent from the client. Instead an application
+can register a `ChannelInterceptor` to intercept every incoming and outgoing STOMP message.
+For example to intercept inbound messages:
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-  @Configuration
-  @EnableWebSocketMessageBroker
-  public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+	@Configuration
+	@EnableWebSocketMessageBroker
+	public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-      registration.setInterceptors(new MyChannelInterceptor());
-    }
-  }
+		@Override
+		public void configureClientInboundChannel(ChannelRegistration registration) {
+			registration.setInterceptors(new MyChannelInterceptor());
+		}
+	}
 ----
 
 A custom `ChannelInterceptor` can extend the empty method base class
@@ -1973,17 +2136,24 @@ to access information about the message.
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-  public class MyChannelInterceptor extends ChannelInterceptorAdapter {
+	public class MyChannelInterceptor extends ChannelInterceptorAdapter {
 
-    @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
-      StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-      StompCommand command = accessor.getStompCommand();
-      // ...
-      return message;
-    }
-  }
+		@Override
+		public Message<?> preSend(Message<?> message, MessageChannel channel) {
+			StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+			StompCommand command = accessor.getStompCommand();
+			// ...
+			return message;
+		}
+	}
 ----
+
+Note that just like with the `SesionDisconnectEvent` above, a DISCONNECT message
+may have been sent from the client, or it may also be automatically generated when
+the WebSocket session is closed. In some cases an interceptor may intercept this
+message more than once per session. Components should be idempotent with regard to
+multiple disconnect events.
+
 
 
 [[websocket-stomp-client]]
@@ -1996,10 +2166,10 @@ To begin create and configure `WebSocketStompClient`:
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-WebSocketClient webSocketClient = new StandardWebSocketClient();
-WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
-stompClient.setMessageConverter(new StringMessageConverter());
-stompClient.setTaskScheduler(taskScheduler); // for heartbeats
+	WebSocketClient webSocketClient = new StandardWebSocketClient();
+	WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
+	stompClient.setMessageConverter(new StringMessageConverter());
+	stompClient.setTaskScheduler(taskScheduler); // for heartbeats
 ----
 
 In the above example `StandardWebSocketClient` could be replaced with `SockJsClient`
@@ -2012,9 +2182,9 @@ Next establish a connection and provide a handler for the STOMP session:
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-String url = "ws://127.0.0.1:8080/endpoint";
-StompSessionHandler sessionHandler = new MyStompSessionHandler();
-stompClient.connect(url, sessionHandler);
+	String url = "ws://127.0.0.1:8080/endpoint";
+	StompSessionHandler sessionHandler = new MyStompSessionHandler();
+	stompClient.connect(url, sessionHandler);
 ----
 
 When the session is ready for use the handler is notified:
@@ -2024,10 +2194,10 @@ When the session is ready for use the handler is notified:
 ----
 public class MyStompSessionHandler extends StompSessionHandlerAdapter {
 
-    @Override
-    public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-        // ...
-    }
+	@Override
+	public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+		// ...
+	}
 }
 ----
 
@@ -2050,15 +2220,15 @@ Object type the payload should be deserialized to:
 ----
 session.subscribe("/topic/foo", new StompFrameHandler() {
 
-    @Override
-    public Type getPayloadType(StompHeaders headers) {
-        return String.class;
-    }
+	@Override
+	public Type getPayloadType(StompHeaders headers) {
+		return String.class;
+	}
 
-    @Override
-    public void handleFrame(StompHeaders headers, Object payload) {
-        // ...
-    }
+	@Override
+	public void handleFrame(StompHeaders headers, Object payload) {
+		// ...
+	}
 
 });
 ----
@@ -2107,11 +2277,11 @@ inbound client messages and may be accessed from a controller method, for exampl
 @Controller
 public class MyController {
 
-    @MessageMapping("/action")
-    public void handle(SimpMessageHeaderAccessor headerAccessor) {
-        Map<String, Object> attrs = headerAccessor.getSessionAttributes();
-        // ...
-    }
+	@MessageMapping("/action")
+	public void handle(SimpMessageHeaderAccessor headerAccessor) {
+		Map<String, Object> attrs = headerAccessor.getSessionAttributes();
+		// ...
+	}
 }
 ----
 
@@ -2124,38 +2294,38 @@ scope proxy mode for WebSocket-scoped beans:
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
-@Component
-@Scope(scopeName = "websocket", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class MyBean {
+	@Component
+	@Scope(scopeName = "websocket", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	public class MyBean {
 
-    @PostConstruct
-    public void init() {
-        // Invoked after dependencies injected
-    }
+		@PostConstruct
+		public void init() {
+			// Invoked after dependencies injected
+		}
 
-    // ...
+		// ...
 
-    @PreDestroy
-    public void destroy() {
-        // Invoked when the WebSocket session ends
-    }
-}
+		@PreDestroy
+		public void destroy() {
+			// Invoked when the WebSocket session ends
+		}
+	}
 
-@Controller
-public class MyController {
+	@Controller
+	public class MyController {
 
-    private final MyBean myBean;
+		private final MyBean myBean;
 
-    @Autowired
-    public MyController(MyBean myBean) {
-        this.myBean = myBean;
-    }
+		@Autowired
+		public MyController(MyBean myBean) {
+			this.myBean = myBean;
+		}
 
-    @MessageMapping("/action")
-    public void handle() {
-        // this.myBean from the current WebSocket session
-    }
-}
+		@MessageMapping("/action")
+		public void handle() {
+			// this.myBean from the current WebSocket session
+		}
+	}
 ----
 
 As with any custom scope, Spring initializes a new `MyBean` instance the first
@@ -2167,7 +2337,7 @@ shown in the examples above.
 
 
 [[websocket-stomp-configuration-performance]]
-=== Configuration and Performance
+=== Performance
 
 There is no silver bullet when it comes to performance. Many factors may
 affect it including the size of messages, the volume, whether application
@@ -2256,9 +2426,9 @@ Here is example configuration:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<websocket:message-broker>
 			<websocket:transport send-timeout="15000" send-buffer-size="524288" />
@@ -2308,9 +2478,9 @@ Here is example configuration:
 		xmlns:websocket="http://www.springframework.org/schema/websocket"
 		xsi:schemaLocation="
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			https://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/websocket
-			http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+			https://www.springframework.org/schema/websocket/spring-websocket.xsd">
 
 		<websocket:message-broker>
 			<websocket:transport message-size="131072" />
@@ -2330,7 +2500,7 @@ through any other application instances.
 
 
 [[websocket-stomp-stats]]
-=== Runtime Monitoring
+=== Monitoring
 
 When using `@EnableWebSocketMessageBroker` or `<websocket:message-broker>` key
 infrastructure components automatically gather stats and counters that provide
@@ -2342,52 +2512,54 @@ every 30 minutes. This bean can be exported to JMX through Spring's
 Below is a summary of the available information.
 
 Client WebSocket Sessions::
-    Current::: indicates how many client sessions there are
-    currently with the count further broken down by WebSocket vs HTTP
-    streaming and polling SockJS sessions.
-    Total::: indicates how many total sessions have been established.
-    Abnormally Closed:::
-        Connect Failures:::: these are sessions that got established but were
-        closed after not having received any messages within 60 seconds. This is
-        usually an indication of proxy or network issues.
-        Send Limit Exceeded:::: sessions closed after exceeding the configured send
-        timeout or the send buffer limits which can occur with slow clients
-        (see previous section).
-        Transport Errors:::: sessions closed after a transport error such as
-        failure to read or write to a WebSocket connection or
-        HTTP request/response.
-    STOMP Frames::: the total number of CONNECT, CONNECTED, and DISCONNECT frames
-    processed indicating how many clients connected on the STOMP level. Note that
-    the DISCONNECT count may be lower when sessions get closed abnormally or when
-    clients close without sending a DISCONNECT frame.
+	Current::: indicates how many client sessions there are
+	currently with the count further broken down by WebSocket vs HTTP
+	streaming and polling SockJS sessions.
+	Total::: indicates how many total sessions have been established.
+	Abnormally Closed:::
+		Connect Failures:::: these are sessions that got established but were
+		closed after not having received any messages within 60 seconds. This is
+		usually an indication of proxy or network issues.
+		Send Limit Exceeded:::: sessions closed after exceeding the configured send
+		timeout or the send buffer limits which can occur with slow clients
+		(see previous section).
+		Transport Errors:::: sessions closed after a transport error such as
+		failure to read or write to a WebSocket connection or
+		HTTP request/response.
+	STOMP Frames::: the total number of CONNECT, CONNECTED, and DISCONNECT frames
+	processed indicating how many clients connected on the STOMP level. Note that
+	the DISCONNECT count may be lower when sessions get closed abnormally or when
+	clients close without sending a DISCONNECT frame.
 STOMP Broker Relay::
-    TCP Connections::: indicates how many TCP connections on behalf of client
-    WebSocket sessions are established to the broker. This should be equal to the
-    number of client WebSocket sessions + 1 additional shared "system" connection
-    for sending messages from within the application.
-    STOMP Frames::: the total number of CONNECT, CONNECTED, and DISCONNECT frames
-    forwarded to or received from the broker on behalf of clients. Note that a
-    DISCONNECT frame is sent to the broker regardless of how the client WebSocket
-    session was closed. Therefore a lower DISCONNECT frame count is an indication
-    that the broker is pro-actively closing connections, may be because of a
-    heartbeat that didn't arrive in time, an invalid input frame, or other.
+	TCP Connections::: indicates how many TCP connections on behalf of client
+	WebSocket sessions are established to the broker. This should be equal to the
+	number of client WebSocket sessions + 1 additional shared "system" connection
+	for sending messages from within the application.
+	STOMP Frames::: the total number of CONNECT, CONNECTED, and DISCONNECT frames
+	forwarded to or received from the broker on behalf of clients. Note that a
+	DISCONNECT frame is sent to the broker regardless of how the client WebSocket
+	session was closed. Therefore a lower DISCONNECT frame count is an indication
+	that the broker is pro-actively closing connections, may be because of a
+	heartbeat that didn't arrive in time, an invalid input frame, or other.
 Client Inbound Channel:: stats from thread pool backing the "clientInboundChannel"
-    providing insight into the health of incoming message processing. Tasks queueing
-    up here is an indication the application may be too slow to handle messages.
-    If there I/O bound tasks (e.g. slow database query, HTTP request to 3rd party
-    REST API, etc) consider increasing the thread pool size.
+	providing insight into the health of incoming message processing. Tasks queueing
+	up here is an indication the application may be too slow to handle messages.
+	If there I/O bound tasks (e.g. slow database query, HTTP request to 3rd party
+	REST API, etc) consider increasing the thread pool size.
 Client Outbound Channel:: stats from the thread pool backing the "clientOutboundChannel"
-    providing insight into the health of broadcasting messages to clients. Tasks
-    queueing up here is an indication clients are too slow to consume messages.
-    One way to address this is to increase the thread pool size to accommodate the
-    number of concurrent slow clients expected. Another option is to reduce the
-    send timeout and send buffer size limits (see the previous section).
+	providing insight into the health of broadcasting messages to clients. Tasks
+	queueing up here is an indication clients are too slow to consume messages.
+	One way to address this is to increase the thread pool size to accommodate the
+	number of concurrent slow clients expected. Another option is to reduce the
+	send timeout and send buffer size limits (see the previous section).
 SockJS Task Scheduler:: stats from thread pool of the SockJS task scheduler which
-    is used to send heartbeats. Note that when heartbeats are negotiated on the
-    STOMP level the SockJS heartbeats are disabled.
+	is used to send heartbeats. Note that when heartbeats are negotiated on the
+	STOMP level the SockJS heartbeats are disabled.
+
+
 
 [[websocket-stomp-testing]]
-=== Testing Annotated Controller Methods
+=== Testing
 
 There are two main approaches to testing applications using Spring's STOMP over
 WebSocket support. The first is to write server-side tests verifying the functionality

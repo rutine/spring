@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -88,36 +86,6 @@ public class PropertySourceTests {
 		assertThat(propertySources.indexOf(PropertySource.named("ps1")), is(0));
 		assertThat(propertySources.indexOf(PropertySource.named("ps2")), is(1));
 		propertySources.clear();
-	}
-
-	@Test @SuppressWarnings("serial")
-	public void toString_verbosityVariesOnLogLevel() {
-		String name = "props";
-		Map<String, Object> map = new HashMap<String, Object>() {{ put("k1", "v1"); }};
-		MapPropertySource ps = new MapPropertySource(name, map);
-		Logger logger = Logger.getLogger(ps.getClass());
-		Level original = logger.getLevel();
-
-		try {
-			logger.setLevel(Level.DEBUG);
-			assertThat("PropertySource.toString() should render verbose output for log levels <= DEBUG",
-					ps.toString(),
-					equalTo(String.format("%s@%s [name='%s', properties=%s]",
-							ps.getClass().getSimpleName(),
-							System.identityHashCode(ps),
-							name,
-							map)));
-
-			logger.setLevel(Level.INFO);
-			assertThat("PropertySource.toString() should render concise output for log levels >= INFO",
-					ps.toString(),
-					equalTo(String.format("%s [name='%s']",
-							ps.getClass().getSimpleName(),
-							name)));
-		}
-		finally {
-			logger.setLevel(original);
-		}
 	}
 
 }

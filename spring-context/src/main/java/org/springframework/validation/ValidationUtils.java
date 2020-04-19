@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -126,7 +126,7 @@ public abstract class ValidationUtils {
 	}
 
 	/**
-	 * Reject the given field with the given error codea nd error arguments
+	 * Reject the given field with the given error code and error arguments
 	 * if the value is empty.
 	 * <p>An 'empty' value in this context means either {@code null} or
 	 * the empty string "".

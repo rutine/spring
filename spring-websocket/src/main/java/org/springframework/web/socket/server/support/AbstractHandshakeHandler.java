@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -183,13 +183,9 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler, Life
 	 * Return the list of supported sub-protocols.
 	 */
 	public String[] getSupportedProtocols() {
-		return this.supportedProtocols.toArray(new String[this.supportedProtocols.size()]);
+		return StringUtils.toStringArray(this.supportedProtocols);
 	}
 
-	@Override
-	public boolean isRunning() {
-		return this.running;
-	}
 
 	@Override
 	public void start() {
@@ -217,6 +213,11 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler, Life
 		if (this.requestUpgradeStrategy instanceof Lifecycle) {
 			((Lifecycle) this.requestUpgradeStrategy).stop();
 		}
+	}
+
+	@Override
+	public boolean isRunning() {
+		return this.running;
 	}
 
 
@@ -404,8 +405,8 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler, Life
 	 * @param attributes handshake attributes to pass to the WebSocket session
 	 * @return the user for the WebSocket session, or {@code null} if not available
 	 */
-	protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler,
-			Map<String, Object> attributes) {
+	protected Principal determineUser(
+			ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
 		return request.getPrincipal();
 	}

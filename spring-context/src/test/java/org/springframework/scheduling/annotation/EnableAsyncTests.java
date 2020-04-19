@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.junit.Ignore;
@@ -43,6 +44,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
@@ -95,7 +97,6 @@ public class EnableAsyncTests {
 			fail("Should have thrown UnsatisfiedDependencyException");
 		}
 		catch (UnsatisfiedDependencyException ex) {
-			ex.printStackTrace();
 			assertTrue(ex.getCause() instanceof BeanNotOfRequiredTypeException);
 		}
 	}
@@ -110,7 +111,6 @@ public class EnableAsyncTests {
 			fail("Should have thrown UnsatisfiedDependencyException");
 		}
 		catch (UnsatisfiedDependencyException ex) {
-			ex.printStackTrace();
 			assertTrue(ex.getCause() instanceof BeanNotOfRequiredTypeException);
 		}
 	}
@@ -161,7 +161,7 @@ public class EnableAsyncTests {
 		Object bean = ctx.getBean(CustomAsyncBean.class);
 		assertTrue(AopUtils.isAopProxy(bean));
 		boolean isAsyncAdvised = false;
-		for (Advisor advisor : ((Advised)bean).getAdvisors()) {
+		for (Advisor advisor : ((Advised) bean).getAdvisors()) {
 			if (advisor instanceof AsyncAnnotationAdvisor) {
 				isAsyncAdvised = true;
 				break;
@@ -181,9 +181,23 @@ public class EnableAsyncTests {
 	}
 
 	@Test
-	public void customExecutorIsPropagated() throws InterruptedException {
+	public void customExecutorBean() throws InterruptedException {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(CustomExecutorAsyncConfig.class);
+		ctx.register(CustomExecutorBean.class);
+		ctx.refresh();
+
+		AsyncBean asyncBean = ctx.getBean(AsyncBean.class);
+		asyncBean.work();
+		Thread.sleep(500);
+		assertThat(asyncBean.getThreadOfExecution().getName(), startsWith("Custom-"));
+
+		ctx.close();
+	}
+
+	@Test
+	public void customExecutorConfig() throws InterruptedException {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+		ctx.register(CustomExecutorConfig.class);
 		ctx.refresh();
 
 		AsyncBean asyncBean = ctx.getBean(AsyncBean.class);
@@ -203,8 +217,8 @@ public class EnableAsyncTests {
 		ctx.close();
 	}
 
-	@Test
-	public void spr14949FindsOnInterfaceWithInterfaceProxy() throws InterruptedException {
+	@Test  // SPR-14949
+	public void findOnInterfaceWithInterfaceProxy() throws InterruptedException {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr14949ConfigA.class);
 
 		AsyncInterface asyncBean = ctx.getBean(AsyncInterface.class);
@@ -215,8 +229,8 @@ public class EnableAsyncTests {
 		ctx.close();
 	}
 
-	@Test @Ignore  // TODO
-	public void spr14949FindsOnInterfaceWithCglibProxy() throws InterruptedException {
+	@Test @Ignore  // SPR-14949
+	public void findOnInterfaceWithCglibProxy() throws InterruptedException {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr14949ConfigB.class);
 
 		AsyncInterface asyncBean = ctx.getBean(AsyncInterface.class);
@@ -351,7 +365,8 @@ public class EnableAsyncTests {
 	@EnableAsync
 	static class AsyncConfigWithMockito {
 
-		@Bean @Lazy
+		@Bean
+		@Lazy
 		public AsyncBean asyncBean() {
 			return Mockito.mock(AsyncBean.class);
 		}
@@ -382,7 +397,23 @@ public class EnableAsyncTests {
 
 	@Configuration
 	@EnableAsync
-	static class CustomExecutorAsyncConfig implements AsyncConfigurer {
+	static class CustomExecutorBean {
+
+		@Bean
+		public AsyncBean asyncBean() {
+			return new AsyncBean();
+		}
+
+		@Bean
+		public Executor taskExecutor() {
+			return Executors.newSingleThreadExecutor(new CustomizableThreadFactory("Custom-"));
+		}
+	}
+
+
+	@Configuration
+	@EnableAsync
+	static class CustomExecutorConfig implements AsyncConfigurer {
 
 		@Bean
 		public AsyncBean asyncBean() {

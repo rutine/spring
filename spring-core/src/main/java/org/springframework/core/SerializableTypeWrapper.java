@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,24 +30,23 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Internal utility class that can be used to obtain wrapped {@link Serializable} variants
- * of {@link java.lang.reflect.Type}s.
+ * Internal utility class that can be used to obtain wrapped {@link Serializable}
+ * variants of {@link java.lang.reflect.Type}s.
  *
  * <p>{@link #forField(Field) Fields} or {@link #forMethodParameter(MethodParameter)
- * MethodParameters} can be used as the root source for a serializable type. Alternatively
- * the {@link #forGenericSuperclass(Class) superclass},
+ * MethodParameters} can be used as the root source for a serializable type.
+ * Alternatively the {@link #forGenericSuperclass(Class) superclass},
  * {@link #forGenericInterfaces(Class) interfaces} or {@link #forTypeParameters(Class)
  * type parameters} or a regular {@link Class} can also be used as source.
  *
  * <p>The returned type will either be a {@link Class} or a serializable proxy of
  * {@link GenericArrayType}, {@link ParameterizedType}, {@link TypeVariable} or
- * {@link WildcardType}. With the exception of {@link Class} (which is final) calls to
- * methods that return further {@link Type}s (for example
+ * {@link WildcardType}. With the exception of {@link Class} (which is final) calls
+ * to methods that return further {@link Type}s (for example
  * {@link GenericArrayType#getGenericComponentType()}) will be automatically wrapped.
  *
  * @author Phillip Webb
@@ -59,15 +58,13 @@ abstract class SerializableTypeWrapper {
 	private static final Class<?>[] SUPPORTED_SERIALIZABLE_TYPES = {
 			GenericArrayType.class, ParameterizedType.class, TypeVariable.class, WildcardType.class};
 
-	private static final ConcurrentReferenceHashMap<Type, Type> cache =
-			new ConcurrentReferenceHashMap<Type, Type>(256);
+	static final ConcurrentReferenceHashMap<Type, Type> cache = new ConcurrentReferenceHashMap<Type, Type>(256);
 
 
 	/**
 	 * Return a {@link Serializable} variant of {@link Field#getGenericType()}.
 	 */
 	public static Type forField(Field field) {
-		Assert.notNull(field, "Field must not be null");
 		return forTypeProvider(new FieldTypeProvider(field));
 	}
 
@@ -84,7 +81,7 @@ abstract class SerializableTypeWrapper {
 	 */
 	@SuppressWarnings("serial")
 	public static Type forGenericSuperclass(final Class<?> type) {
-		return forTypeProvider(new DefaultTypeProvider() {
+		return forTypeProvider(new SimpleTypeProvider() {
 			@Override
 			public Type getType() {
 				return type.getGenericSuperclass();
@@ -100,7 +97,7 @@ abstract class SerializableTypeWrapper {
 		Type[] result = new Type[type.getGenericInterfaces().length];
 		for (int i = 0; i < result.length; i++) {
 			final int index = i;
-			result[i] = forTypeProvider(new DefaultTypeProvider() {
+			result[i] = forTypeProvider(new SimpleTypeProvider() {
 				@Override
 				public Type getType() {
 					return type.getGenericInterfaces()[index];
@@ -118,7 +115,7 @@ abstract class SerializableTypeWrapper {
 		Type[] result = new Type[type.getTypeParameters().length];
 		for (int i = 0; i < result.length; i++) {
 			final int index = i;
-			result[i] = forTypeProvider(new DefaultTypeProvider() {
+			result[i] = forTypeProvider(new SimpleTypeProvider() {
 				@Override
 				public Type getType() {
 					return type.getTypeParameters()[index];
@@ -145,26 +142,29 @@ abstract class SerializableTypeWrapper {
 	/**
 	 * Return a {@link Serializable} {@link Type} backed by a {@link TypeProvider} .
 	 */
-	static Type forTypeProvider(final TypeProvider provider) {
-		Assert.notNull(provider, "Provider must not be null");
-		if (provider.getType() instanceof Serializable || provider.getType() == null) {
-			return provider.getType();
+	static Type forTypeProvider(TypeProvider provider) {
+		Type providedType = provider.getType();
+		if (providedType == null || providedType instanceof Serializable) {
+			// No serializable type wrapping necessary (e.g. for java.lang.Class)
+			return providedType;
 		}
-		Type cached = cache.get(provider.getType());
+
+		// Obtain a serializable type proxy for the given provider...
+		Type cached = cache.get(providedType);
 		if (cached != null) {
 			return cached;
 		}
 		for (Class<?> type : SUPPORTED_SERIALIZABLE_TYPES) {
-			if (type.isAssignableFrom(provider.getType().getClass())) {
+			if (type.isInstance(providedType)) {
 				ClassLoader classLoader = provider.getClass().getClassLoader();
 				Class<?>[] interfaces = new Class<?>[] {type, SerializableTypeProxy.class, Serializable.class};
 				InvocationHandler handler = new TypeProxyInvocationHandler(provider);
 				cached = (Type) Proxy.newProxyInstance(classLoader, interfaces, handler);
-				cache.put(provider.getType(), cached);
+				cache.put(providedType, cached);
 				return cached;
 			}
 		}
-		throw new IllegalArgumentException("Unsupported Type class: " + provider.getType().getClass().getName());
+		throw new IllegalArgumentException("Unsupported Type class: " + providedType.getClass().getName());
 	}
 
 
@@ -198,10 +198,10 @@ abstract class SerializableTypeWrapper {
 
 
 	/**
-	 * Default implementation of {@link TypeProvider} with a {@code null} source.
+	 * Base implementation of {@link TypeProvider} with a {@code null} source.
 	 */
 	@SuppressWarnings("serial")
-	private static abstract class DefaultTypeProvider implements TypeProvider {
+	private static abstract class SimpleTypeProvider implements TypeProvider {
 
 		@Override
 		public Object getSource() {

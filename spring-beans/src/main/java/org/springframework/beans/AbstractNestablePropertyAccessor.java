@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,8 +67,9 @@ import org.springframework.util.StringUtils;
  * @marker rutine
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @author Rob Harrop
  * @author Stephane Nicoll
+ * @author Rod Johnson
+ * @author Rob Harrop
  * @since 4.2
  * @see #registerCustomEditor
  * @see #setPropertyValues
@@ -106,10 +107,10 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
     Object rootObject;
 
-    /**
-     * Map with cached nested Accessors: nested path -> Accessor instance.
-     */
-    private Map<String, AbstractNestablePropertyAccessor> nestedPropertyAccessors;
+	/**
+	  Map with cached nested Accessors: nested path -> Accessor instance
+	 */
+	private Map<String, AbstractNestablePropertyAccessor> nestedPropertyAccessors;
 
 
     /**
@@ -970,7 +971,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
      *     canonicalName: p[key1][key2],
      *     keys: [key1, key2]
      * }
-     * 
+     *
      * Parse the given property name into the corresponding property name tokens.
      * @param propertyName the property name to parse
      * @return representation of the parsed property tokens
@@ -1010,20 +1011,22 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         return tokens;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(getClass().getName());
-        if (this.wrappedObject != null) {
-            sb.append(": wrapping object [").append(ObjectUtils.identityToString(this.wrappedObject)).append("]");
-        }
-        else {
-            sb.append(": no wrapped object set");
-        }
-        return sb.toString();
-    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(getClass().getName());
+		if (this.wrappedObject != null) {
+			sb.append(": wrapping object [").append(ObjectUtils.identityToString(this.wrappedObject)).append("]");
+		}
+		else {
+			sb.append(": no wrapped object set");
+		}
+		return sb.toString();
+	}
 
 
-    protected abstract static class PropertyHandler {
+	/**
+	 * A handler for a specific property.
+	 */protected abstract static class PropertyHandler {
 
         private final Class<?> propertyType;
 
@@ -1073,7 +1076,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
 
 
-    protected static class PropertyTokenHolder {
+	/**
+	 * Holder class used to store property tokens.
+	 */protected static class PropertyTokenHolder {
 
         public String canonicalName;
 

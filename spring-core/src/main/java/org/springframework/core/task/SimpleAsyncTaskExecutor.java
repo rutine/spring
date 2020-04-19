@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,15 +47,18 @@ import org.springframework.util.concurrent.ListenableFutureTask;
  * @see org.springframework.scheduling.commonj.WorkManagerTaskExecutor
  */
 @SuppressWarnings("serial")
-public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implements AsyncListenableTaskExecutor, Serializable {
+public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
+		implements AsyncListenableTaskExecutor, Serializable {
 
 	/**
 	 * Permit any number of concurrent invocations: that is, don't throttle concurrency.
+	 * @see ConcurrencyThrottleSupport#UNBOUNDED_CONCURRENCY
 	 */
 	public static final int UNBOUNDED_CONCURRENCY = ConcurrencyThrottleSupport.UNBOUNDED_CONCURRENCY;
 
 	/**
 	 * Switch concurrency 'off': that is, don't allow any concurrent invocations.
+	 * @see ConcurrencyThrottleSupport#NO_CONCURRENCY
 	 */
 	public static final int NO_CONCURRENCY = ConcurrencyThrottleSupport.NO_CONCURRENCY;
 

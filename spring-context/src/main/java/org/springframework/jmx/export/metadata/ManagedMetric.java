@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2009 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.jmx.export.metadata;
 
 import org.springframework.jmx.support.MetricType;
+import org.springframework.util.Assert;
 
 /**
  * Metadata that indicates to expose a given bean property as a JMX attribute,
@@ -74,6 +75,7 @@ public class ManagedMetric extends AbstractJmxAttribute {
 	 * A description of how this metric's values change over time.
 	 */
 	public void setMetricType(MetricType metricType) {
+		Assert.notNull(metricType, "MetricType must not be null");
 		this.metricType = metricType;
 	}
 

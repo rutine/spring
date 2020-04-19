@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
@@ -47,7 +48,7 @@ import org.springframework.util.Assert;
  * By default, it supports {@code application/json} and {@code application/*+json} with
  * {@code UTF-8} character set.
  *
- * <p>Tested against Gson 2.6; compatible with Gson 2.0 and higher.
+ * <p>Tested against Gson 2.8; compatible with Gson 2.0 and higher.
  *
  * @author Roy Clarkson
  * @since 4.1
@@ -69,18 +70,18 @@ public class GsonHttpMessageConverter extends AbstractGenericHttpMessageConverte
 	 */
 	public GsonHttpMessageConverter() {
 		super(MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
-		this.setDefaultCharset(DEFAULT_CHARSET);
+		setDefaultCharset(DEFAULT_CHARSET);
 	}
 
 
 	/**
 	 * Set the {@code Gson} instance to use.
-	 * If not set, a default {@link Gson#Gson() Gson} instance is used.
+	 * If not set, a default {@link Gson#Gson() Gson} instance will be used.
 	 * <p>Setting a custom-configured {@code Gson} is one way to take further
 	 * control of the JSON serialization process.
 	 */
 	public void setGson(Gson gson) {
-		Assert.notNull(gson, "'gson' is required");
+		Assert.notNull(gson, "A Gson instance is required");
 		this.gson = gson;
 	}
 
@@ -114,34 +115,20 @@ public class GsonHttpMessageConverter extends AbstractGenericHttpMessageConverte
 
 
 	@Override
-	public boolean canRead(Class<?> clazz, MediaType mediaType) {
-		return canRead(mediaType);
-	}
-
-	@Override
-	public boolean canWrite(Class<?> clazz, MediaType mediaType) {
-		return canWrite(mediaType);
-	}
-
-	@Override
-	protected boolean supports(Class<?> clazz) {
-		// should not be called, since we override canRead/Write instead
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException {
-
-		TypeToken<?> token = getTypeToken(clazz);
-		return readTypeToken(token, inputMessage);
-	}
-
-	@Override
+	@SuppressWarnings("deprecation")
 	public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage)
 			throws IOException, HttpMessageNotReadableException {
 
 		TypeToken<?> token = getTypeToken(type);
+		return readTypeToken(token, inputMessage);
+	}
+
+	@Override
+	@SuppressWarnings("deprecation")
+	protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage)
+			throws IOException, HttpMessageNotReadableException {
+
+		TypeToken<?> token = getTypeToken(clazz);
 		return readTypeToken(token, inputMessage);
 	}
 
@@ -162,7 +149,9 @@ public class GsonHttpMessageConverter extends AbstractGenericHttpMessageConverte
 	 * </pre>
 	 * @param type the type for which to return the TypeToken
 	 * @return the type token
+	 * @deprecated as of Spring Framework 4.3.8, in favor of signature-based resolution
 	 */
+	@Deprecated
 	protected TypeToken<?> getTypeToken(Type type) {
 		return TypeToken.get(type);
 	}
@@ -173,7 +162,7 @@ public class GsonHttpMessageConverter extends AbstractGenericHttpMessageConverte
 			return this.gson.fromJson(json, token.getType());
 		}
 		catch (JsonParseException ex) {
-			throw new HttpMessageNotReadableException("Could not read JSON: " + ex.getMessage(), ex);
+			throw new HttpMessageNotReadableException("JSON parse error: " + ex.getMessage(), ex);
 		}
 	}
 
@@ -194,13 +183,20 @@ public class GsonHttpMessageConverter extends AbstractGenericHttpMessageConverte
 			if (this.jsonPrefix != null) {
 				writer.append(this.jsonPrefix);
 			}
-			if (type != null) {
+
+			// In Gson, toJson with a type argument will exclusively use that given type,
+			// ignoring the actual type of the object... which might be more specific,
+			// e.g. a subclass of the specified type which includes additional fields.
+			// As a consequence, we're only passing in parameterized type declarations
+			// which might contain extra generics that the object instance doesn't retain.
+			if (type instanceof ParameterizedType) {
 				this.gson.toJson(o, type, writer);
 			}
 			else {
 				this.gson.toJson(o, writer);
 			}
-			writer.close();
+
+			writer.flush();
 		}
 		catch (JsonIOException ex) {
 			throw new HttpMessageNotWritableException("Could not write JSON: " + ex.getMessage(), ex);

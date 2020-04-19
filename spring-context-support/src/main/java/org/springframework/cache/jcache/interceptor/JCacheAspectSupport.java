@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -77,6 +77,7 @@ public class JCacheAspectSupport extends AbstractCacheInvoker implements Initial
 		return this.cacheOperationSource;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.state(getCacheOperationSource() != null, "The 'cacheOperationSource' property is required: " +
 				"If there are no cacheable methods, then don't use a cache aspect.");
@@ -94,7 +95,7 @@ public class JCacheAspectSupport extends AbstractCacheInvoker implements Initial
 	protected Object execute(CacheOperationInvoker invoker, Object target, Method method, Object[] args) {
 		// Check whether aspect is enabled to cope with cases where the AJ is pulled in automatically
 		if (this.initialized) {
-			Class<?> targetClass = getTargetClass(target);
+			Class<?> targetClass = AopProxyUtils.ultimateTargetClass(target);
 			JCacheOperation<?> operation = getCacheOperationSource().getCacheOperation(method, targetClass);
 			if (operation != null) {
 				CacheOperationInvocationContext<?> context =
@@ -112,14 +113,6 @@ public class JCacheAspectSupport extends AbstractCacheInvoker implements Initial
 
 		return new DefaultCacheInvocationContext<Annotation>(
 				(JCacheOperation<Annotation>) operation, target, args);
-	}
-
-	private Class<?> getTargetClass(Object target) {
-		Class<?> targetClass = AopProxyUtils.ultimateTargetClass(target);
-		if (targetClass == null && target != null) {
-			targetClass = target.getClass();
-		}
-		return targetClass;
 	}
 
 	@SuppressWarnings("unchecked")

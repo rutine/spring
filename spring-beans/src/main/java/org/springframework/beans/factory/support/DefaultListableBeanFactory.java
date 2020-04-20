@@ -435,7 +435,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		for (String beanName : this.beanDefinitionNames) {
 			// Only consider bean as eligible if the bean name
 			// is not defined as alias for some other bean.
-			// 1. 不能是其他bean的别名if (!isAlias(beanName)) {
+			// 1. 不能是其他bean的别名
+            if (!isAlias(beanName)) {
 				try {
 					RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 					/**
@@ -1842,5 +1843,4 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			return sources.toArray();
 		}
 	}
-
 }

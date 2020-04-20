@@ -702,7 +702,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// Direct match for exposed instance?
 					return true;
 				}
-				//泛型参数匹配else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
+				//泛型参数匹配
+                else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
 					// Generics potentially only match on the target class, not on the proxy...
 					RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 					Class<?> targetType = mbd.getTargetType();
